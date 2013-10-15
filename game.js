@@ -83,7 +83,7 @@ function setup(){
   var  args = {x : 0, y : 0, h : CANVAS_HEIGHT, w : CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
   tree = QUAD.init(args);
   for (var i = 0; i<NUMBER_OF_UNITS; i++){
-    squares.push(Object.create(new square(clampX(Math.random()*CANVAS_WIDTH), clampY(Math.random()*CANVAS_HEIGHT))));
+    squares.push(Object.create(new square(clampX(Math.random()*CANVAS_WIDTH, UNIT_WIDTH), clampY(Math.random()*CANVAS_HEIGHT, UNIT_HEIGHT))));
   }
 }
 
@@ -142,12 +142,12 @@ function select(sX, sY, eX, eY) {
 }
 	  
 //utility functions      
-function clampX(val){
-  return Math.max(0 - UNIT_WIDTH, Math.min(CANVAS_WIDTH - UNIT_WIDTH, val))
+function clampX(x, width){
+  return Math.max(0 - width, Math.min(CANVAS_WIDTH - width, x))
 }
 
-function clampY(val){
-  return Math.max(0 - UNIT_WIDTH, Math.min(CANVAS_HEIGHT - UNIT_WIDTH, val))
+function clampY(y, height){
+  return Math.max(0 - height, Math.min(CANVAS_HEIGHT - height, y))
 }
 
 function getMousePos(canvas, evt) {

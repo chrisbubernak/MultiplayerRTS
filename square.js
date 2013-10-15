@@ -8,6 +8,7 @@ function square(x, y) {
   this.color = "black";
 }
 
+
 square.prototype.move = function() {
   var square = this;
   if (square.target) {
@@ -47,8 +48,8 @@ square.prototype.move = function() {
 		  }      
 	    }
 	  }
-	  square.x = clampX(bestMove.x);
-	  square.y = clampY(bestMove.y);
+	  square.x = clampX(bestMove.x, UNIT_WIDTH);
+	  square.y = clampY(bestMove.y, UNIT_HEIGHT);
     }
   } 
 }
