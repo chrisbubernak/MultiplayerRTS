@@ -1,4 +1,7 @@
 //class(ish) definitions...
+
+var SIGHT_RANGE = 20;
+
 function square(x, y) {
   this.x = x;
   this.y = y;
@@ -6,6 +9,7 @@ function square(x, y) {
   this.h = UNIT_HEIGHT;
   this.selected = false;
   this.color = "black";
+  this.sight = SIGHT_RANGE;
 }
 
 

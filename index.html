@@ -4,9 +4,17 @@
   <script src="jquery.js"></script>
   <script src="square.js"></script>
   <script src="game.js"></script>
+  <style>
+  canvas {
+    position: absolute;
+    top: 10;
+    left: 10;
+  }
+  </style>
   <body>
-    <canvas id="myCanvas" style="border:1px solid #000000;"> 
-    </canvas>
+    <canvas id="background"></canvas>
+  	<canvas id="fog"></canvas>
+    <canvas id="myCanvas"> </canvas>
     <script src="quadtree.js"></script>
   </body>
 </html>

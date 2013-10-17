@@ -1,26 +1,41 @@
 //global constants
-var CANVAS_HEIGHT = 500;
-var CANVAS_WIDTH = 500;
+var CANVAS_HEIGHT = 700;
+var CANVAS_WIDTH = 1000;
 var NUMBER_OF_UNITS = 25;
 var UNIT_WIDTH = 10;
 var UNIT_HEIGHT = 10;
-	  
+var FOG = "rgba( 0, 0, 0, .7)";
+
 //globals
 var squares = new Array();
-var checks = 0;
 var tree;
 var sX;
 var sY;
 var eX;
 var eY;    
-var ctx;
+var ctx; //canvas context (this contains units)
+var ftx; //fog contex
+var btx; //background contex (contains the background image)
 
 $(document).ready(function() {
+  var b = document.getElementById("background");
+  btx = b.getContext("2d");
+  b.height = CANVAS_HEIGHT;
+  b.width = CANVAS_WIDTH;
+  var imageObj = new Image();
+  imageObj.onload = function() {
+        btx.drawImage(imageObj, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  };
+  imageObj.src = 'grass.jpg';
   var c = document.getElementById("myCanvas");    
   ctx = c.getContext("2d");
+  var f = document.getElementById("fog");
+  ftx = f.getContext("2d");
+  f.height = CANVAS_HEIGHT;
+  f.width = CANVAS_WIDTH;
   c.height = CANVAS_HEIGHT;
   c.width = CANVAS_WIDTH;
-  
+
   //disable the right click so we can use it for other purposes
   document.oncontextmenu = function() {return false;};
   
@@ -66,7 +81,10 @@ $(document).ready(function() {
 //run the game
 function run(){
   setup();
-  var FPS = 30;
+  //this is the goal...
+  var FPS = 60;
+  var startTime;
+  var endTime;
   setInterval(function() {
 	tree.insert(squares);
     update();
@@ -107,6 +125,11 @@ function getSelection(){
 }
 
 function draw(){
+  ftx.globalCompositeOperation = 'source-over';
+  ftx.clearRect(0,0,CANVAS_WIDTH, CANVAS_HEIGHT);
+  ftx.fillStyle = FOG;
+  ftx.fillRect(0, 0,  CANVAS_WIDTH, CANVAS_HEIGHT);
+	
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   for (var i = 0; i < squares.length; i++) {
     ctx.fillStyle = squares[i].color;
@@ -116,14 +139,28 @@ function draw(){
     else {
 	  squares[i].color = "black";
 	}
-    ctx.fillRect(squares[i].x, squares[i].y, squares[i].w, squares[i].h);
+     
+	//this stuff does the "sight" circles in the fog
+	var r1 = 30;
+    var r2 = 50;
+	var density = .4;
+    var radGrd = ftx.createRadialGradient( squares[i].x, squares[i].y, r1, squares[i].x, squares[i].y, r2 );
+    radGrd.addColorStop(       0, 'rgba( 0, 0, 0,  1 )' );
+    radGrd.addColorStop( density, 'rgba( 0, 0, 0, .1 )' );
+    radGrd.addColorStop(       1, 'rgba( 0, 0, 0,  0 )' );
+    ftx.globalCompositeOperation = "destination-out";
+    ftx.fillStyle = radGrd;
+    ftx.fillRect( squares[i].x - r2, squares[i].y - r2, r2*2, r2*2 );
+	
+	//draw the square
+	ctx.fillRect(squares[i].x, squares[i].y, squares[i].w, squares[i].h);
   }     
 }
 
 function drawSelect() {
   if($(document).data('mousedown')) {
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = "black";
+    ctx.globalAlpha = 0.3;
+	ctx.fillStyle = "#39FF14";
     ctx.fillRect(sX, sY, eX - sX, eY - sY);
     ctx.globalAlpha = 1;
   }
