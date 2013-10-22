@@ -1,0 +1,11 @@
+{
+  "name": "MultiplayerRTS",
+  "description": "A simple multiplayer RTS game.",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "latest",
+    "socket.io": "latest",
+    "uuid": "latest"
+  }
+}

@@ -1,8 +1,16 @@
-//class(ish) definitions...
+//class(ish) definition...
 
 var SIGHT_RANGE = 20;
 
-function square(x, y) {
+var knightImg = new Image();
+var imageLoaded = false;
+knightImg.onload = function() {
+  imageLoaded = true;
+};
+knightImg.src = 'knight.png';
+
+
+function knight(x, y) {
   this.x = x;
   this.y = y;
   this.w = UNIT_WIDTH;
@@ -12,37 +20,56 @@ function square(x, y) {
   this.sight = SIGHT_RANGE;
 }
 
+ //draw the knight
+knight.prototype.draw =  function(context) {
+  if(imageLoaded) {
+    var sx = 150;
+    var sy = 0;
+    var swidth = 30;
+    var sheight = 30;
+    var width = 30;
+    var height = 30;
+    context.drawImage(knightImg, 32*2,0,32,32, this.x, this.y,32,32);
+  }
+  if (this.selected) {
+  	context.beginPath();
+  	context.strokeStyle = "#39FF14";
+    context.arc(this.x + this.w, this.y + this.h, Math.max(this.w, this.h)*1.25, 0,2*Math.PI);
+    context.stroke();
+  }
+}
 
-square.prototype.move = function() {
-  var square = this;
-  if (square.target) {
-    var tarSquare = {x:square.target.x, y:square.target.y, w:square.w, h:square.h};
-    if (collides(square, tarSquare)){
-	  square.target = null;
+knight.prototype.move = function() {
+  if (this.target) {
+    var tarSquare = {x:this.target.x, y:this.target.y, w:this.w, h:this.h};
+    if (collides(this, tarSquare)){
+	  this.target = null;
     } 
     else {
 	  //make a list of the 8 points you could move to 
 	  //check each for a collision, if it collides, remove it from canidate set
 	  //for the remaining calculate the distance to the goal and choose the smallest
 	  var moves = new Array();
-	  moves.push(Object.create({x: square.x + Math.sqrt(2), y: square.y, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x + 1, y: square.y + 1, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x + 1, y: square.y - 1, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x - Math.sqrt(2), y: square.y, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x - 1, y: square.y + 1, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x - 1, y: square.y - 1, w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x, y: square.y + Math.sqrt(2), w:square.w, h:square.h}));
-	  moves.push(Object.create({x: square.x, y: square.y - Math.sqrt(2), w:square.w, h:square.h}));
+	  moves.push(Object.create({x: this.x + Math.sqrt(2), y: this.y, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x + 1, y: this.y + 1, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x + 1, y: this.y - 1, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x - Math.sqrt(2), y: this.y, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x - 1, y: this.y + 1, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x - 1, y: this.y - 1, w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x, y: this.y + Math.sqrt(2), w:this.w, h:this.h}));
+	  moves.push(Object.create({x: this.x, y: this.y - Math.sqrt(2), w:this.w, h:this.h}));
 	  var bad = new Array(); //array of bad moves
 	  for (m in moves) {
+	  	//use the var cur to refer back to this inside the anon func
+	  	var cur = this;
 	    tree.retrieve(moves[m], function(item) {
-		  if(collides(moves[m], item) && item != square){
+		  if(collides(moves[m], item) && item != cur){
 		    bad.push(m);
 	  	  }
         });
 	  }
 	  var bestD;
-	  var bestMove = square;
+	  var bestMove = this;
 	  for (m in moves) {
 	    if (bad.indexOf(m) == -1) {
 		  d = Math.abs(tarSquare.x - moves[m].x)+Math.abs(tarSquare.y - moves[m].y);
@@ -52,8 +79,8 @@ square.prototype.move = function() {
 		  }      
 	    }
 	  }
-	  square.x = clampX(bestMove.x, UNIT_WIDTH);
-	  square.y = clampY(bestMove.y, UNIT_HEIGHT);
+	  this.x = clampX(bestMove.x, UNIT_WIDTH);
+	  this.y = clampY(bestMove.y, UNIT_HEIGHT);
     }
   } 
 }

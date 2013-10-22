@@ -2,17 +2,22 @@
 var CANVAS_HEIGHT = 700;
 var CANVAS_WIDTH = 1000;
 var NUMBER_OF_UNITS = 25;
-var UNIT_WIDTH = 10;
-var UNIT_HEIGHT = 10;
+var UNIT_WIDTH = 15;
+var UNIT_HEIGHT = 15;
 var FOG = "rgba( 0, 0, 0, .7)";
+var VERTICAL_LINES = 10;
+var HORIZONTAL_LINES = 10;
+var FPS = 60;
 
 //globals
-var squares = new Array();
-var tree;
-var sX;
+var units = new Array(); //array of units
+var tree; //the quad tree
+
+var sX; //variables for the selection object...gotta refactor
 var sY;
 var eX;
 var eY;    
+
 var ctx; //canvas context (this contains units)
 var ftx; //fog contex
 var btx; //background contex (contains the background image)
@@ -27,6 +32,9 @@ $(document).ready(function() {
         btx.drawImage(imageObj, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   };
   imageObj.src = 'grass.jpg';
+  
+
+  
   var c = document.getElementById("myCanvas");    
   ctx = c.getContext("2d");
   var f = document.getElementById("fog");
@@ -48,15 +56,15 @@ $(document).ready(function() {
       sY = coords.y;
       eX = coords.x;
       eY = coords.y;
-      for (var s in squares) {
-        squares[s].selected = false;
+      for (var u in units ) {
+        units[u].selected = false;
       }
     }
 	//if right click...
     else if (e.button == 2){
-      for (var s in squares) {
-        if (squares[s].selected){
-          squares[s].target = getMousePos(document.getElementById("myCanvas"), e);
+      for (var u in units) {
+        if (units[u].selected){
+          units[u].target = getMousePos(document.getElementById("myCanvas"), e);
         }
       }
     }
@@ -81,34 +89,48 @@ $(document).ready(function() {
 //run the game
 function run(){
   setup();
-  //this is the goal...
-  var FPS = 60;
-  var startTime;
-  var endTime;
+
+  //timing stuff
+  var oldTime = new Date().getTime();
+  var diffTime = 0;
+  var newTime = 0;
+
   setInterval(function() {
-	tree.insert(squares);
+	tree.insert(units);
     update();
     getSelection();
     tree.clear();
     draw();
     drawSelect();
-  }, 100/FPS);
+    diffTime = newTime - oldTime;
+    oldTime = newTime;
+    newTime = new Date().getTime();
+  }, 1000/FPS);
+
+  //calculate FPS for debugging purposes
+  var fpsOut = document.getElementById("fps");
+  setInterval(function() {
+      var oldTime = new Date().getTime();
+      fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
+      var newTime = new Date().getTime();
+  }, 1000);
 }
 
 
-function setup(){
+
+function setup(){ 
   // initialize the quadtree
   var  args = {x : 0, y : 0, h : CANVAS_HEIGHT, w : CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
   tree = QUAD.init(args);
   for (var i = 0; i<NUMBER_OF_UNITS; i++){
-    squares.push(Object.create(new square(clampX(Math.random()*CANVAS_WIDTH, UNIT_WIDTH), clampY(Math.random()*CANVAS_HEIGHT, UNIT_HEIGHT))));
+    units.push(Object.create(new knight(clampX(Math.random()*CANVAS_WIDTH, UNIT_WIDTH), clampY(Math.random()*CANVAS_HEIGHT, UNIT_HEIGHT))));
   }
 }
 
 
 function update(){
-  for (var i = 0; i < squares.length; i++) {
-    squares[i].move();
+  for (var i = 0; i < units.length; i++) {
+    units[i].move();
   }
 }
 
@@ -118,7 +140,7 @@ function getSelection(){
 	var selectBox = Object.create(new select(sX, sY, eX, eY));
 	var region = tree.retrieve(selectBox, function(item) {
       if(collides(selectBox, item) && item != selectBox) {
-	    item.selected = true;
+	      item.selected = true;
       }
     });
   }
@@ -131,36 +153,43 @@ function draw(){
   ftx.fillRect(0, 0,  CANVAS_WIDTH, CANVAS_HEIGHT);
 	
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  for (var i = 0; i < squares.length; i++) {
-    ctx.fillStyle = squares[i].color;
-    if (squares[i].selected){
-      squares[i].color = "purple";
-    }
-    else {
-	  squares[i].color = "black";
-	}
+  for (var i = 0; i < units.length; i++) {
      
-	//this stuff does the "sight" circles in the fog
-	var r1 = 30;
-    var r2 = 50;
-	var density = .4;
-    var radGrd = ftx.createRadialGradient( squares[i].x, squares[i].y, r1, squares[i].x, squares[i].y, r2 );
+  	//this stuff does the "sight" circles in the fog
+  	var r1 = 70;
+    var r2 = 90;
+  	var density = .4;
+    var radGrd = ftx.createRadialGradient( units[i].x + units[i].w, units[i].y + units[i].h, r1, units[i].x + units[i].w , units[i].y + units[i].h, r2 );
     radGrd.addColorStop(       0, 'rgba( 0, 0, 0,  1 )' );
     radGrd.addColorStop( density, 'rgba( 0, 0, 0, .1 )' );
     radGrd.addColorStop(       1, 'rgba( 0, 0, 0,  0 )' );
     ftx.globalCompositeOperation = "destination-out";
     ftx.fillStyle = radGrd;
-    ftx.fillRect( squares[i].x - r2, squares[i].y - r2, r2*2, r2*2 );
-	
-	//draw the square
-	ctx.fillRect(squares[i].x, squares[i].y, squares[i].w, squares[i].h);
-  }     
+  	ftx.fillRect( units[i].x - r2, units[i].y - r2, r2*2, r2*2 );
+    units[i].draw(ctx);
+  }   
+
+ 
+}
+
+function drawGrid() {
+  ctx.strokeStyle = "#39FF14";
+  for (var i = 0; i < VERTICAL_LINES; i++) {
+    ctx.moveTo(i*CANVAS_WIDTH/VERTICAL_LINES, 0);
+    ctx.lineTo(i*CANVAS_WIDTH/VERTICAL_LINES, CANVAS_HEIGHT);
+    ctx.stroke();
+  }
+  for (var i = 0; i < HORIZONTAL_LINES; i++) {
+    ctx.moveTo(0, i*CANVAS_WIDTH/HORIZONTAL_LINES);
+    ctx.lineTo(CANVAS_HEIGHT, i*CANVAS_WIDTH/HORIZONTAL_LINES);
+    ctx.stroke();
+  }
 }
 
 function drawSelect() {
   if($(document).data('mousedown')) {
     ctx.globalAlpha = 0.3;
-	ctx.fillStyle = "#39FF14";
+	  ctx.fillStyle = "#39FF14";
     ctx.fillRect(sX, sY, eX - sX, eY - sY);
     ctx.globalAlpha = 1;
   }
@@ -194,4 +223,10 @@ function getMousePos(canvas, evt) {
     y: evt.clientY - rect.top
   };
 }
+
+var socket = io.connect('http://localhost');
+  socket.on('ClientJoined', function (data) {
+    console.log("My user ID is: " + data.userId);
+    socket.emit('ClientConfirmation', {userId: data.userId });
+  });
 
