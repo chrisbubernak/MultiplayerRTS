@@ -1,70 +1,111 @@
-//global constants
-var CANVAS_HEIGHT = 700;
-var CANVAS_WIDTH = 1000;
-var NUMBER_OF_UNITS = 25;
-var UNIT_WIDTH = 15;
-var UNIT_HEIGHT = 15;
-var FOG = "rgba( 0, 0, 0, .7)";
-var VERTICAL_LINES = 10;
-var HORIZONTAL_LINES = 10;
-var FPS = 60;
+var Game = function(isClient) {
 
-//globals
-var units = new Array(); //array of units
-var tree; //the quad tree
+//"private" variables
+this.units = new Array(); //array of units
+this.tree; //the quad tree
 
-var sX; //variables for the selection object...gotta refactor
-var sY;
-var eX;
-var eY;    
+this.sX; //variables for the selection object...gotta refactor
+this.sY;
+this.eX;
+this.eY;    
 
-var ctx; //canvas context (this contains units)
-var ftx; //fog contex
-var btx; //background contex (contains the background image)
+this.ctx; //canvas context (this contains units)
+this.ftx; //fog contex
+this.btx; //background contex (contains the background image)
+}
 
-$(document).ready(function() {
+//static constants
+Game.CANVAS_HEIGHT = 700;
+Game.CANVAS_WIDTH = 1000;
+Game.NUMBER_OF_UNITS = 25;
+Game.FOG = "rgba( 0, 0, 0, .7)";
+Game.VERTICAL_LINES = 10;
+Game.HORIZONTAL_LINES = 10;
+Game.FPS = 60;
+
+//run the game
+Game.prototype.run = function(){
+  this.setup();
+
+  //timing stuff
+  var oldTime = new Date().getTime();
+  var diffTime = 0;
+  var newTime = 0;
+
+  //use g as a reference to this inside the anonymous function
+  var g = this;
+
+  setInterval(function() {
+  g.tree.insert(g.units);
+    g.update();
+    g.getSelection();
+    g.tree.clear();
+    g.draw();
+    g.drawSelect();
+    diffTime = newTime - oldTime;
+    oldTime = newTime;
+    newTime = new Date().getTime();
+  }, 1000/Game.FPS);
+
+  //calculate FPS for debugging purposes
+  var fpsOut = document.getElementById("fps");
+  setInterval(function() {
+      fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
+  }, 1000);
+}
+
+
+
+
+
+
+Game.prototype.setup = function(){ 
   var b = document.getElementById("background");
-  btx = b.getContext("2d");
-  b.height = CANVAS_HEIGHT;
-  b.width = CANVAS_WIDTH;
+  this.btx = b.getContext("2d");
+  b.height = Game.CANVAS_HEIGHT;
+  b.width = Game.CANVAS_WIDTH;
   var imageObj = new Image();
+
+  var btx = this.btx;
   imageObj.onload = function() {
-        btx.drawImage(imageObj, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        btx.drawImage(imageObj, 0, 0, 
+          Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
   };
   imageObj.src = 'grass.jpg';
   
 
   
   var c = document.getElementById("myCanvas");    
-  ctx = c.getContext("2d");
+  this.ctx = c.getContext("2d");
   var f = document.getElementById("fog");
-  ftx = f.getContext("2d");
-  f.height = CANVAS_HEIGHT;
-  f.width = CANVAS_WIDTH;
-  c.height = CANVAS_HEIGHT;
-  c.width = CANVAS_WIDTH;
+  this.ftx = f.getContext("2d");
+  f.height = Game.CANVAS_HEIGHT;
+  f.width = Game.CANVAS_WIDTH;
+  c.height = Game.CANVAS_HEIGHT;
+  c.width = Game.CANVAS_WIDTH;
 
   //disable the right click so we can use it for other purposes
   document.oncontextmenu = function() {return false;};
   
+  var that = this;
   $(document).mousedown(function(e) {
     //on left click...
     if (e.button == 0) {
       $(this).data('mousedown', true);
-      var coords = getMousePos(document.getElementById("myCanvas"), e);
-      sX = coords.x;
-      sY = coords.y;
-      eX = coords.x;
-      eY = coords.y;
-      for (var u in units ) {
-        units[u].selected = false;
+      var coords = that.getMousePos(document.getElementById("myCanvas"), e);
+      that.sX = coords.x;
+      that.sY = coords.y;
+      that.eX = coords.x;
+      that.eY = coords.y;
+      for (var u in that.units ) {
+        that.units[u].selected = false;
       }
     }
-	//if right click...
+  //if right click...
     else if (e.button == 2){
-      for (var u in units) {
-        if (units[u].selected){
-          units[u].target = getMousePos(document.getElementById("myCanvas"), e);
+      for (var u in that.units) {
+        if (that.units[u].selected){
+          that.units[u].target = that.getMousePos(document.getElementById("myCanvas"), e);
         }
       }
     }
@@ -76,130 +117,102 @@ $(document).ready(function() {
 
   $(document).mousemove(function(e) {
     if($(this).data('mousedown')) {
-      var coords = getMousePos(document.getElementById("myCanvas"), e);
-	  eX = coords.x;
-	  eY = coords.y;
+      var coords = that.getMousePos(document.getElementById("myCanvas"), e);
+      that.eX = coords.x;
+      that.eY = coords.y;
     }
   });
-        
-  run();
-});
 
 
-//run the game
-function run(){
-  setup();
-
-  //timing stuff
-  var oldTime = new Date().getTime();
-  var diffTime = 0;
-  var newTime = 0;
-
-  setInterval(function() {
-	tree.insert(units);
-    update();
-    getSelection();
-    tree.clear();
-    draw();
-    drawSelect();
-    diffTime = newTime - oldTime;
-    oldTime = newTime;
-    newTime = new Date().getTime();
-  }, 1000/FPS);
-
-  //calculate FPS for debugging purposes
-  var fpsOut = document.getElementById("fps");
-  setInterval(function() {
-      var oldTime = new Date().getTime();
-      fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
-      var newTime = new Date().getTime();
-  }, 1000);
-}
-
-
-
-function setup(){ 
   // initialize the quadtree
-  var  args = {x : 0, y : 0, h : CANVAS_HEIGHT, w : CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
-  tree = QUAD.init(args);
-  for (var i = 0; i<NUMBER_OF_UNITS; i++){
-    units.push(Object.create(new knight(clampX(Math.random()*CANVAS_WIDTH, UNIT_WIDTH), clampY(Math.random()*CANVAS_HEIGHT, UNIT_HEIGHT))));
+  var  args = {x : 0, y : 0, h : Game.CANVAS_HEIGHT, w : Game.CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
+  this.tree = QUAD.init(args);
+  for (var i = 0; i<Game.NUMBER_OF_UNITS; i++){
+    this.units.push(
+      Object.create(new Knight(
+          this.clampX(
+            Math.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
+          this.clampY(
+            Math.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT))));
   }
 }
 
 
-function update(){
-  for (var i = 0; i < units.length; i++) {
-    units[i].move();
+Game.prototype.update = function(){
+  for (var i = 0; i < this.units.length; i++) {
+    this.units[i].move();
   }
 }
 
-function getSelection(){
+Game.prototype.getSelection = function(){
+  var that = this;
   if($(document).data('mousedown')) {
     //create the selection
-	var selectBox = Object.create(new select(sX, sY, eX, eY));
-	var region = tree.retrieve(selectBox, function(item) {
-      if(collides(selectBox, item) && item != selectBox) {
+	var selectBox = Object.create(new that.select(that.sX, that.sY, that.eX, that.eY));
+	var region = that.tree.retrieve(selectBox, function(item) {
+      if(Game.collides(selectBox, item) && item != selectBox) {
 	      item.selected = true;
       }
     });
   }
 }
 
-function draw(){
-  ftx.globalCompositeOperation = 'source-over';
-  ftx.clearRect(0,0,CANVAS_WIDTH, CANVAS_HEIGHT);
-  ftx.fillStyle = FOG;
-  ftx.fillRect(0, 0,  CANVAS_WIDTH, CANVAS_HEIGHT);
+Game.prototype.draw = function(){
+  this.ftx.globalCompositeOperation = 'source-over';
+  this.ftx.clearRect(0,0,Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+  this.ftx.fillStyle = Game.FOG;
+  this.ftx.fillRect(0, 0,  Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
 	
-  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  for (var i = 0; i < units.length; i++) {
+  this.ctx.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+  for (var i = 0; i < this.units.length; i++) {
      
   	//this stuff does the "sight" circles in the fog
-  	var r1 = 70;
+  	var r1 = this.units[i].sight;
     var r2 = 90;
   	var density = .4;
-    var radGrd = ftx.createRadialGradient( units[i].x + units[i].w, units[i].y + units[i].h, r1, units[i].x + units[i].w , units[i].y + units[i].h, r2 );
+
+    var radGrd = this.ftx.createRadialGradient( 
+      this.units[i].x + this.units[i].w/2, 
+      this.units[i].y + this.units[i].h/2, r1, 
+      this.units[i].x + this.units[i].w/2 , 
+      this.units[i].y + this.units[i].h/2, r2 );
     radGrd.addColorStop(       0, 'rgba( 0, 0, 0,  1 )' );
     radGrd.addColorStop( density, 'rgba( 0, 0, 0, .1 )' );
     radGrd.addColorStop(       1, 'rgba( 0, 0, 0,  0 )' );
-    ftx.globalCompositeOperation = "destination-out";
-    ftx.fillStyle = radGrd;
-  	ftx.fillRect( units[i].x - r2, units[i].y - r2, r2*2, r2*2 );
-    units[i].draw(ctx);
+    this.ftx.globalCompositeOperation = "destination-out";
+    this.ftx.fillStyle = radGrd;
+  	this.ftx.fillRect( this.units[i].x - r2, this.units[i].y - r2, r2*2, r2*2 );
+    this.units[i].draw(this.ctx);
   }   
 
  
 }
 
-function drawGrid() {
+Game.prototype.drawGrid = function() {
   ctx.strokeStyle = "#39FF14";
-  for (var i = 0; i < VERTICAL_LINES; i++) {
-    ctx.moveTo(i*CANVAS_WIDTH/VERTICAL_LINES, 0);
-    ctx.lineTo(i*CANVAS_WIDTH/VERTICAL_LINES, CANVAS_HEIGHT);
+  for (var i = 0; i < Game.VERTICAL_LINES; i++) {
+    ctx.moveTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, 0);
+    ctx.lineTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, Game.CANVAS_HEIGHT);
     ctx.stroke();
   }
-  for (var i = 0; i < HORIZONTAL_LINES; i++) {
-    ctx.moveTo(0, i*CANVAS_WIDTH/HORIZONTAL_LINES);
-    ctx.lineTo(CANVAS_HEIGHT, i*CANVAS_WIDTH/HORIZONTAL_LINES);
+  for (var i = 0; i < Game.HORIZONTAL_LINES; i++) {
+    ctx.moveTo(0, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
+    ctx.lineTo(Game.CANVAS_HEIGHT, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
     ctx.stroke();
   }
 }
 
-function drawSelect() {
+Game.prototype.drawSelect = function() {
+  var that = this;
   if($(document).data('mousedown')) {
-    ctx.globalAlpha = 0.3;
-	  ctx.fillStyle = "#39FF14";
-    ctx.fillRect(sX, sY, eX - sX, eY - sY);
-    ctx.globalAlpha = 1;
+    that.ctx.globalAlpha = 0.3;
+	  that.ctx.fillStyle = "#39FF14";
+    that.ctx.fillRect(that.sX, that.sY, that.eX - that.sX, that.eY - that.sY);
+    that.ctx.globalAlpha = 1;
   }
 }
 
-function collides(i, j) {
-  return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
-} 
-
-function select(sX, sY, eX, eY) {
+Game.prototype.select = function(sX, sY, eX, eY) {
   this.x = Math.min(sX, eX);
   this.y = Math.min(sY, eY);
   this.w = Math.abs(sX - eX);
@@ -208,15 +221,15 @@ function select(sX, sY, eX, eY) {
 }
 	  
 //utility functions      
-function clampX(x, width){
-  return Math.max(0 - width, Math.min(CANVAS_WIDTH - width, x))
+Game.prototype.clampX = function(x, width){
+  return Math.max(0 - width, Math.min(Game.CANVAS_WIDTH - width, x))
 }
 
-function clampY(y, height){
-  return Math.max(0 - height, Math.min(CANVAS_HEIGHT - height, y))
+Game.prototype.clampY = function(y, height){
+  return Math.max(0 - height, Math.min(Game.CANVAS_HEIGHT - height, y))
 }
 
-function getMousePos(canvas, evt) {
+Game.prototype.getMousePos = function (canvas, evt) {
   var rect = canvas.getBoundingClientRect();
   return {
     x: evt.clientX - rect.left,
@@ -224,9 +237,6 @@ function getMousePos(canvas, evt) {
   };
 }
 
-var socket = io.connect('http://localhost');
-  socket.on('ClientJoined', function (data) {
-    console.log("My user ID is: " + data.userId);
-    socket.emit('ClientConfirmation', {userId: data.userId });
-  });
-
+Game.collides = function(i, j) {
+  return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
+} 
