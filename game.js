@@ -140,7 +140,7 @@ Game.prototype.setup = function(){
 
 Game.prototype.update = function(){
   for (var i = 0; i < this.units.length; i++) {
-    this.units[i].move();
+    this.move(this.units[i]);
   }
 }
 
@@ -150,7 +150,7 @@ Game.prototype.getSelection = function(){
     //create the selection
 	var selectBox = Object.create(new that.select(that.sX, that.sY, that.eX, that.eY));
 	var region = that.tree.retrieve(selectBox, function(item) {
-      if(Game.collides(selectBox, item) && item != selectBox) {
+      if(that.collides(selectBox, item) && item != selectBox) {
 	      item.selected = true;
       }
     });
@@ -182,7 +182,7 @@ Game.prototype.draw = function(){
     this.ftx.globalCompositeOperation = "destination-out";
     this.ftx.fillStyle = radGrd;
   	this.ftx.fillRect( this.units[i].x - r2, this.units[i].y - r2, r2*2, r2*2 );
-    this.units[i].draw(this.ctx);
+    this.drawUnit(this.units[i]);
   }   
 
  
@@ -237,6 +237,67 @@ Game.prototype.getMousePos = function (canvas, evt) {
   };
 }
 
-Game.collides = function(i, j) {
+Game.prototype.collides = function(i, j) {
   return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
 } 
+
+ //draw a unit
+Game.prototype.drawUnit =  function(unit) {
+  if(unit.imageReady()) {
+    this.ctx.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, unit.x, unit.y,unit.w,unit.h);
+  }
+  if (unit.selected) {
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = "#39FF14";
+    this.ctx.arc(unit.x + unit.w/2, unit.y + unit.h/2, Math.max(unit.w, unit.h)*.75, 0,2*Math.PI);
+    this.ctx.stroke();
+  }
+}
+
+//move a unit
+Game.prototype.move = function(unit) {
+  if (unit.target) {
+    var tarSquare = {x:unit.target.x, y:unit.target.y, w:unit.w, h:unit.h};
+    if (this.collides(unit, tarSquare)){
+      unit.target = null;
+    } 
+    else {
+    //make a list of the 8 points you could move to 
+    //check each for a collision, if it collides, remove it from canidate set
+    //for the remaining calculate the distance to the goal and choose the smallest
+    var moves = new Array();
+    moves.push(Object.create({x: unit.x + Math.sqrt(2), y: unit.y, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + 1, y: unit.y + 1, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + 1, y: unit.y - 1, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - Math.sqrt(2), y: unit.y, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - 1, y: unit.y + 1, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - 1, y: unit.y - 1, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x, y: unit.y + Math.sqrt(2), w:this.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x, y: unit.y - Math.sqrt(2), w:unit.w, h:unit.h}));
+    var bad = new Array(); //array of bad moves
+    for (m in moves) {
+      //use the var cur to refer back to this inside the anon func
+      var cur = unit;
+      var that = this;
+      myGame.tree.retrieve(moves[m], function(item) {
+      if(that.collides(moves[m], item) && item != cur){
+        bad.push(m);
+        }
+        });
+    }
+    var bestD;
+    var bestMove = unit;
+    for (m in moves) {
+      if (bad.indexOf(m) == -1) {
+      d = Math.abs(tarSquare.x - moves[m].x)+Math.abs(tarSquare.y - moves[m].y);
+      if (bestD == null || d < bestD) {
+        bestD = d;
+        bestMove = moves[m];
+      }      
+      }
+    }
+    unit.x = this.clampX(bestMove.x, unit.w);
+    unit.y = this.clampY(bestMove.y, unit.h);
+    }
+  } 
+}
