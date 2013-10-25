@@ -1,4 +1,4 @@
-var Game = function(isClient) {
+var Game = function() {
 
 //"private" variables
 this.units = new Array(); //array of units
@@ -12,7 +12,11 @@ this.eY;
 this.ctx; //canvas context (this contains units)
 this.ftx; //fog contex
 this.btx; //background contex (contains the background image)
+
+
 }
+
+
 
 //static constants
 Game.CANVAS_HEIGHT = 700;
@@ -22,6 +26,13 @@ Game.FOG = "rgba( 0, 0, 0, .7)";
 Game.VERTICAL_LINES = 10;
 Game.HORIZONTAL_LINES = 10;
 Game.FPS = 60;
+Game.SEED = 1;
+
+Game.random = function() {
+    var x = Math.sin(Game.SEED++) * 10000;
+    return x - Math.floor(x);
+}
+
 
 //run the game
 Game.prototype.run = function(){
@@ -131,9 +142,9 @@ Game.prototype.setup = function(){
     this.units.push(
       Object.create(new Knight(
           this.clampX(
-            Math.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
+            Game.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
           this.clampY(
-            Math.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT))));
+            Game.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT))));
   }
 }
 
