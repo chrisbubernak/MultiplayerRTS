@@ -1,6 +1,7 @@
 //class(ish) definition...
 
-function Knight(x, y) {
+function Knight(id, x, y) {
+  this.id = id;
   this.x = x;
   this.y = y;
   this.w = 32;

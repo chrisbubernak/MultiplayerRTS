@@ -1,4 +1,15 @@
-var Game = function() {
+var Game = function(socket) {
+ this.socket = socket;
+ var that = this;
+ this.socket.on('SendActionsToClient', function (data) {
+  for (var a in data.actions){
+    //var unit = $.grep(that.units, function(e){console.log(e.id + " " + data.actions[a].unit); return e.id == data.actions[a].unit; });   
+    //unit.target = data.actions[a].target;
+    //that.units[0].target = data.actions[a].target;
+    that.units[that.findUnit(data.actions[a].unit)].target = data.actions[a].target;
+  }
+  that.simTick++;
+});
 
 //"private" variables
 this.units = new Array(); //array of units
@@ -13,9 +24,10 @@ this.ctx; //canvas context (this contains units)
 this.ftx; //fog contex
 this.btx; //background contex (contains the background image)
 
-
+this.actions = new Array();
+this.simTick = 0;
+this.unitId = 0;
 }
-
 
 
 //static constants
@@ -33,6 +45,10 @@ Game.random = function() {
     return x - Math.floor(x);
 }
 
+Game.prototype.createUnitId = function() {
+  this.unitId++;
+  return this.unitId;
+}
 
 //run the game
 Game.prototype.run = function(){
@@ -43,28 +59,31 @@ Game.prototype.run = function(){
   var diffTime = 0;
   var newTime = 0;
 
-  //use g as a reference to this inside the anonymous function
-  var g = this;
-
+  //loop that runs at 60 fps...aka drawing & selection stuff
+  var that = this;
   setInterval(function() {
-  g.tree.insert(g.units);
-    g.update();
-    g.getSelection();
-    g.tree.clear();
-    g.draw();
-    g.drawSelect();
+    that.draw();
+    that.drawSelect();
     diffTime = newTime - oldTime;
     oldTime = newTime;
     newTime = new Date().getTime();
   }, 1000/Game.FPS);
 
-  //calculate FPS for debugging purposes
+  //loop that runs much less (ideally 10fps)
+  //at the moment this runs at 60 but that won't scale
+  //need to move the updating to the other loop and do 
+  //some sort of interpolation
   var fpsOut = document.getElementById("fps");
   setInterval(function() {
-      fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
-  }, 1000);
+    that.tree.insert(that.units);
+    that.update();
+    that.getSelection();
+    that.tree.clear();
+    that.socket.emit('SendActionsToServer', {actions: that.actions, simTick: that.simTick});
+    that.actions = new Array();
+    fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
+  }, 1000/(Game.FPS));
 }
-
 
 
 
@@ -116,7 +135,8 @@ Game.prototype.setup = function(){
     else if (e.button == 2){
       for (var u in that.units) {
         if (that.units[u].selected){
-          that.units[u].target = that.getMousePos(document.getElementById("myCanvas"), e);
+          var tar = that.getMousePos(document.getElementById("myCanvas"), e);
+          that.actions.push({unit: that.units[u].id, target: tar});
         }
       }
     }
@@ -141,6 +161,7 @@ Game.prototype.setup = function(){
   for (var i = 0; i<Game.NUMBER_OF_UNITS; i++){
     this.units.push(
       Object.create(new Knight(
+          this.createUnitId(),
           this.clampX(
             Game.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
           this.clampY(
@@ -181,7 +202,6 @@ Game.prototype.draw = function(){
   	var r1 = this.units[i].sight;
     var r2 = 90;
   	var density = .4;
-
     var radGrd = this.ftx.createRadialGradient( 
       this.units[i].x + this.units[i].w/2, 
       this.units[i].y + this.units[i].h/2, r1, 
@@ -311,4 +331,14 @@ Game.prototype.move = function(unit) {
     unit.y = this.clampY(bestMove.y, unit.h);
     }
   } 
+}
+
+//return the index of the unit with a given id
+Game.prototype.findUnit = function(id){
+  for (var i = 0; i < this.units.length; i++){
+    if (this.units[i].id == id) {
+      return i;
+    }
+  }
+  return -1;
 }
