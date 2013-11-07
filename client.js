@@ -1,18 +1,18 @@
 var myGame;
 
 window.onload = function() {
-
+var id;
 
   var socket = io.connect('http://localhost');
   socket.on('ClientJoined', function (data) {
     console.log("My user ID is: " + data.userId);
-    socket.emit('ClientConfirmation', {userId: data.userId });
+    id = data.userId;
   });
    
 
 
   socket.on('startGame', function(data) {
-  	  myGame = new Game(socket);
+  	  myGame = new Game(socket, id, data.clients);
       myGame.run();
   });
 }

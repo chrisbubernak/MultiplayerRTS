@@ -1,4 +1,6 @@
-var Game = function(socket) {
+var Game = function(socket, id, clients) {
+ this.clients = clients; //an array of all players ids in the game
+ this.id = id; //this players id
  this.socket = socket;
  var that = this;
  this.socket.on('SendActionsToClient', function (data) {
@@ -27,18 +29,24 @@ this.btx; //background contex (contains the background image)
 this.actions = new Array();
 this.simTick = 0;
 this.unitId = 0;
+
+//used as a primitive way to do interpolation of unit positioning
+//so that we can "move" them during the drawing phase without actually
+//changing their position
+this.interpolationCounter = 0;
 }
 
 
 //static constants
-Game.CANVAS_HEIGHT = 700;
-Game.CANVAS_WIDTH = 1000;
-Game.NUMBER_OF_UNITS = 25;
+Game.CANVAS_HEIGHT = 500;
+Game.CANVAS_WIDTH = 700;
+Game.NUMBER_OF_UNITS = 2;
 Game.FOG = "rgba( 0, 0, 0, .7)";
 Game.VERTICAL_LINES = 10;
 Game.HORIZONTAL_LINES = 10;
 Game.FPS = 60;
-Game.SEED = 1;
+Game.SEED = 3;
+Game.MOVE_SPEED = 10;
 
 Game.random = function() {
     var x = Math.sin(Game.SEED++) * 10000;
@@ -67,6 +75,7 @@ Game.prototype.run = function(){
     diffTime = newTime - oldTime;
     oldTime = newTime;
     newTime = new Date().getTime();
+    that.interpolationCounter++;
   }, 1000/Game.FPS);
 
   //loop that runs much less (ideally 10fps)
@@ -82,7 +91,21 @@ Game.prototype.run = function(){
     that.socket.emit('SendActionsToServer', {actions: that.actions, simTick: that.simTick});
     that.actions = new Array();
     fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
-  }, 1000/(Game.FPS));
+    that.interpolationCounter = 0;
+    if (that.simTick%100 == 0){
+      console.log("Sim: " + that.simTick)
+      for (var i = 0; i < that.units.length; i++){
+        console.log("x= " + that.units[i].x + " y= " + that.units[i].y);
+      }
+    }
+  }, 1000/(Game.FPS/6));
+
+    //every 10 seconds check the world for desync errors
+    // (at the moment this means just comparing unit arrays)
+    setInterval(function() {
+      that.socket.emit('SendGameStateToServer', {units: that.units, simTick: that.simTick});
+  }, 10000);
+
 }
 
 
@@ -158,6 +181,7 @@ Game.prototype.setup = function(){
   // initialize the quadtree
   var  args = {x : 0, y : 0, h : Game.CANVAS_HEIGHT, w : Game.CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
   this.tree = QUAD.init(args);
+  console.log(this.clients);
   for (var i = 0; i<Game.NUMBER_OF_UNITS; i++){
     this.units.push(
       Object.create(new Knight(
@@ -165,7 +189,16 @@ Game.prototype.setup = function(){
           this.clampX(
             Game.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
           this.clampY(
-            Game.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT))));
+            Game.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT), 
+          this.clients[0])));
+    this.units.push(
+      Object.create(new Knight(
+          this.createUnitId(),
+          this.clampX(
+            Game.random()*Game.CANVAS_WIDTH, Knight.WIDTH), 
+          this.clampY(
+            Game.random()*Game.CANVAS_HEIGHT, Knight.HEIGHT), 
+          this.clients[1])));
   }
 }
 
@@ -182,7 +215,7 @@ Game.prototype.getSelection = function(){
     //create the selection
 	var selectBox = Object.create(new that.select(that.sX, that.sY, that.eX, that.eY));
 	var region = that.tree.retrieve(selectBox, function(item) {
-      if(that.collides(selectBox, item) && item != selectBox) {
+      if((item.player == that.id) && that.collides(selectBox, item) && item != selectBox) {
 	      item.selected = true;
       }
     });
@@ -197,23 +230,25 @@ Game.prototype.draw = function(){
 	
   this.ctx.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
   for (var i = 0; i < this.units.length; i++) {
-     
-  	//this stuff does the "sight" circles in the fog
-  	var r1 = this.units[i].sight;
-    var r2 = 90;
-  	var density = .4;
-    var radGrd = this.ftx.createRadialGradient( 
-      this.units[i].x + this.units[i].w/2, 
-      this.units[i].y + this.units[i].h/2, r1, 
-      this.units[i].x + this.units[i].w/2 , 
-      this.units[i].y + this.units[i].h/2, r2 );
-    radGrd.addColorStop(       0, 'rgba( 0, 0, 0,  1 )' );
-    radGrd.addColorStop( density, 'rgba( 0, 0, 0, .1 )' );
-    radGrd.addColorStop(       1, 'rgba( 0, 0, 0,  0 )' );
-    this.ftx.globalCompositeOperation = "destination-out";
-    this.ftx.fillStyle = radGrd;
-  	this.ftx.fillRect( this.units[i].x - r2, this.units[i].y - r2, r2*2, r2*2 );
+    if (this.units[i].player == this.id) {
+  	  //this stuff does the "sight" circles in the fog
+  	  var r1 = this.units[i].sight;
+      var r2 = 90;
+  	  var density = .4;
+      var radGrd = this.ftx.createRadialGradient( 
+        this.units[i].x + this.units[i].w/2, 
+        this.units[i].y + this.units[i].h/2, r1, 
+        this.units[i].x + this.units[i].w/2 , 
+        this.units[i].y + this.units[i].h/2, r2 );
+      radGrd.addColorStop(       0, 'rgba( 0, 0, 0,  1 )' );
+      radGrd.addColorStop( density, 'rgba( 0, 0, 0, .1 )' );
+      radGrd.addColorStop(       1, 'rgba( 0, 0, 0,  0 )' );
+      this.ftx.globalCompositeOperation = "destination-out";
+      this.ftx.fillStyle = radGrd;
+  	  this.ftx.fillRect( this.units[i].x - r2, this.units[i].y - r2, r2*2, r2*2 );
+    }
     this.drawUnit(this.units[i]);
+
   }   
 
  
@@ -297,14 +332,14 @@ Game.prototype.move = function(unit) {
     //check each for a collision, if it collides, remove it from canidate set
     //for the remaining calculate the distance to the goal and choose the smallest
     var moves = new Array();
-    moves.push(Object.create({x: unit.x + Math.sqrt(2), y: unit.y, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x + 1, y: unit.y + 1, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x + 1, y: unit.y - 1, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - Math.sqrt(2), y: unit.y, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - 1, y: unit.y + 1, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - 1, y: unit.y - 1, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x, y: unit.y + Math.sqrt(2), w:this.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x, y: unit.y - Math.sqrt(2), w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + Math.sqrt(Game.MOVE_SPEED*2), y: unit.y, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + Game.MOVE_SPEED, y: unit.y + Game.MOVE_SPEED, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + Game.MOVE_SPEED, y: unit.y - Game.MOVE_SPEED, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - Math.sqrt(Game.MOVE_SPEED*2), y: unit.y, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - Game.MOVE_SPEED, y: unit.y + Game.MOVE_SPEED, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - Game.MOVE_SPEED, y: unit.y - Game.MOVE_SPEED, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x, y: unit.y + Math.sqrt(Game.MOVE_SPEED*2), w:this.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x, y: unit.y - Math.sqrt(Game.MOVE_SPEED*2), w:unit.w, h:unit.h}));
     var bad = new Array(); //array of bad moves
     for (m in moves) {
       //use the var cur to refer back to this inside the anon func
