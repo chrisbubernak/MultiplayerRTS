@@ -5,9 +5,6 @@ var Game = function(socket, id, clients) {
  var that = this;
  this.socket.on('SendActionsToClient', function (data) {
   for (var a in data.actions){
-    //var unit = $.grep(that.units, function(e){console.log(e.id + " " + data.actions[a].unit); return e.id == data.actions[a].unit; });   
-    //unit.target = data.actions[a].target;
-    //that.units[0].target = data.actions[a].target;
     that.units[that.findUnit(data.actions[a].unit)].target = data.actions[a].target;
   }
   that.simTick++;
@@ -41,7 +38,7 @@ this.interpolationCounter = 0;
 Game.CANVAS_HEIGHT = 500;
 Game.CANVAS_WIDTH = 700;
 Game.NUMBER_OF_UNITS = 2;
-Game.FOG = "rgba( 0, 0, 0, .7)";
+Game.FOG = "black";//rgba( 0, 0, 0, .7)";
 Game.VERTICAL_LINES = 10;
 Game.HORIZONTAL_LINES = 10;
 Game.FPS = 60;
@@ -233,7 +230,7 @@ Game.prototype.draw = function(){
     if (this.units[i].player == this.id) {
   	  //this stuff does the "sight" circles in the fog
   	  var r1 = this.units[i].sight;
-      var r2 = 90;
+      var r2 = 150;
   	  var density = .4;
       var radGrd = this.ftx.createRadialGradient( 
         this.units[i].x + this.units[i].w/2, 
@@ -248,10 +245,7 @@ Game.prototype.draw = function(){
   	  this.ftx.fillRect( this.units[i].x - r2, this.units[i].y - r2, r2*2, r2*2 );
     }
     this.drawUnit(this.units[i]);
-
-  }   
-
- 
+  }    
 }
 
 Game.prototype.drawGrid = function() {
