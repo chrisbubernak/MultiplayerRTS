@@ -5,7 +5,12 @@ var Game = function(socket, id, clients) {
  var that = this;
  this.socket.on('SendActionsToClient', function (data) {
   for (var a in data.actions){
-    that.units[that.findUnit(data.actions[a].unit)].target = data.actions[a].target;
+    if (data.actions[a].shift) {
+      that.units[that.findUnit(data.actions[a].unit)].target.push(data.actions[a].target);
+    }
+    else {
+      that.units[that.findUnit(data.actions[a].unit)].target = [data.actions[a].target];
+    }
   }
   that.simTick++;
 });
@@ -44,6 +49,8 @@ Game.HORIZONTAL_LINES = 10;
 Game.FPS = 60;
 Game.SEED = 3;
 Game.MOVE_SPEED = 10;
+Game.HEALTH_BAR_OFFSET = 10;
+Game.HEALTH_BAR_HEIGHT = 5;
 
 Game.random = function() {
     var x = Math.sin(Game.SEED++) * 10000;
@@ -134,10 +141,21 @@ Game.prototype.setup = function(){
   c.height = Game.CANVAS_HEIGHT;
   c.width = Game.CANVAS_WIDTH;
 
+
+
   //disable the right click so we can use it for other purposes
   document.oncontextmenu = function() {return false;};
   
   var that = this;
+
+  //keep track of when shift is held down so we can queue up unit movements
+  $(document).bind('keyup keydown', function(e){
+    that.shifted = e.shiftKey;
+    return true;
+  });
+
+
+
   $(document).mousedown(function(e) {
     //on left click...
     if (e.button == 0) {
@@ -156,7 +174,7 @@ Game.prototype.setup = function(){
       for (var u in that.units) {
         if (that.units[u].selected){
           var tar = that.getMousePos(document.getElementById("myCanvas"), e);
-          that.actions.push({unit: that.units[u].id, target: tar});
+          that.actions.push({unit: that.units[u].id, target: tar, shift: that.shifted});
         }
       }
     }
@@ -178,7 +196,6 @@ Game.prototype.setup = function(){
   // initialize the quadtree
   var  args = {x : 0, y : 0, h : Game.CANVAS_HEIGHT, w : Game.CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
   this.tree = QUAD.init(args);
-  console.log(this.clients);
   for (var i = 0; i<Game.NUMBER_OF_UNITS; i++){
     this.units.push(
       Object.create(new Knight(
@@ -309,17 +326,29 @@ Game.prototype.drawUnit =  function(unit) {
   if (unit.selected) {
     this.ctx.beginPath();
     this.ctx.strokeStyle = "#39FF14";
-    this.ctx.arc(unit.x + unit.w/2, unit.y + unit.h/2, Math.max(unit.w, unit.h)*.75, 0,2*Math.PI);
+    this.ctx.arc(unit.x + unit.w/2, unit.y + unit.h/2, Math.max(unit.w, unit.h)*.75, 0, 2*Math.PI);
     this.ctx.stroke();
   }
+  //draw the health bar above the unit...todo: move this elsewhere
+  var percent = unit.health/unit.totalHealth;
+  this.ctx.fillStyle="red";
+  if( percent > .7) {
+    this.ctx.fillStyle = "green";
+  }
+  else if (percent > .4) {
+    this.ctx.fillStyle = "yellow";
+  }
+  this.ctx.fillRect(unit.x, unit.y - Game.HEALTH_BAR_OFFSET, unit.w * percent, Game.HEALTH_BAR_HEIGHT);
+  this.ctx.fillStyle = "black";
+  this.ctx.fillRect(unit.x + unit.w*percent, unit.y - Game.HEALTH_BAR_OFFSET, unit.w * (1-percent), Game.HEALTH_BAR_HEIGHT);
 }
 
 //move a unit
 Game.prototype.move = function(unit) {
-  if (unit.target) {
-    var tarSquare = {x:unit.target.x, y:unit.target.y, w:unit.w, h:unit.h};
+  if (unit.target.length > 0) {
+    var tarSquare = {x:unit.target[0].x, y:unit.target[0].y, w:unit.w, h:unit.h};
     if (this.collides(unit, tarSquare)){
-      unit.target = null;
+      unit.target.shift();
     } 
     else {
     //make a list of the 8 points you could move to 

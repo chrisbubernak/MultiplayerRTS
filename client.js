@@ -3,7 +3,7 @@ var myGame;
 window.onload = function() {
 var id;
 
-  var socket = io.connect('http://localhost');
+  var socket = io.connect('/');
   socket.on('ClientJoined', function (data) {
     console.log("My user ID is: " + data.userId);
     id = data.userId;

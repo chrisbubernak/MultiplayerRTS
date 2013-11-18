@@ -13,9 +13,13 @@ function Knight(id, x, y, player) {
   this.imageW = 32;
   this.imageH = 32;
 
+  this.target = new Array();
+
   this.selected = false;
   this.color = "black";
   this.sight = Knight.SIGHT_RANGE;
+  this.health = 50;
+  this.totalHealth = 50;
 }
 
 Knight.prototype.imageReady = function(){
@@ -29,7 +33,6 @@ Knight.prototype.getImage = function(){
 Knight.SIGHT_RANGE = 50;
 Knight.WIDTH = 32;
 Knight.HEIGHT = 32;
-
 
 //only want to load the image once per class (i.e. not for each unit)
 Knight.image = new Image();
