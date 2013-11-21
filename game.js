@@ -117,29 +117,34 @@ Game.prototype.run = function(){
 
 
 Game.prototype.setup = function(){ 
-  var b = document.getElementById("background");
-  this.btx = b.getContext("2d");
-  b.height = Game.CANVAS_HEIGHT;
-  b.width = Game.CANVAS_WIDTH;
+  var t = document.getElementById("terrainCanvas");
+  this.ttx = t.getContext("2d");
+  t.height = Game.CANVAS_HEIGHT;
+  t.width = Game.CANVAS_WIDTH;
   var imageObj = new Image();
 
-  var btx = this.btx;
+  var ttx = this.ttx;
   imageObj.onload = function() {
-        btx.drawImage(imageObj, 0, 0, 
+        ttx.drawImage(imageObj, 0, 0, 
           Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
   };
   imageObj.src = 'grass.jpg';
   
 
   
-  var c = document.getElementById("myCanvas");    
+  var c = document.getElementById("unitCanvas");    
   this.ctx = c.getContext("2d");
-  var f = document.getElementById("fog");
+  var f = document.getElementById("fogCanvas");
   this.ftx = f.getContext("2d");
   f.height = Game.CANVAS_HEIGHT;
   f.width = Game.CANVAS_WIDTH;
   c.height = Game.CANVAS_HEIGHT;
   c.width = Game.CANVAS_WIDTH;
+
+  var s = document.getElementById("selectionCanvas");
+  this.stx = s.getContext("2d");
+  s.height = Game.CANVAS_HEIGHT;
+  s.width = Game.CANVAS_WIDTH;
 
 
 
@@ -160,7 +165,7 @@ Game.prototype.setup = function(){
     //on left click...
     if (e.button == 0) {
       $(this).data('mousedown', true);
-      var coords = that.getMousePos(document.getElementById("myCanvas"), e);
+      var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
       that.sX = coords.x;
       that.sY = coords.y;
       that.eX = coords.x;
@@ -173,7 +178,7 @@ Game.prototype.setup = function(){
     else if (e.button == 2){
       for (var u in that.units) {
         if (that.units[u].selected){
-          var tar = that.getMousePos(document.getElementById("myCanvas"), e);
+          var tar = that.getMousePos(document.getElementById("selectionCanvas"), e);
           that.actions.push({unit: that.units[u].id, target: tar, shift: that.shifted});
         }
       }
@@ -186,7 +191,7 @@ Game.prototype.setup = function(){
 
   $(document).mousemove(function(e) {
     if($(this).data('mousedown')) {
-      var coords = that.getMousePos(document.getElementById("myCanvas"), e);
+      var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
       that.eX = coords.x;
       that.eY = coords.y;
     }
@@ -263,6 +268,8 @@ Game.prototype.draw = function(){
     }
     this.drawUnit(this.units[i]);
   }    
+  this.stx.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+
 }
 
 Game.prototype.drawGrid = function() {
@@ -282,10 +289,10 @@ Game.prototype.drawGrid = function() {
 Game.prototype.drawSelect = function() {
   var that = this;
   if($(document).data('mousedown')) {
-    that.ctx.globalAlpha = 0.3;
-	  that.ctx.fillStyle = "#39FF14";
-    that.ctx.fillRect(that.sX, that.sY, that.eX - that.sX, that.eY - that.sY);
-    that.ctx.globalAlpha = 1;
+    that.stx.globalAlpha = 0.3;
+	  that.stx.fillStyle = "#39FF14";
+    that.stx.fillRect(that.sX, that.sY, that.eX - that.sX, that.eY - that.sY);
+    that.stx.globalAlpha = 1;
   }
 }
 
