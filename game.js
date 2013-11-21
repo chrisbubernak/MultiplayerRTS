@@ -51,6 +51,7 @@ Game.SEED = 3;
 Game.MOVE_SPEED = 10;
 Game.HEALTH_BAR_OFFSET = 10;
 Game.HEALTH_BAR_HEIGHT = 5;
+Game.GREEN = "#39FF14";
 
 Game.random = function() {
     var x = Math.sin(Game.SEED++) * 10000;
@@ -273,16 +274,16 @@ Game.prototype.draw = function(){
 }
 
 Game.prototype.drawGrid = function() {
-  ctx.strokeStyle = "#39FF14";
+  stx.strokeStyle = Game.GREEN;
   for (var i = 0; i < Game.VERTICAL_LINES; i++) {
-    ctx.moveTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, 0);
-    ctx.lineTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, Game.CANVAS_HEIGHT);
-    ctx.stroke();
+    stx.moveTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, 0);
+    stx.lineTo(i*Game.CANVAS_WIDTH/Game.VERTICAL_LINES, Game.CANVAS_HEIGHT);
+    stx.stroke();
   }
   for (var i = 0; i < Game.HORIZONTAL_LINES; i++) {
-    ctx.moveTo(0, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
-    ctx.lineTo(Game.CANVAS_HEIGHT, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
-    ctx.stroke();
+    stx.moveTo(0, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
+    stx.lineTo(Game.CANVAS_HEIGHT, i*Game.CANVAS_WIDTH/Game.HORIZONTAL_LINES);
+    stx.stroke();
   }
 }
 
@@ -290,7 +291,7 @@ Game.prototype.drawSelect = function() {
   var that = this;
   if($(document).data('mousedown')) {
     that.stx.globalAlpha = 0.3;
-	  that.stx.fillStyle = "#39FF14";
+	  that.stx.fillStyle = Game.GREEN;
     that.stx.fillRect(that.sX, that.sY, that.eX - that.sX, that.eY - that.sY);
     that.stx.globalAlpha = 1;
   }
@@ -332,7 +333,7 @@ Game.prototype.drawUnit =  function(unit) {
   }
   if (unit.selected) {
     this.ctx.beginPath();
-    this.ctx.strokeStyle = "#39FF14";
+    this.ctx.strokeStyle = Game.GREEN;
     this.ctx.arc(unit.x + unit.w/2, unit.y + unit.h/2, Math.max(unit.w, unit.h)*.75, 0, 2*Math.PI);
     this.ctx.stroke();
   }
@@ -362,14 +363,17 @@ Game.prototype.move = function(unit) {
     //check each for a collision, if it collides, remove it from canidate set
     //for the remaining calculate the distance to the goal and choose the smallest
     var moves = new Array();
-    moves.push(Object.create({x: unit.x + Math.sqrt(Game.MOVE_SPEED*2), y: unit.y, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x + Game.MOVE_SPEED, y: unit.y + Game.MOVE_SPEED, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x + Game.MOVE_SPEED, y: unit.y - Game.MOVE_SPEED, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - Math.sqrt(Game.MOVE_SPEED*2), y: unit.y, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - Game.MOVE_SPEED, y: unit.y + Game.MOVE_SPEED, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x - Game.MOVE_SPEED, y: unit.y - Game.MOVE_SPEED, w:unit.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x, y: unit.y + Math.sqrt(Game.MOVE_SPEED*2), w:this.w, h:unit.h}));
-    moves.push(Object.create({x: unit.x, y: unit.y - Math.sqrt(Game.MOVE_SPEED*2), w:unit.w, h:unit.h}));
+    var diaganol = Game.MOVE_SPEED*.5*Math.sqrt(2);
+    alert(diaganol)
+    var straight = Game.MOVE_SPEED;
+    moves.push(Object.create({x: unit.x + diaganol, y: unit.y - diaganol, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + straight , y: unit.y, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x , y: unit.y - straight, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - diaganol, y: unit.y + diaganol, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - straight, y: unit.y , w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x , y: unit.y + straight, w:unit.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x + diaganol, y: unit.y + diaganol, w:this.w, h:unit.h}));
+    moves.push(Object.create({x: unit.x - diaganol, y: unit.y - diaganol, w:unit.w, h:unit.h}));
     var bad = new Array(); //array of bad moves
     for (m in moves) {
       //use the var cur to refer back to this inside the anon func
