@@ -12,7 +12,8 @@ var id;
 
 
   socket.on('startGame', function(data) {
-  	  myGame = new Game(socket, id, data.clients);
+  	  myGame = new Game(socket, id, data.clients, data.gameId);
+  	  console.log(data);
       myGame.run();
   });
 }

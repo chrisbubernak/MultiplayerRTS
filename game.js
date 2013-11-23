@@ -1,4 +1,9 @@
-var Game = function(socket, id, clients) {
+var Game = function(socket, id, clients, gameId) {
+
+ document.getElementById("gameId").innerHTML = "Game: " + gameId;
+ document.getElementById("clientId").innerHTML = "Client: " + id;
+
+ this.gameId = gameId;
  this.clients = clients; //an array of all players ids in the game
  this.id = id; //this players id
  this.socket = socket;
@@ -89,11 +94,12 @@ Game.prototype.run = function(){
   //some sort of interpolation
   var fpsOut = document.getElementById("fps");
   setInterval(function() {
+
     that.tree.insert(that.units);
     that.update();
     that.getSelection();
     that.tree.clear();
-    that.socket.emit('SendActionsToServer', {actions: that.actions, simTick: that.simTick});
+    that.socket.emit('SendActionsToServer', {actions: that.actions, simTick: that.simTick, game: that.gameId});
     that.actions = new Array();
     fpsOut.innerHTML = Math.round(1000/diffTime)  + " fps";
     that.interpolationCounter = 0;
@@ -364,7 +370,6 @@ Game.prototype.move = function(unit) {
     //for the remaining calculate the distance to the goal and choose the smallest
     var moves = new Array();
     var diaganol = Game.MOVE_SPEED*.5*Math.sqrt(2);
-    alert(diaganol)
     var straight = Game.MOVE_SPEED;
     moves.push(Object.create({x: unit.x + diaganol, y: unit.y - diaganol, w:unit.w, h:unit.h}));
     moves.push(Object.create({x: unit.x + straight , y: unit.y, w:unit.w, h:unit.h}));
