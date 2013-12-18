@@ -1,11 +1,11 @@
 //class(ish) definition...
 
-function Knight(id, x, y, player) {
+function Knight(id, loc, player) {
   this.id = id;
-  this.x = x;
-  this.y = y;
-  this.w = 32;
-  this.h = 32;
+  this.loc = loc;
+  this.prevLoc = loc;
+  this.w = 30;
+  this.h = 30;
   this.player = player;
   //use this to determine what part of the sprite colelction to use
   this.imageX = 32*2;
