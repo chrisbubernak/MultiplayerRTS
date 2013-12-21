@@ -10,12 +10,12 @@ var Game = function(socket, id, clients, gameId) {
  var that = this;
  this.socket.on('SendActionsToClient', function (data) {
   for (var a in data.actions){
-    var targetLoc = that.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
+    var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
     if (data.actions[a].shift) {
-      that.units[that.findUnit(data.actions[a].unit)].target.push(targetLoc);
+      utilities.findUnit(data.actions[a].unit, that.units).target.push(targetLoc);
     }
     else {
-      that.units[that.findUnit(data.actions[a].unit)].target = [targetLoc];
+      utilities.findUnit(data.actions[a].unit, that.units).target = [targetLoc];
     }
   }
   that.simTick++;
@@ -112,7 +112,7 @@ Game.prototype.run = function(){
     if (that.simTick%100 == 0){
       console.log("Sim: " + that.simTick)
       for (var i = 0; i < that.units.length; i++){
-        var unitLoc = that.boxToCoords(that.units[i].loc);
+        var unitLoc = utilities.boxToCoords(that.units[i].loc);
         console.log("x= " + unitLoc.x + " y= " + unitLoc.y);
       }
     }
@@ -221,10 +221,10 @@ Game.prototype.getSelection = function(){
     //create the selection
 	//var selectBox = Object.create(new that.select(that.sX, that.sY, that.eX, that.eY));
 	var region = that.tree.retrieve(that.selection, function(item) {
-      var loc = that.boxToCoords(item.loc);
+      var loc = utilities.boxToCoords(item.loc);
       loc.w = item.w;
       loc.h = item.h;
-      if((item.player == that.id) && that.collides(that.selection, loc) && item != that.selection) {
+      if((item.player == that.id) && utilities.collides(that.selection, loc) && item != that.selection) {
 	      item.selected = true;
       }
     });
@@ -268,10 +268,7 @@ Game.prototype.getMousePos = function (canvas, evt) {
   };
 }
 
-Game.prototype.collides = function(i, j) {
-  //return i.loc == j.loc;
-  return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
-} 
+
 
 Game.prototype.move = function(unit){
   if (unit.target.length > 0) {
@@ -283,97 +280,16 @@ Game.prototype.move = function(unit){
     else { 
       this.interpolationCounter = 0;
       var box = unit.loc;
-      var neighbors = this.neighbors(box);
+      var neighbors = utilities.neighbors(box);
       var moves = new Array();
       for (var i = 0; i < neighbors.length; i++){
-        var move = this.distance(this.boxToCoords(unit.target), this.boxToCoords(neighbors[i]));
+        var move = utilities.distance(utilities.boxToCoords(unit.target), utilities.boxToCoords(neighbors[i]));
         moves.push(move);
       }
 
-      var bestMoveIndex = this.minIndex(moves);
+      var bestMoveIndex = utilities.minIndex(moves);
       unit.loc = neighbors[bestMoveIndex];
     }
   } 
 }
 
-//return the index of the unit with a given id
-Game.prototype.findUnit = function(id){
-  for (var i = 0; i < this.units.length; i++){
-    if (this.units[i].id == id) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-Game.prototype.distance = function(a, b){
-  return Math.sqrt(Math.pow((a.x-b.x),2) + Math.pow((a.y - b.y),2));
-}
-
-Game.prototype.minIndex = function(array){
-  var min = array[0];
-  var minIndex = 0;
-  for (var i = 0 ; i < array.length; i++) {
-    if (array[i] < min) {
-      min = array[i];
-      minIndex = i;
-    }
-  }
-  return minIndex;
-}
-
-
-  //given the row and col of a box this returns the box index
- Game.prototype.coordsToBox = function(x , y) {
-    var newX = Math.floor((x%Game.CANVAS_WIDTH)/Game.boxSize);
-    var newY = Math.floor((y%Game.CANVAS_HEIGHT)/Game.boxSize);
-    var boxNumber = newX+Game.boxesPerRow*newY;
-    return boxNumber;
-  }
-
-  //returns the upper left corner of the box given its index 
-  Game.prototype.boxToCoords = function(i) {
-    var y = Math.floor(i/Game.boxesPerRow)*Game.boxSize;
-    var x = i%Game.boxesPerRow*Game.boxSize;
-    return {x: x, y: y}
-  }
-
-  Game.prototype.neighbors = function(boxNumber) {
-    var neighbors = new Array();
-    //if we arean't on the left edge of the board add neighbor to the left
-    if (boxNumber%Game.boxesPerRow != 0){
-      neighbors.push(boxNumber - 1);
-    }
-    //if we arean't on the right edge of the board add neighbor to the right 
-    if ((boxNumber+1)%Game.boxesPerRow != 0){
-      neighbors.push(boxNumber + 1);
-    }
-    //if we arean't on the top of the board add neighbor above us
-    if (boxNumber >= Game.boxesPerRow){
-      neighbors.push(boxNumber - Game.boxesPerRow);
-    } 
-    //if we arean't on the bottom of the board add neighbor beneath us
-    if (boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
-      neighbors.push(boxNumber + Game.boxesPerRow);
-    }
-
-    //diagonal cases...refactor this logic later for speed ups!!
-
-    //if we arean't on the left edge and we arean't on the top of the board add the left/up beighbor
-    if (boxNumber%Game.boxesPerRow != 0 && boxNumber >= Game.boxesPerRow){
-      neighbors.push(boxNumber - Game.boxesPerRow -1);
-    }
-    //if we arean't on the left edge and we arean't on the bottom of the board add the left/below neighbor
-    if (boxNumber%Game.boxesPerRow != 0 && Game.boxesPerRow*(Game.boxesPerCol-1)){
-      neighbors.push(boxNumber + Game.boxesPerRow-1);
-    }
-    //if we arean't on the right edge of the board and we arean't on the top of the board add right/up neighbor
-    if ((boxNumber+1)%Game.boxesPerRow != 0 && boxNumber >= Game.boxesPerRow){
-      neighbors.push(boxNumber - Game.boxesPerRow +1);
-    }
-    //if we arean't on the right edge of the board and we arean't on the bottom of the board add right/below neighbor
-    if ((boxNumber+1)%Game.boxesPerRow != 0 && Game.boxesPerRow*(Game.boxesPerCol-1)){
-      neighbors.push(boxNumber + Game.boxesPerRow+1);
-    }
-    return neighbors;
-  }
