@@ -219,8 +219,7 @@ Game.prototype.getSelection = function(){
   var that = this;
   if($(document).data('mousedown')) {
     //create the selection
-	//var selectBox = Object.create(new that.select(that.sX, that.sY, that.eX, that.eY));
-	var region = that.tree.retrieve(that.selection, function(item) {
+	  var region = that.tree.retrieve(that.selection, function(item) {
       var loc = utilities.boxToCoords(item.loc);
       loc.w = item.w;
       loc.h = item.h;
@@ -274,21 +273,47 @@ Game.prototype.move = function(unit){
   if (unit.target.length > 0) {
     var tarSquare = unit.target[0];
     unit.prevLoc = unit.loc;
+    var curCoords = utilities.boxToCoords(unit.loc);
+    //if the unit made it to its target, remove this from its move queue and set its positioning to this location
     if (tarSquare == unit.loc){
       unit.target.shift();
+      unit.x = curCoords.x;
+      unit.y = curCoords.y;
     }
     else { 
-      this.interpolationCounter = 0;
       var box = unit.loc;
       var neighbors = utilities.neighbors(box);
+
       var moves = new Array();
       for (var i = 0; i < neighbors.length; i++){
         var move = utilities.distance(utilities.boxToCoords(tarSquare), utilities.boxToCoords(neighbors[i]));
+
+        var candidateMove = utilities.boxToCoords(neighbors[i]);
+        candidateMove.w = unit.w;
+        candidateMove.h = unit.h;
+        candidateMove.id = unit.id;
+        //create the selection
+        var region = this.tree.retrieve(candidateMove, function(item) {
+          var loc = utilities.boxToCoords(item.loc);
+          loc.w = item.w;
+          loc.h = item.h;
+          if((item.id != candidateMove.id) && (item != candidateMove) && utilities.collides(candidateMove, loc)) {
+            move =  null;
+          }
+        });
+
         moves.push(move);
       }
 
       var bestMoveIndex = utilities.minIndex(moves);
       unit.loc = neighbors[bestMoveIndex];
+
+      //for now if the best move is to stay put then stop the unit from moving
+      if (unit.loc == unit.prevLoc) {
+        unit.target.shift();
+        unit.x = curCoords.x;
+        unit.y = curCoords.y;
+      }
     }
   } 
 }

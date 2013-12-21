@@ -21,7 +21,7 @@ var utilities = (function() {
       var min = array[0];
       var minIndex = 0;
       for (var i = 0 ; i < array.length; i++) {
-        if (array[i] < min) {
+        if (array[i] != null && array[i] < min) {
           min = array[i];
           minIndex = i;
         } 
@@ -55,6 +55,9 @@ var utilities = (function() {
 
     neighbors : function(boxNumber) {
       var neighbors = new Array();
+
+      neighbors.push(boxNumber);
+
       //if we arean't on the left edge of the board add neighbor to the left
       if (boxNumber%Game.boxesPerRow != 0){
         neighbors.push(boxNumber - 1);
