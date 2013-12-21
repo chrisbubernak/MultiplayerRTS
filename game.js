@@ -50,7 +50,7 @@ Game.FPS = 60;
 Game.updateFPS = 10;
 Game.SEED = 3;
 Game.MOVE_SPEED = 10;
-
+}
 
 
 
@@ -283,7 +283,7 @@ Game.prototype.move = function(unit){
       var neighbors = utilities.neighbors(box);
       var moves = new Array();
       for (var i = 0; i < neighbors.length; i++){
-        var move = utilities.distance(utilities.boxToCoords(unit.target), utilities.boxToCoords(neighbors[i]));
+        var move = utilities.distance(utilities.boxToCoords(tarSquare), utilities.boxToCoords(neighbors[i]));
         moves.push(move);
       }
 
@@ -292,4 +292,3 @@ Game.prototype.move = function(unit){
     }
   } 
 }
-
