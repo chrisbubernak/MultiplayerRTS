@@ -36,17 +36,11 @@ this.actions = new Array();
 this.simTick = 0;
 this.unitId = 0;
 
-//used as a primitive way to do interpolation of unit positioning
-//so that we can "move" them during the drawing phase without actually
-//changing their position
-this.interpolationCounter = 0;
-}
-
 
 //static constants
-Game.CANVAS_HEIGHT = 540;
-Game.CANVAS_WIDTH = 900;
-Game.boxesPerRow = 30;
+Game.CANVAS_HEIGHT = 640;
+Game.CANVAS_WIDTH = 960;
+Game.boxesPerRow = 60;
 Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
 Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
 Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
@@ -58,10 +52,7 @@ Game.SEED = 3;
 Game.MOVE_SPEED = 10;
 
 
-Game.random = function() {
-    var x = Math.sin(Game.SEED++) * 10000;
-    return x - Math.floor(x);
-}
+
 
 Game.prototype.createUnitId = function() {
   this.unitId++;
@@ -83,18 +74,18 @@ Game.prototype.run = function(){
   //loop that runs at 60 fps...aka drawing & selection stuff
   var that = this;
   setInterval(function() {
+    that.interpolate();
     drawer.drawUnits(that.units);
     that.drawSelect();
+
+    //debugging stuff...
     diffTime = newTime - oldTime;
     oldTime = newTime;
     newTime = new Date().getTime();
-    that.interpolationCounter++;
   }, 1000/Game.FPS);
 
-  //loop that runs much less (ideally 10fps)
-  //at the moment this runs at 60 but that won't scale
-  //need to move the updating to the other loop and do 
-  //some sort of interpolation
+  //loop that runs much less frequently (10 fps)
+  //and handles physics/updating the game state/networking 
   var fpsOut = document.getElementById("fps");
   setInterval(function() {
 
@@ -127,7 +118,16 @@ Game.prototype.run = function(){
 }
 
 
-
+Game.prototype.interpolate = function () {
+  for (var i = 0; i < this.units.length; i++ ) {
+    if (this.units[i].target.length > 0) {
+      var oldCoords = utilities.boxToCoords(this.units[i].prevLoc);
+      var coords = utilities.boxToCoords(this.units[i].loc);
+      this.units[i].x -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.x - coords.x);
+      this.units[i].y -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.y - coords.y);
+    }
+  }
+}
 
 
 Game.prototype.setup = function(){ 
@@ -196,13 +196,13 @@ Game.prototype.setup = function(){
     this.units.push(
       Object.create(new Knight(
           this.createUnitId(),
-          Math.round(Game.random()*Game.boxesPerRow*Game.boxesPerCol),
+          Math.round(utilities.random()*Game.boxesPerRow*Game.boxesPerCol),
           this.clients[0]
     )));
     this.units.push(
       Object.create(new Knight(
           this.createUnitId(),
-          Math.round(Game.random()*Game.boxesPerRow*Game.boxesPerCol), 
+          Math.round(utilities.random()*Game.boxesPerRow*Game.boxesPerCol), 
           this.clients[1]
     )));
   }

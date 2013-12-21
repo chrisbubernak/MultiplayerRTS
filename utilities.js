@@ -48,8 +48,10 @@ var utilities = (function() {
       return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
     },
 
-
-
+    random : function() {
+      var x = Math.sin(Game.SEED++) * 10000;
+      return x - Math.floor(x);
+    },
 
     neighbors : function(boxNumber) {
       var neighbors = new Array();

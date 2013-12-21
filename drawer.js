@@ -70,13 +70,8 @@ var drawer = (function() {
 
   	drawUnit: function(unit) {
       var coords = utilities.boxToCoords(unit.loc);
-      var x = coords.x;
-      var y = coords.y;
-      /*var oldCoords = this.boxToCoords(unit.prevLoc);
-      if (unit.target.length > 0) {
-      var x = oldCoords.x - (this.interpolationCounter/(Game.FPS/Game.updateFPS))*(oldCoords.x - coords.x);
-      var y = oldCoords.y - (this.interpolationCounter/(Game.FPS/Game.updateFPS))*(oldCoords.y - coords.y);
-      }*/
+      var x = unit.x
+      var y = unit.y;
       if(unit.imageReady()) {
         unitContext.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
       }
@@ -105,7 +100,7 @@ var drawer = (function() {
       var that = this;
       imageObj.onload = function() {
         for (var i = 0; i < Game.boxesPerRow * Game.boxesPerCol; i++) {
-          terrainContext.drawImage(imageObj, Math.round(Game.random()) * this.width/2, 0,this.width/2,this.height/2,utilities.boxToCoords(i).x,utilities.boxToCoords(i).y,Game.boxSize, Game.boxSize);
+          terrainContext.drawImage(imageObj, Math.round(utilities.random()) * this.width/2, 0,this.width/2,this.height/2,utilities.boxToCoords(i).x,utilities.boxToCoords(i).y,Game.boxSize, Game.boxSize);
         }
       };
       imageObj.src = 'terrain.jpg';
@@ -126,10 +121,10 @@ var drawer = (function() {
   	},
 
   	drawGrid : function() {
-      terrainContext.strokeStyle = Game.GREEN;
+      terrainContext.strokeStyle = GREEN;
       for (var i = 0; i <= Game.boxesPerRow; i++) {
         terrainContext.moveTo(i*Game.boxSize, 0);
-        terrainContext(i*Game.boxSize, Game.CANVAS_HEIGHT);
+        terrainContext.lineTo(i*Game.boxSize, Game.CANVAS_HEIGHT);
         terrainContext.stroke();
       }
       for (var i = 0; i <= Game.boxesPerCol; i++) {

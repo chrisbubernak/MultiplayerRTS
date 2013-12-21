@@ -4,6 +4,9 @@ function Knight(id, loc, player) {
   this.id = id;
   this.loc = loc;
   this.prevLoc = loc;
+  var coords = utilities.boxToCoords(loc);
+  this.x = coords.x;
+  this.y = coords.y;
   this.w = 30;
   this.h = 30;
   this.player = player;
