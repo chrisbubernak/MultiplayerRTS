@@ -56,8 +56,6 @@ var utilities = (function() {
     neighbors : function(boxNumber) {
       var neighbors = new Array();
 
-      neighbors.push(boxNumber);
-
       //if we arean't on the left edge of the board add neighbor to the left
       if (boxNumber%Game.boxesPerRow != 0){
         neighbors.push(boxNumber - 1);

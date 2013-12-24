@@ -110,6 +110,20 @@ var drawer = (function() {
 
   	},
 
+    //used for debugging a* pathing
+    drawPathing: function (loc, color, val) {
+      var coords = utilities.boxToCoords(loc);
+      //selectionContext.globalAlpha = 0.3;
+      selectionContext.fillStyle = color;
+      selectionContext.fillRect(coords.x, 
+          coords.y, 
+          Game.boxSize, 
+          Game.boxSize);
+      selectionContext.fillStyle = "black";
+      selectionContext.fillText(Math.round(val), coords.x, coords.y+Game.boxSize/2)
+     //selectionContext.globalAlpha = 1;
+    },
+
   	drawSelect: function (selection) {
       selectionContext.globalAlpha = 0.3;
 	    selectionContext.fillStyle = GREEN;
