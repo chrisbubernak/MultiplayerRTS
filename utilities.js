@@ -72,7 +72,6 @@ var utilities = (function() {
       if (boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
         neighbors.push(boxNumber + Game.boxesPerRow);
       }
-
       //diagonal cases...refactor this logic later for speed ups!!
 
       //if we arean't on the left edge and we arean't on the top of the board add the left/up beighbor
@@ -80,7 +79,7 @@ var utilities = (function() {
         neighbors.push(boxNumber - Game.boxesPerRow -1);
       }
       //if we arean't on the left edge and we arean't on the bottom of the board add the left/below neighbor
-      if (boxNumber%Game.boxesPerRow != 0 && Game.boxesPerRow*(Game.boxesPerCol-1)){
+      if (boxNumber%Game.boxesPerRow != 0 && boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
         neighbors.push(boxNumber + Game.boxesPerRow-1);
       }
       //if we arean't on the right edge of the board and we arean't on the top of the board add right/up neighbor
@@ -88,7 +87,7 @@ var utilities = (function() {
         neighbors.push(boxNumber - Game.boxesPerRow +1);
       }
       //if we arean't on the right edge of the board and we arean't on the bottom of the board add right/below neighbor
-      if ((boxNumber+1)%Game.boxesPerRow != 0 && Game.boxesPerRow*(Game.boxesPerCol-1)){
+      if ((boxNumber+1)%Game.boxesPerRow != 0 && boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
         neighbors.push(boxNumber + Game.boxesPerRow+1);
       }
       return neighbors;

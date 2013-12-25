@@ -10,12 +10,20 @@ var Game = function(socket, id, clients, gameId) {
  var that = this;
  this.socket.on('SendActionsToClient', function (data) {
   for (var a in data.actions){
+    var unit = utilities.findUnit(data.actions[a].unit, that.units);
     var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
+    var path = that.aStar(unit.loc, targetLoc);    
+ 
     if (data.actions[a].shift) {
-      utilities.findUnit(data.actions[a].unit, that.units).target.push(targetLoc);
+      for (var p in path) {
+        unit.target.push(path[p]);
+      }
     }
     else {
-      utilities.findUnit(data.actions[a].unit, that.units).target = [targetLoc];
+      unit.target = [];
+      for (var p in path) {
+        unit.target.push(path[p]);
+      }
     }
   }
   that.simTick++;
@@ -28,10 +36,6 @@ this.tree; //the quad tree
 
 //stores the coordinates of the players selection
 this.selection = new Object();
-
-this.ctx; //canvas context (this contains units)
-this.ftx; //fog contex
-this.btx; //background contex (contains the background image)
 
 this.actions = new Array();
 this.simTick = 0;
@@ -52,7 +56,6 @@ Game.NUMBER_OF_UNITS = 2;
 Game.FPS = 60;
 Game.updateFPS = 10;
 Game.SEED = 3;
-Game.MOVE_SPEED = 10;
 }
 
 
@@ -143,6 +146,11 @@ Game.prototype.setup = function(){
   //disable the right click so we can use it for other purposes
   document.oncontextmenu = function() {return false;};
   
+  Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
+  for (var g in Game.grid) {
+    Game.grid[g] = false;
+  }
+
   var that = this;
 
   //keep track of when shift is held down so we can queue up unit movements
@@ -212,7 +220,6 @@ Game.prototype.setup = function(){
 
 
 Game.prototype.update = function(){
-  Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
   for (var i = 0; i < this.units.length; i++) {
     this.move(this.units[i]);
   }
@@ -273,26 +280,34 @@ Game.prototype.getMousePos = function (canvas, evt) {
 Game.prototype.move = function(unit){
   //if we are still in the process of moving...
   if (unit.target.length > 0) {
-    var tarSquare = unit.target[0];
     unit.prevLoc = unit.loc;
+    Game.grid[unit.prevLoc] = false;
     var curCoords = utilities.boxToCoords(unit.loc);
-    //if the unit made it to its target, remove this from its move queue and set its positioning to this location
-    if (tarSquare == unit.loc){
-      unit.target.shift();
+    //if something now stands in the units path re-path around it
+    if (Game.grid[unit.target[0]]) {
+      unit.target = this.aStar(unit.loc, unit.target[unit.target.length-1]);
+    }
+    unit.loc = unit.target[0]; 
+    //if the unit made it to its target
+    if (unit.target.length == 1){
       unit.x = curCoords.x;
       unit.y = curCoords.y;
     }
     else { 
-      var test = new Date().getTime();
-      unit.loc = this.aStar(unit.loc, tarSquare);    
-      console.log((new Date().getTime() - test) + " ms");
+      unit.target.shift();
     }
   } 
-  Game.grid[unit.loc] = true; //mark this loc as occupied ...if units take up more than 1 space we'll have to do more here
+  //mark this loc as occupied ...if units take up more than 1 space we'll have to do more here
+  Game.grid[unit.loc] = true; 
 }
 
 
   Game.prototype.aStar = function(start, goal) {
+    //this probably needs to be changed but for now if they want to move somewhere that is blocked just stop moving
+    if (Game.grid[goal]) {
+      return [start];
+    }    
+
     var closedSet = new Array();
     var openSet = new Array();
     openSet.push(start);
@@ -305,28 +320,23 @@ Game.prototype.move = function(unit){
     var cur;
     while (openSet.length > 0) {
       var cur = this.locWithlowestFScore(openSet, fScore);
-      /*console.log(openSet);
-      console.log(closedSet)
-      console.log(fScore);
-      console.log(cameFrom)
-      alert("CUR: " + cur + " " + fScore[cur]);*/
       if (cur == goal) {
         return this.getPath(cameFrom, goal, start);
       }
       openSet.splice(openSet.indexOf(cur), 1);
       closedSet.push(cur);
       var neighbors = utilities.neighbors(cur);
-      /*for (var i = neighbors.length; i >= 0; i--) { AVOID COLLISIONS
-        if (Game.grid[neighbors[i]] != undefined) {
+
+      //AVOID COLLISIONS
+      for (var i = neighbors.length; i >= 0; i--) { 
+        if (Game.grid[neighbors[i]]) {
            neighbors.splice(i, 1);
         }
-      }*/
-      //console.log("NEIGHBORS of " +cur +": " + neighbors)
-      //drawer.drawPathing(cur, "blue", fScore[cur]);
+      }
+
       for (var i = 0; i <neighbors.length; i++) {
-        var t_gScore = gScore[cur] + 1;//utilities.distance(utilities.boxToCoords(cur), utilities.boxToCoords(neighbors[i]));
+        var t_gScore = gScore[cur] + utilities.distance(utilities.boxToCoords(cur), utilities.boxToCoords(neighbors[i]))/Game.boxSize;
         var t_fScore = t_gScore + this.heuristic(neighbors[i], goal);
-        //console.log("* " +neighbors[i] + " " + closedSet + " " + t_fScore + " " + fScore[neighbors[i]])
         if ((closedSet.indexOf(neighbors[i])!=-1) && (t_fScore >=fScore[neighbors[i]])) {
           continue;
         }
@@ -359,16 +369,15 @@ Game.prototype.move = function(unit){
     }
   }
 
+  //this should return the path as an array going from first move to last
   Game.prototype.getPath = function(cameFrom, cur, start) {
-    if(cameFrom[cur] == start) {
-      return cur;
+    var returnArray = new Array();
+    while (cur != start) {
+      returnArray.splice(0, 0, cur);
+      cur = cameFrom[cur];
+      //drawer.drawPathing(cur, "green", 0);
     }
-    if (cur in cameFrom) {
-      return this.getPath(cameFrom, cameFrom[cur], start);
-    }
-    else {
-      return cur;
-    }
+    return returnArray;
   }
 
   Game.prototype.heuristic = function(a, b) {
@@ -377,7 +386,5 @@ Game.prototype.move = function(unit){
     var dx = Math.abs(c.x - d.x)/Game.boxSize;
     var dy = Math.abs(c.y - d.y)/Game.boxSize;
     return dx + dy;
-
-    //return utilities.distance(utilities.boxToCoords(a), utilities.boxToCoords(b));
   }
 
