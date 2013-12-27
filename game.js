@@ -13,7 +13,6 @@ var Game = function(socket, id, clients, gameId) {
     var unit = utilities.findUnit(data.actions[a].unit, that.units);
     var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
     var path = that.aStar(unit.loc, targetLoc);    
- 
     if (data.actions[a].shift) {
       for (var p in path) {
         unit.target.push(path[p]);
@@ -43,16 +42,16 @@ this.unitId = 0;
 
 
 //static constants
-Game.CANVAS_HEIGHT = 540//640;
-Game.CANVAS_WIDTH = 900//960;
-Game.boxesPerRow = 30//60;
+Game.CANVAS_HEIGHT = 640//540//640;
+Game.CANVAS_WIDTH = 960;//900//960;
+Game.boxesPerRow = 60;//30//60;
 Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
 Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
 Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
 
 Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
 
-Game.NUMBER_OF_UNITS = 2;
+Game.NUMBER_OF_UNITS = 20;
 Game.FPS = 60;
 Game.updateFPS = 10;
 Game.SEED = 3;
@@ -309,21 +308,20 @@ Game.prototype.move = function(unit){
     }    
 
     var closedSet = new Array();
-    var openSet = new Array();
-    openSet.push(start);
+    var openSet = new PriorityQueue();
     var cameFrom = new Object();
     var gScore = new Object();
     var fScore = new Object();
 
     gScore[start] = 0;
     fScore[start] = gScore[start] + this.heuristic(start, goal);
+    openSet.enqueue(start, fScore[start]);
     var cur;
-    while (openSet.length > 0) {
-      var cur = this.locWithlowestFScore(openSet, fScore);
+    while (!openSet.isEmpty()) {
+      var cur = openSet.dequeue();
       if (cur == goal) {
         return this.getPath(cameFrom, goal, start);
       }
-      openSet.splice(openSet.indexOf(cur), 1);
       closedSet.push(cur);
       var neighbors = utilities.neighbors(cur);
 
@@ -346,27 +344,18 @@ Game.prototype.move = function(unit){
           gScore[neighbors[i]] = t_gScore;
           fScore[neighbors[i]] = t_fScore;
           if (openSet.indexOf(neighbors[i])==-1) {
-            openSet.push(neighbors[i]);
+            openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
             //drawer.drawPathing(neighbors[i], "red", fScore[neighbors[i]]);
+          }
+          //if the neighbor was already in the openset we need to update it in the priority queue
+          else {
+            openSet.update(neighbors[i], fScore[neighbors[i]]);
           }
         }
         
       }
     }
     alert("ERROR!");
-  }
-
-  Game.prototype.locWithlowestFScore = function(array, obj) {
-    var sortable = [];
-    for (var key in obj) {
-      sortable.push([key, obj[key]]);
-    }
-    sortable.sort(function(a, b) {return a[1] - b[1]});
-    for (var i = 0; i < sortable.length; i++) {
-      if (array.indexOf(parseInt(sortable[i][0])) != -1) {
-        return parseInt(sortable[i][0]);
-      }
-    }
   }
 
   //this should return the path as an array going from first move to last
