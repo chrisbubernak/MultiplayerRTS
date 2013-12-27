@@ -12,7 +12,7 @@ var Game = function(socket, id, clients, gameId) {
   for (var a in data.actions){
     var unit = utilities.findUnit(data.actions[a].unit, that.units);
     var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
-    var path = that.aStar(unit.loc, targetLoc);    
+    var path = that.aStar(unit.loc, targetLoc, unit);   
     if (data.actions[a].shift) {
       for (var p in path) {
         unit.target.push(path[p]);
@@ -147,7 +147,7 @@ Game.prototype.setup = function(){
   
   Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
   for (var g in Game.grid) {
-    Game.grid[g] = false;
+    Game.grid[g] = null;
   }
 
   var that = this;
@@ -280,12 +280,22 @@ Game.prototype.move = function(unit){
   //if we are still in the process of moving...
   if (unit.target.length > 0) {
     unit.prevLoc = unit.loc;
-    Game.grid[unit.prevLoc] = false;
-    var curCoords = utilities.boxToCoords(unit.loc);
-    //if something now stands in the units path re-path around it
-    if (Game.grid[unit.target[0]]) {
-      unit.target = this.aStar(unit.loc, unit.target[unit.target.length-1]);
+
+    //mark the old locs occupied by this unit as false
+    for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
+      Game.grid[locs[l]] = null; 
     }
+
+    var curCoords = utilities.boxToCoords(unit.loc);
+    
+    //if something now stands in the units path re-path around it
+    for (var l in locs = utilities.getOccupiedSquares(unit.target[0], unit.w, unit.h)) {
+      if (Game.grid[locs[l]]!=unit.id && Game.grid[locs[l]] != null) {
+        unit.target = this.aStar(unit.loc, unit.target[unit.target.length-1], unit);
+        break;
+      }
+    }
+
     unit.loc = unit.target[0]; 
     //if the unit made it to its target
     if (unit.target.length == 1){
@@ -296,12 +306,14 @@ Game.prototype.move = function(unit){
       unit.target.shift();
     }
   } 
-  //mark this loc as occupied ...if units take up more than 1 space we'll have to do more here
-  Game.grid[unit.loc] = true; 
+  //mark the locs occupied by this unit as true
+  for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
+    Game.grid[locs[l]] = unit.id; 
+  }
 }
 
 
-  Game.prototype.aStar = function(start, goal) {
+  Game.prototype.aStar = function(start, goal, unit) {
     //this probably needs to be changed but for now if they want to move somewhere that is blocked just stop moving
     if (Game.grid[goal]) {
       return [start];
@@ -325,10 +337,15 @@ Game.prototype.move = function(unit){
       closedSet.push(cur);
       var neighbors = utilities.neighbors(cur);
 
-      //AVOID COLLISIONS
+      //check all of the neighbor moves for collisions
       for (var i = neighbors.length; i >= 0; i--) { 
-        if (Game.grid[neighbors[i]]) {
-           neighbors.splice(i, 1);
+        //for each move make sure this unit could move there without colliding with any thing
+        for (var l in locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h)) {
+          if (Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) {
+             //drawer.drawPathing(neighbors[i], "blue", 0);
+             neighbors.splice(i, 1);
+             break;
+          }
         }
       }
 

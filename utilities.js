@@ -53,6 +53,19 @@ var utilities = (function() {
       return x - Math.floor(x);
     },
 
+    //given a unit, return the locs that it occupies (given its height, width, and loc)
+    getOccupiedSquares : function(loc, w, h) {
+      var locs = new Array();
+      var width = Math.ceil(w/Game.boxSize);
+      var height = Math.ceil(h/Game.boxSize);
+      for (var i = 0; i < height; i++) {
+        for (var j = 0; j < width; j++) {
+          locs.push(loc+(i*Game.boxesPerRow)+j);
+        }
+      }
+      return locs;
+    },
+
     neighbors : function(boxNumber) {
       var neighbors = new Array();
 
