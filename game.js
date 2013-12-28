@@ -124,11 +124,16 @@ Game.prototype.run = function(){
 
 Game.prototype.interpolate = function () {
   for (var i = 0; i < this.units.length; i++ ) {
-    if (this.units[i].target.length > 0) {
+    if (this.units[i].prevLoc != this.units[i].loc) {
       var oldCoords = utilities.boxToCoords(this.units[i].prevLoc);
       var coords = utilities.boxToCoords(this.units[i].loc);
       this.units[i].x -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.x - coords.x);
       this.units[i].y -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.y - coords.y);
+    }
+    else {
+      var coords = utilities.boxToCoords(this.units[i].loc);
+      this.units[i].x = coords.x;
+      this.units[i].y = coords.y;
     }
   }
 }
@@ -285,8 +290,6 @@ Game.prototype.move = function(unit){
     for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
       Game.grid[locs[l]] = null; 
     }
-
-    var curCoords = utilities.boxToCoords(unit.loc);
     
     //if something now stands in the units path re-path around it
     for (var l in locs = utilities.getOccupiedSquares(unit.target[0], unit.w, unit.h)) {
@@ -297,15 +300,13 @@ Game.prototype.move = function(unit){
     }
 
     unit.loc = unit.target[0]; 
-    //if the unit made it to its target
-    if (unit.target.length == 1){
-      unit.x = curCoords.x;
-      unit.y = curCoords.y;
-    }
-    else { 
-      unit.target.shift();
-    }
-  } 
+    var curCoords = utilities.boxToCoords(unit.loc);
+
+    unit.target.shift();
+  }
+  else if (unit.target.length === 0) {
+    unit.prevLoc = unit.loc;
+  }
   //mark the locs occupied by this unit as true
   for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
     Game.grid[locs[l]] = unit.id; 
@@ -314,10 +315,17 @@ Game.prototype.move = function(unit){
 
 
   Game.prototype.aStar = function(start, goal, unit) {
-    //this probably needs to be changed but for now if they want to move somewhere that is blocked just stop moving
-    if (Game.grid[goal]) {
+    //this probably needs to be changed but for now if they want to move somewhere that is blocked or off the screen just stop moving
+    var coords = utilities.boxToCoords(goal);
+    if ((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT) {
       return [start];
     }    
+    //make sure that we could occupy the goal state without colliding with anything
+    for (var l in locs = utilities.getOccupiedSquares(goal, unit.w, unit.h)) {
+      if (Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) {
+        return [start];
+      }
+    }
 
     var closedSet = new Array();
     var openSet = new PriorityQueue();
@@ -339,6 +347,14 @@ Game.prototype.move = function(unit){
 
       //check all of the neighbor moves for collisions
       for (var i = neighbors.length; i >= 0; i--) { 
+        //first make sure this move won't leave part of the unit hanging off the screen...
+        var coords = utilities.boxToCoords(neighbors[i]);
+        if((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT ) {
+          //drawer.drawPathing(neighbors[i], "blue", 0);
+          neighbors.splice(i, 1);
+          continue;
+        }
+
         //for each move make sure this unit could move there without colliding with any thing
         for (var l in locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h)) {
           if (Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) {
