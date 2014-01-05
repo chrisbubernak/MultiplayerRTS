@@ -1,7 +1,7 @@
 var Game = function(socket, id, clients, gameId) {
 
- document.getElementById("gameId").innerHTML = "Game: " + gameId;
- document.getElementById("clientId").innerHTML = "Client: " + id;
+ //document.getElementById("gameId").innerHTML = "Game: " + gameId;
+ //document.getElementById("clientId").innerHTML = "Client: " + id;
 
  this.gameId = gameId;
  this.clients = clients; //an array of all players ids in the game
@@ -42,16 +42,16 @@ this.unitId = 0;
 
 
 //static constants
-Game.CANVAS_HEIGHT = 640//540//640;
-Game.CANVAS_WIDTH = 960;//900//960;
-Game.boxesPerRow = 60;//30//60;
+Game.CANVAS_WIDTH = 1280;//960;//900//960;
+Game.CANVAS_HEIGHT = 720; //640//540//640;
+Game.boxesPerRow = 80;//30//60;
 Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
 Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
 Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
 
 Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
 
-Game.NUMBER_OF_UNITS = 20;
+Game.NUMBER_OF_UNITS = 2;
 Game.FPS = 60;
 Game.updateFPS = 10;
 Game.SEED = 3;
@@ -224,8 +224,60 @@ Game.prototype.setup = function(){
 
 
 Game.prototype.update = function(){
-  for (var i = 0; i < this.units.length; i++) {
+  //iterate backwards b/c we could be removing units from the unit list 
+  //inside the combat function which would break this loop
+  for (var i = this.units.length - 1; i >= 0; i--) {
     this.move(this.units[i]);
+    this.combat(this.units[i]);
+  }
+}
+
+
+
+
+Game.prototype.combat = function(unit) {
+  //need to check attacktimer & make sure the unit is not in the process of moving
+  if (unit.attackTimer > 0 || unit.target.length > 0) {
+    unit.attackTimer--;
+    return;
+  }
+  for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
+    for (var n in neighbors = utilities.neighbors(locs[l])) {
+      var id = Game.grid[neighbors[n]];
+      var enemy = utilities.findUnit(id, this.units);
+      if ( enemy != null && enemy.player != unit.player) {
+        this.attack(unit, enemy);
+        unit.attackTimer = unit.attackSpeed;
+        return;
+      }
+    }
+  }
+}
+
+Game.prototype.attack = function(attacker, defender) {
+  var attackRange = attacker.attackMax - attacker.attackMin;
+  var damage = utilities.random()*attackRange + attacker.attackMin;
+  defender.health -= damage;
+  for (var l in locs = utilities.getOccupiedSquares(attacker.loc, attacker.w, attacker.h)) {
+    drawer.drawSquare(locs[l], "red");
+  }
+  if (defender.health <=0) {
+    this.removeUnit(defender);
+  }
+}
+
+//THE WRONG UNIT IS BEING KILLED RIGHT NOW
+Game.prototype.removeUnit = function(unit) {
+  var id = unit.id;
+  for (var i = 0; i < (length = this.units.length); i++){
+    if (this.units[i].id == id) {
+        this.units.shift(i, 1);
+        //mark the old locs occupied by this unit as false
+        for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
+          Game.grid[locs[l]] = null; 
+        }
+        return;
+    }
   }
 }
 
@@ -303,9 +355,12 @@ Game.prototype.move = function(unit){
     var curCoords = utilities.boxToCoords(unit.loc);
 
     unit.target.shift();
+    //every time the unit moves a location reset its attack timer
+    unit.attackTimer = unit.attackSpeed;
   }
   else if (unit.target.length === 0) {
     unit.prevLoc = unit.loc;
+
   }
   //mark the locs occupied by this unit as true
   for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {

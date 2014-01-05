@@ -72,7 +72,7 @@ var drawer = (function() {
       var coords = utilities.boxToCoords(unit.loc);
       var x = unit.x
       var y = unit.y;
-      if(unit.imageReady()) {
+      if(unit.imageReady()) {    
         unitContext.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
       }
       if (unit.selected) {
@@ -103,17 +103,26 @@ var drawer = (function() {
           terrainContext.drawImage(imageObj, Math.round(utilities.random()) * this.width/2, 0,this.width/2,this.height/2,utilities.boxToCoords(i).x,utilities.boxToCoords(i).y,Game.boxSize, Game.boxSize);
         }
       };
-      imageObj.src = 'terrain.jpg';
+      imageObj.src = '/images/terrain.jpg';
   	},
 
   	drawFog: function () {
 
   	},
 
+
+    drawSquare: function (loc, color) {
+      var coords = utilities.boxToCoords(loc);
+      selectionContext.fillStyle = color;
+      selectionContext.fillRect(coords.x, 
+          coords.y, 
+          Game.boxSize, 
+          Game.boxSize);
+    },
+
     //used for debugging a* pathing
     drawPathing: function (loc, color, val) {
       var coords = utilities.boxToCoords(loc);
-      //selectionContext.globalAlpha = 0.3;
       selectionContext.fillStyle = color;
       selectionContext.fillRect(coords.x, 
           coords.y, 

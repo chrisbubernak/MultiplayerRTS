@@ -6,6 +6,8 @@
   "dependencies": {
     "express": "latest",
     "socket.io": "latest",
-    "uuid": "latest"
+    "uuid": "latest",
+    "typescript": "~0.9.5",
+    "typescript-compiler": "~0.9.1-1"
   }
 }

@@ -17,12 +17,16 @@ function Knight(id, loc, player) {
   this.imageH = 32;
 
   this.target = new Array();
-
+  this.attackMax = 10;
+  this.attackMin = 5;
   this.selected = false;
   this.color = "black";
   this.sight = Knight.SIGHT_RANGE;
-  this.health = 50;
-  this.totalHealth = 50;
+  this.totalHealth = 100;
+  this.health = this.totalHealth;
+
+  this.attackSpeed = 25;
+  this.attackTimer = 0;
 }
 
 Knight.prototype.imageReady = function(){
@@ -44,7 +48,7 @@ var imageLoaded = false;
 Knight.image.onload = function() {
   Knight.imageLoaded = true;
 };
-Knight.image.src = 'knight.png';
+Knight.image.src = '/images/knight.png';
 
 
 
