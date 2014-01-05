@@ -6,9 +6,6 @@
 *.user
 *.sln.docstates
 
-#TEST ...ignore the node_modules folder
-node_modules
-
 # Build results
 
 [Dd]ebug/
