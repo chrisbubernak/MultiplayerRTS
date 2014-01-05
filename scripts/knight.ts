@@ -1,57 +1,49 @@
-//class(ish) definition...
+class Knight {
+    id: number;
+    loc: number;
+    prevLoc: number;
+    x: number;
+    y: number;
+    w: number = 30;
+    h: number = 30;
+    player: string;
+    imageX: number = 64;
+    imageY: number = 0;
+    imageW: number = 32;
+    imageH: number = 32;
+    target = new Array();
+    attackMax: number = 10;
+    attackMin: number = 5;
+    selected: boolean = false;
+    color: string = "black";
+    sight: number = 50;
+    totalHealth: number = 100;
+    health: number = this.totalHealth;
+    attackSpeed: number = 25;
+    attackTimer: number = 0;
+    src: string = '/images/knight.png';
+    static image;
 
-function Knight(id, loc, player) {
-  this.id = id;
-  this.loc = loc;
-  this.prevLoc = loc;
-  var coords = utilities.boxToCoords(loc);
-  this.x = coords.x;
-  this.y = coords.y;
-  this.w = 30;
-  this.h = 30;
-  this.player = player;
-  //use this to determine what part of the sprite colelction to use
-  this.imageX = 32*2;
-  this.imageY = 0;
-  this.imageW = 32;
-  this.imageH = 32;
+    constructor(id : number, loc: number, player: string) {
+        this.id = id;
+        this.loc = loc;
+        this.prevLoc = loc;
+        var coords = utilities.boxToCoords(loc);
+        this.x = coords.x;
+        this.y = coords.y;
+        this.player = player;
+    }
 
-  this.target = new Array();
-  this.attackMax = 10;
-  this.attackMin = 5;
-  this.selected = false;
-  this.color = "black";
-  this.sight = Knight.SIGHT_RANGE;
-  this.totalHealth = 100;
-  this.health = this.totalHealth;
-
-  this.attackSpeed = 25;
-  this.attackTimer = 0;
+    getImage() {
+        if (Knight.image) {
+            return Knight.image;
+        }
+        else {
+            Knight.image = new Image();
+            Knight.image.onload = function () {
+                return Knight.image;
+            };
+            Knight.image.src = this.src;
+        }
+    }
 }
-
-Knight.prototype.imageReady = function(){
-	return Knight.imageLoaded;
-}
-
-Knight.prototype.getImage = function(){
-	return Knight.image;
-}
-
-Knight.SIGHT_RANGE = 50;
-Knight.WIDTH = 32;
-Knight.HEIGHT = 32;
-
-//only want to load the image once per class (i.e. not for each unit)
-Knight.image = new Image();
-Knight.imageLoaded = false;
-var imageLoaded = false;
-Knight.image.onload = function() {
-  Knight.imageLoaded = true;
-};
-Knight.image.src = '/images/knight.png';
-
-
-
-
-
-

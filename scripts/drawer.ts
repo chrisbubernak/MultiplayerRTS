@@ -71,10 +71,9 @@ var drawer = (function() {
   	drawUnit: function(unit) {
       var coords = utilities.boxToCoords(unit.loc);
       var x = unit.x
-      var y = unit.y;
-      if(unit.imageReady()) {    
-        unitContext.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
-      }
+      var y = unit.y;  
+      unitContext.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
+      
       if (unit.selected) {
         unitContext.beginPath();
         unitContext.strokeStyle = GREEN;

@@ -1,4 +1,4 @@
 MultiplayerRTS
 ==============
 
-Multiplayer RTS written in JavaScript
+Multiplayer RTS written in TypeScript
