@@ -158,3 +158,6 @@ $RECYCLE.BIN/
 
 # node modules
 node_modules/
+
+#js files...we only want to track ts files
+*.js

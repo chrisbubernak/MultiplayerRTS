@@ -28,7 +28,7 @@
     <Compile Include="scripts\client.ts" />
     <Compile Include="scripts\drawer.ts" />
     <Compile Include="scripts\game.ts" />
-    <Compile Include="scripts\jquery.js" />
+    <Compile Include="scripts\jquery.ts" />
     <Compile Include="scripts\knight.ts" />
     <Compile Include="scripts\priorityQueue.ts" />
     <Compile Include="scripts\quadtree.ts" />

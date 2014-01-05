@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "latest",
-    "socket.io": "latest",
-    "uuid": "latest",
+    "express": "~3.4.7",
+    "socket.io": "~0.9.16",
+    "uuid": "~1.4.1",
     "typescript": "~0.9.5",
     "typescript-compiler": "~0.9.1-1"
   }
