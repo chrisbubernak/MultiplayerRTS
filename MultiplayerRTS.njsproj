@@ -6,7 +6,7 @@
     <ProjectGuid>{1f2427ed-dce7-4e77-810c-a6b42bd35fdc}</ProjectGuid>
     <ProjectHome />
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile>server.js</StartupFile>
+    <StartupFile>server.ts</StartupFile>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
@@ -32,7 +32,7 @@
     <Compile Include="scripts\knight.ts" />
     <Compile Include="scripts\priorityQueue.ts" />
     <Compile Include="scripts\quadtree.ts" />
-    <Compile Include="server.js" />
+    <Compile Include="server.ts" />
     <Compile Include="scripts\square.ts" />
     <Compile Include="scripts\utilities.ts" />
   </ItemGroup>
