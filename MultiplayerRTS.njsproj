@@ -16,7 +16,6 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
-    <Content Include="greeter.ts" />
     <Content Include="views\index.html" />
     <Content Include="images\knight.png" />
     <Content Include="images\dirt.jpg" />
@@ -25,17 +24,16 @@
     <Content Include="images\unit.gif" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <Compile Include="scripts\client.js" />
-    <Compile Include="scripts\drawer.js" />
-    <Compile Include="scripts\game.js" />
-    <Compile Include="scripts\healthBar.js" />
+    <Compile Include="scripts\client.ts" />
+    <Compile Include="scripts\drawer.ts" />
+    <Compile Include="scripts\game.ts" />
     <Compile Include="scripts\jquery.js" />
-    <Compile Include="scripts\knight.js" />
-    <Compile Include="scripts\priorityQueue.js" />
-    <Compile Include="scripts\quadtree.js" />
+    <Compile Include="scripts\knight.ts" />
+    <Compile Include="scripts\priorityQueue.ts" />
+    <Compile Include="scripts\quadtree.ts" />
     <Compile Include="server.js" />
-    <Compile Include="scripts\square.js" />
-    <Compile Include="scripts\utilities.js" />
+    <Compile Include="scripts\square.ts" />
+    <Compile Include="scripts\utilities.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="images\" />
@@ -82,4 +80,16 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.VisualStudio.$(WMSJSProject).targets" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptIncludeComments>true</TypeScriptIncludeComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptIncludeComments>false</TypeScriptIncludeComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>
