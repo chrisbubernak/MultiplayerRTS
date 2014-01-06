@@ -266,12 +266,11 @@ Game.prototype.attack = function(attacker, defender) {
   }
 }
 
-//THE WRONG UNIT IS BEING KILLED RIGHT NOW
-Game.prototype.removeUnit = function(unit) {
+Game.prototype.removeUnit = function (unit) {
   var id = unit.id;
   for (var i = 0; i < (length = this.units.length); i++){
     if (this.units[i].id == id) {
-        this.units.shift(i, 1);
+        this.units.splice(i, 1);
         //mark the old locs occupied by this unit as false
         for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
           Game.grid[locs[l]] = null; 

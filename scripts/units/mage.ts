@@ -9,7 +9,7 @@ class Mage extends Unit {
         this.imageW = 32;
         this.imageH = 32;
         this.attackMax = 35;
-        this.attackMin = 5;
+        this.attackMin = 10;
         this.totalHealth = 80;
         this.health = this.totalHealth;
         this.attackSpeed = 45;

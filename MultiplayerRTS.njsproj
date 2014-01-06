@@ -17,6 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Content Include="images\units.png" />
+    <Content Include="scripts\aStar.ts" />
     <Content Include="scripts\units\mage.ts" />
     <Content Include="views\index.html" />
     <Content Include="images\dirt.jpg" />
