@@ -3,8 +3,9 @@
   </head>
   <script src="/scripts/jquery.js"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/scripts/healthBar.js"></script>
-  <script src="/scripts/knight.js"></script>
+  <script src="/scripts/unit.js"></script>
+  <script src="/scripts/units/knight.js"></script>
+  <script src="/scripts/units/mage.js"></script>
   <script src="/scripts/game.js"></script>
   <script src="/scripts/client.js"></script>
   <script src="/scripts/quadtree.js"></script>
@@ -15,7 +16,7 @@
   <style>
   canvas {
     position: absolute;
-    top: 75;
+    top: 25;
     left: 25;
   }
   </style>
@@ -25,7 +26,6 @@
     <div id = "gameId"></div>
     <div id = "clientId"></div>
 
-    <div id = "viewport"></div>
     <canvas id="terrainCanvas"></canvas>
     <canvas id="unitCanvas"> </canvas>
     <canvas id="fogCanvas"></canvas>

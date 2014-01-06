@@ -214,10 +214,10 @@ Game.prototype.setup = function(){
           this.clients[0]
     )));
     this.units.push(
-      Object.create(new Knight(
-          this.createUnitId(),
-          Math.round(utilities.random()*Game.boxesPerRow*Game.boxesPerCol), 
-          this.clients[1]
+      Object.create(new Mage(
+        this.createUnitId(),
+        Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
+        this.clients[1]
     )));
   }
 }

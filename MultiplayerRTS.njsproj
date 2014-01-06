@@ -16,28 +16,29 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include="images\units.png" />
+    <Content Include="scripts\units\mage.ts" />
     <Content Include="views\index.html" />
-    <Content Include="images\knight.png" />
     <Content Include="images\dirt.jpg" />
     <Content Include="images\grass.jpg" />
     <Content Include="images\terrain.jpg" />
-    <Content Include="images\unit.gif" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Compile Include="scripts\client.ts" />
     <Compile Include="scripts\drawer.ts" />
     <Compile Include="scripts\game.ts" />
     <Compile Include="scripts\jquery.ts" />
-    <Compile Include="scripts\knight.ts" />
+    <Compile Include="scripts\units\knight.ts" />
     <Compile Include="scripts\priorityQueue.ts" />
     <Compile Include="scripts\quadtree.ts" />
+    <Compile Include="scripts\unit.ts" />
     <Compile Include="server.ts" />
-    <Compile Include="scripts\square.ts" />
     <Compile Include="scripts\utilities.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="images\" />
     <Folder Include="scripts\" />
+    <Folder Include="scripts\units\" />
     <Folder Include="views\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
