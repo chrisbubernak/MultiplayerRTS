@@ -1,3 +1,4 @@
+/// <reference path="../../scripts/unit.ts" />
 class Knight extends Unit{
     constructor(id: number, loc: number, player: string) {
         super(id, loc, player);

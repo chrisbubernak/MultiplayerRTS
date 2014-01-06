@@ -1,18 +1,77 @@
 //PriorityQueue of integers where lowest priority value is at the top
-function PriorityQueue() {
-  this.array = new Array();
-  this.array.push({});
+class PriorityQueue {
+  array = new Array();
 
-  this.parent = function(index) {
+  constructor() {
+    this.array.push({});
+  }
+
+  //runtime: O(n)
+  //this doesn't really make sense for priorityqueues but our a*
+  //needs to know if an element exists 
+  public indexOf(val : number) {
+        for (var i = 1; i < this.array.length; i++) {
+            if (this.array[i].val === val) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+  //runtime: O(n)
+  public update(val : number, newPriority : number) {
+    var index = this.indexOf(val);
+    if (index === -1) {
+      return;
+    }
+
+    var oldPriority = this.array[index].priority;
+    this.array[index].priority = newPriority;
+    if (newPriority > oldPriority) {
+      this.bubbleDown(index);
+    }
+    else if (newPriority < oldPriority) {
+      this.bubbleUp(index);
+    }
+  }
+
+  //runtime: O(1)
+  public isEmpty() {
+    if (this.array.length > 1) {
+      return false;
+    }
+    return true;
+  }
+
+  //runtime: O(log(n))
+  public enqueue(val : number, priority : number) {
+    var last = this.array.push({ val: val, priority: priority }) - 1;
+    this.bubbleUp(last);
+  }
+
+  //runtime: O(1)
+  public dequeue(){
+    var min = this.array[1].val;
+    var last = this.array.length - 1;
+    this.array[1] = this.array[last];
+    this.array.splice(last, 1);
+    this.bubbleDown(1);
+    return min;
+  }
+
+  private parent(index : number) {
     return Math.floor(index/2);
   }
-  this.leftChild = function(index) {
+
+  private leftChild(index : number) {
   	return index*2;
   }
-  this.rightChild = function(index) {
+
+  private rightChild(index : number) {
   	return index*2+1;
   }
-  this.bubbleUp = function(index) {
+
+  private bubbleUp(index : number) {
     var cur = index;
     var parent = this.parent(cur);
     while (cur != 1 && this.array[cur].priority < this.array[parent].priority) {
@@ -27,7 +86,7 @@ function PriorityQueue() {
     }
   }
 
-  this.bubbleDown = function(index) {
+  private bubbleDown(index : number) {
     var cur = index;
     var left = this.leftChild(1);
     var right = this.rightChild(1);
@@ -77,63 +136,5 @@ function PriorityQueue() {
       right = this.rightChild(cur);
     }
   }  
-}
-
-//runtime: O(n)
-//this doesn't really make sense for priorityqueues but code needs to know
-//if an element exists 
-PriorityQueue.prototype.indexOf = function (val) {
-  for (var i = 1; i < this.array.length; i++) {
-  	if (this.array[i].val === val) {
-  		return i;
-  	}
-  }
-  return -1;
-}
-
-PriorityQueue.prototype.update = function(val, newPriority) {
-	var index = this.indexOf(val);
-	if (index === -1) {
-		return;
-	}
-
-    var oldPriority = this.array[index].priority;
-    this.array[index].priority = newPriority;
-	if (newPriority > oldPriority) {
-      this.bubbleDown(index);
-	}
-	else if (newPriority < oldPriority) {
-      this.bubbleUp(index);
-	}
-}
-
-//runtime: O(1)
-PriorityQueue.prototype.isEmpty = function () {
-  if (this.array.length > 1) {
-    return false;
-  }
-  else {
-    return true;
-  }
-}
-
-//runtime: O(log(n))
-PriorityQueue.prototype.enqueue = function(val, priority){
-  var last = this.array.push({val: val, priority: priority}) - 1;
-  this.bubbleUp(last);
-}
-
-//runtime: O(1)
-PriorityQueue.prototype.dequeue = function(){
-  var min = this.array[1].val;
-  var last = this.array.length-1;
-  this.array[1] = this.array[last];
-  this.array.splice(last, 1);
-  this.bubbleDown(1);
-  return min;
-}
-
-PriorityQueue.prototype.print = function(){
-  console.log(this.array);
 }
 

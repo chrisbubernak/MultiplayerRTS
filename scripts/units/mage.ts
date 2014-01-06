@@ -1,4 +1,5 @@
-﻿class Mage extends Unit {
+﻿/// <reference path="../../scripts/unit.ts" />
+class Mage extends Unit {
     constructor(id: number, loc: number, player: string) {
         super(id, loc, player);
         this.w = 30;
