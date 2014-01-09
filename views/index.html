@@ -3,6 +3,7 @@
   </head>
   <script src="/scripts/jquery.js"></script>
   <script src="/socket.io/socket.io.js"></script>
+  <script src="/scripts/terrainTile.js"></script>
   <script src="/scripts/unit.js"></script>
   <script src="/scripts/units/knight.js"></script>
   <script src="/scripts/units/mage.js"></script>
@@ -31,5 +32,9 @@
     <canvas id="fogCanvas"></canvas>
     <canvas id="selectionCanvas"></canvas>
   </body>
-
+  <script>
+      //load some stuff we are going to need
+      var t = new TerrainTile();
+      t.getImage();
+  </script>
 </html>

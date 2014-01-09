@@ -94,15 +94,16 @@ var drawer = (function() {
       unitContext.fillRect(x + unit.w*percent, y - HEALTH_BAR_OFFSET, unit.w * (1-percent), HEALTH_BAR_HEIGHT);
   	},
 
-  	drawTerrain: function(tiles) {
-      var imageObj = new Image();
-      var that = this;
-      imageObj.onload = function() {
-        for (var i = 0; i < Game.boxesPerRow * Game.boxesPerCol; i++) {
-          terrainContext.drawImage(imageObj, Math.round(utilities.random()) * this.width/2, 0,this.width/2,this.height/2,utilities.boxToCoords(i).x,utilities.boxToCoords(i).y,Game.boxSize, Game.boxSize);
+  	drawTerrain: function(tiles) {       
+        for (var i = 0; i < (length = tiles.length); i++) {
+            var tile = tiles[i];
+            if (tile.getImage()) {
+                terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, utilities.boxToCoords(i).x, utilities.boxToCoords(i).y, Game.boxSize, Game.boxSize);
+            }
+            else {
+                //console.log("failed to load image");
+            }
         }
-      };
-      imageObj.src = '/images/terrain.jpg';
   	},
 
   	drawFog: function () {

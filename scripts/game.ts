@@ -49,7 +49,8 @@ Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
 Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
 Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
 
-Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
+Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
 
 Game.NUMBER_OF_UNITS = 2;
 Game.FPS = 60;
@@ -58,6 +59,53 @@ Game.SEED = 3;
 }
 
 
+Game.prototype.generateTerrain = function () {
+    for (var i = 0; i < (length = Game.boxesPerRow * Game.boxesPerCol); i++) {
+        var type = utilities.random();
+        var grass = .5;
+
+        if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
+            grass -= .2;
+        }
+        if (Game.terrain[i - Game.boxesPerRow] && Game.terrain[i - Game.boxesPerRow].type == 'grass') {
+            grass -= .2;
+        }
+        if (type >= grass) {
+            Game.terrain[i] = new GrassTile();
+        }
+        else {
+            Game.terrain[i] = new DirtTile();
+        }
+    }
+    this.generateLake();
+    this.generateLake();
+    this.generateLake();
+}
+
+Game.prototype.generateLake = function () {
+    var first = Math.round(utilities.random() * Game.boxesPerCol * Game.boxesPerRow);
+    var river = new Array();
+    var old = new Array();
+    river.push(first);
+    var counter = 0;
+    while (river.length > 0 && counter < 20) {
+        console.log(river);
+
+        Game.terrain[river[0]] = new WaterTile();
+        var neighbors = utilities.neighbors(river[0]);
+        for (var i = 0; i < neighbors.length; i++) {
+            if (utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
+                river.push(neighbors[i]);
+            }
+        }
+        old.push(river.shift());
+        console.log(river);
+        counter++;
+    }
+    for (var i = 0; i < river.length; i++) {
+        Game.terrain[river[i]] = new WaterTile();
+    }
+}
 
 Game.prototype.createUnitId = function() {
   this.unitId++;
@@ -144,8 +192,9 @@ Game.prototype.setup = function(){
     document.getElementById("terrainCanvas"),
     document.getElementById("unitCanvas"),
     document.getElementById("fogCanvas"),
-    document.getElementById("selectionCanvas"))
-  drawer.drawTerrain();
+      document.getElementById("selectionCanvas"))
+  this.generateTerrain();
+  drawer.drawTerrain(Game.terrain);
 
   //disable the right click so we can use it for other purposes
   document.oncontextmenu = function() {return false;};
@@ -162,7 +211,7 @@ Game.prototype.setup = function(){
   $(document).bind('keyup keydown', function(e){
     var code = e.keyCode || e.which;
     if(code == 71) { 
-      drawer.drawGrid();
+        drawer.drawGrid();
     }
     that.shifted = e.shiftKey;
     return true;
