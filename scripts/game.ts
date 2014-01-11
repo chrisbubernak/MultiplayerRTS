@@ -42,9 +42,9 @@ this.unitId = 0;
 
 
 //static constants
-Game.CANVAS_WIDTH = 1280;//960;//900//960;
+Game.CANVAS_WIDTH = 1440;//1280;//960;//900//960;
 Game.CANVAS_HEIGHT = 720; //640//540//640;
-Game.boxesPerRow = 80;//30//60;
+Game.boxesPerRow = 90;//30//60;
 Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
 Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
 Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
@@ -443,9 +443,15 @@ Game.prototype.move = function(unit){
 
       //check all of the neighbor moves for collisions
       for (var i = neighbors.length - 1; i >= 0; i--) { 
-          var coords = utilities.boxToCoords(neighbors[i]);
-          if (((coords.x + unit.w) > Game.CANVAS_WIDTH) || ((coords.y + unit.h) > Game.CANVAS_HEIGHT) || (!Game.terrain[neighbors[i]].walkable) ) {
+        var coords = utilities.boxToCoords(neighbors[i]);
+        if (((coords.x + unit.w) > Game.CANVAS_WIDTH) || ((coords.y + unit.h) > Game.CANVAS_HEIGHT) || (!Game.terrain[neighbors[i]].walkable) ) {
           //drawer.drawPathing(neighbors[i], "blue", 0);
+          if (neighbors[i] == goal) {
+            //if the goal was unreachable path to the thing we think is closest to it
+            var final = distanceToGoal.dequeue();
+            alert("IS THIS REACHABLE");
+            return this.getPath(cameFrom, final, start);
+          }
           neighbors.splice(i, 1);
           continue;
         }
@@ -454,6 +460,13 @@ Game.prototype.move = function(unit){
         for (var l in locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h)) {
             if ((Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) || !Game.terrain[locs[l]].walkable) {
              //drawer.drawPathing(neighbors[i], "blue", 0);
+             if (neighbors[i] == goal) {
+               //if the goal was unreachable path to the thing we think is closest to it
+               //pq could be null though at this point if our current location is good enough
+               //in that case our path is 0 length
+               var final = distanceToGoal.dequeue();
+               return this.getPath(cameFrom, final || start, start);
+             }
              neighbors.splice(i, 1);
              break;
           }

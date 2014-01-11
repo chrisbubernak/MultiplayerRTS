@@ -50,7 +50,10 @@ class PriorityQueue {
   }
 
   //runtime: O(1)
-  public dequeue(){
+  public dequeue() {
+    if (this.isEmpty()) {
+      return null;
+    } 
     var min = this.array[1].val;
     var last = this.array.length - 1;
     this.array[1] = this.array[last];
