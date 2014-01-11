@@ -13,6 +13,5 @@ class Knight extends Unit{
         this.totalHealth = 100;
         this.health = this.totalHealth;
         this.attackSpeed = 25;
-        this.sight = 50;
     }
 }

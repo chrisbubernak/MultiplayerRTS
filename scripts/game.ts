@@ -400,8 +400,8 @@ Game.prototype.move = function(unit){
     if (direction) {
       unit.setDirection(direction);
     }
-    unit.loc = unit.target[0]; 
-    var curCoords = utilities.boxToCoords(unit.loc);
+
+    unit.loc = unit.target[0] || unit.loc;  
 
     unit.target.shift();
     //every time the unit moves a location reset its attack timer

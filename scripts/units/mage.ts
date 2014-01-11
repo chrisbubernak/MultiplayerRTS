@@ -13,6 +13,5 @@ class Mage extends Unit {
         this.totalHealth = 80;
         this.health = this.totalHealth;
         this.attackSpeed = 45;
-        this.sight = 100;
     }
 }

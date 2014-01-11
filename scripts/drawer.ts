@@ -48,9 +48,10 @@ var drawer = (function() {
           var x = coords.x;
           var y = coords.y;
   	      //this stuff does the "sight" circles in the fog
-  	      var r1 = units[i].sight;
-          var r2 = 150;
-  	      var density = .4;
+  	      var r1 = units[i].sightRange;
+          var r2 = r1 + 50;
+          var density = .4;
+
           var radGrd = fogContext.createRadialGradient( 
             x + units[i].w/2, 
             y + units[i].h/2, r1, 
