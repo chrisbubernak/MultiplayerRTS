@@ -77,33 +77,30 @@ Game.prototype.generateTerrain = function () {
             Game.terrain[i] = new DirtTile();
         }
     }
-    this.generateLake();
-    this.generateLake();
-    this.generateLake();
+    for (var i = 0; i < 6; i++) {
+        this.generateLake();
+    }
 }
 
 Game.prototype.generateLake = function () {
     var first = Math.round(utilities.random() * Game.boxesPerCol * Game.boxesPerRow);
-    var river = new Array();
+    var lake= new Array();
     var old = new Array();
-    river.push(first);
+    lake.push(first);
     var counter = 0;
-    while (river.length > 0 && counter < 20) {
-        console.log(river);
-
-        Game.terrain[river[0]] = new WaterTile();
-        var neighbors = utilities.neighbors(river[0]);
+    while (lake.length > 0 && counter < 23) {
+        Game.terrain[lake[0]] = new WaterTile();
+        var neighbors = utilities.neighbors(lake[0]);
         for (var i = 0; i < neighbors.length; i++) {
             if (utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
-                river.push(neighbors[i]);
+                lake.push(neighbors[i]);
             }
         }
-        old.push(river.shift());
-        console.log(river);
+        old.push(lake.shift());
         counter++;
     }
-    for (var i = 0; i < river.length; i++) {
-        Game.terrain[river[i]] = new WaterTile();
+    for (var i = 0; i < lake.length; i++) {
+        Game.terrain[lake[i]] = new WaterTile();
     }
 }
 
@@ -307,7 +304,7 @@ Game.prototype.attack = function(attacker, defender) {
   var attackRange = attacker.attackMax - attacker.attackMin;
   var damage = utilities.random()*attackRange + attacker.attackMin;
   defender.health -= damage;
-  for (var l in locs = utilities.getOccupiedSquares(attacker.loc, attacker.w, attacker.h)) {
+    for (var l in locs = utilities.getOccupiedSquares(defender.loc, defender.w, defender.h)) {
     drawer.drawSquare(locs[l], "red");
   }
   if (defender.health <=0) {
@@ -398,7 +395,11 @@ Game.prototype.move = function(unit){
         break;
       }
     }
-
+    //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
+    var direction = utilities.getDirection(unit.loc, unit.target[0])
+    if (direction) {
+      unit.setDirection(direction);
+    }
     unit.loc = unit.target[0]; 
     var curCoords = utilities.boxToCoords(unit.loc);
 
@@ -420,12 +421,12 @@ Game.prototype.move = function(unit){
   Game.prototype.aStar = function(start, goal, unit) {
     //this probably needs to be changed but for now if they want to move somewhere that is blocked or off the screen just stop moving
     var coords = utilities.boxToCoords(goal);
-    if ((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT) {
+    if ((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT || !Game.terrain[goal].walkable) {
       return [start];
     }    
     //make sure that we could occupy the goal state without colliding with anything
     for (var l in locs = utilities.getOccupiedSquares(goal, unit.w, unit.h)) {
-      if (Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) {
+        if ((Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) || !Game.terrain[locs[l]].walkable) {
         return [start];
       }
     }
@@ -441,18 +442,29 @@ Game.prototype.move = function(unit){
     openSet.enqueue(start, fScore[start]);
     var cur;
     while (!openSet.isEmpty()) {
-      var cur = openSet.dequeue();
+      cur = openSet.dequeue();
+
+      //exact check
       if (cur == goal) {
         return this.getPath(cameFrom, goal, start);
       }
+
+        //close enough check...
+        /*for (var l in locs = utilities.getOccupiedSquares(cur, unit.w, unit.h)) {
+            for (var n in neighbors = utilities.neighbors(locs[l])) {
+                if (neighbors[n] == goal) {
+                    return this.getPath(cameFrom, cur, start);
+                }
+            }
+        }*/
+
       closedSet.push(cur);
       var neighbors = utilities.neighbors(cur);
 
       //check all of the neighbor moves for collisions
-      for (var i = neighbors.length; i >= 0; i--) { 
-        //first make sure this move won't leave part of the unit hanging off the screen...
-        var coords = utilities.boxToCoords(neighbors[i]);
-        if((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT ) {
+      for (var i = neighbors.length - 1; i >= 0; i--) { 
+          var coords = utilities.boxToCoords(neighbors[i]);
+          if (((coords.x + unit.w) > Game.CANVAS_WIDTH) || ((coords.y + unit.h) > Game.CANVAS_HEIGHT) || (!Game.terrain[neighbors[i]].walkable) ) {
           //drawer.drawPathing(neighbors[i], "blue", 0);
           neighbors.splice(i, 1);
           continue;
@@ -460,7 +472,7 @@ Game.prototype.move = function(unit){
 
         //for each move make sure this unit could move there without colliding with any thing
         for (var l in locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h)) {
-          if (Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) {
+            if ((Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) || !Game.terrain[locs[l]].walkable) {
              //drawer.drawPathing(neighbors[i], "blue", 0);
              neighbors.splice(i, 1);
              break;

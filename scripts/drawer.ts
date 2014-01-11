@@ -72,7 +72,8 @@ var drawer = (function() {
       var coords = utilities.boxToCoords(unit.loc);
       var x = unit.x
       var y = unit.y;  
-      unitContext.drawImage(unit.getImage(), unit.imageX,unit.imageY,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
+      var coords = unit.getDrawCoordinates(); 
+      unitContext.drawImage(unit.getImage(), coords.x,coords.y,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
       
       if (unit.selected) {
         unitContext.beginPath();

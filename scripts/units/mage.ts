@@ -4,7 +4,7 @@ class Mage extends Unit {
         super(id, loc, player);
         this.w = 30;
         this.h = 30;
-        this.imageX = 64;
+        this.imageX = 0;
         this.imageY = 0;
         this.imageW = 32;
         this.imageH = 32;

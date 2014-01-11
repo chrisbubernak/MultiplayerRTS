@@ -4,7 +4,7 @@ class Knight extends Unit{
         super(id, loc, player);
         this.w = 30;
         this.h = 30;
-        this.imageX = 576;
+        this.imageX = 512;
         this.imageY = 160;
         this.imageW = 32;
         this.imageH = 32;
