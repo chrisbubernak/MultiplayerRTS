@@ -419,20 +419,9 @@ Game.prototype.move = function(unit){
 
 
   Game.prototype.aStar = function(start, goal, unit) {
-    //this probably needs to be changed but for now if they want to move somewhere that is blocked or off the screen just stop moving
-    var coords = utilities.boxToCoords(goal);
-    if ((coords.x + unit.w) > Game.CANVAS_WIDTH || (coords.y + unit.h) > Game.CANVAS_HEIGHT || !Game.terrain[goal].walkable) {
-      return [start];
-    }    
-    //make sure that we could occupy the goal state without colliding with anything
-    for (var l in locs = utilities.getOccupiedSquares(goal, unit.w, unit.h)) {
-        if ((Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) || !Game.terrain[locs[l]].walkable) {
-        return [start];
-      }
-    }
-
     var closedSet = new Array();
     var openSet = new PriorityQueue();
+    var distanceToGoal = new PriorityQueue(); //use this to choose a fallback goal state if we can't reach the goal
     var cameFrom = new Object();
     var gScore = new Object();
     var fScore = new Object();
@@ -444,19 +433,10 @@ Game.prototype.move = function(unit){
     while (!openSet.isEmpty()) {
       cur = openSet.dequeue();
 
-      //exact check
+      //are we done?
       if (cur == goal) {
         return this.getPath(cameFrom, goal, start);
       }
-
-        //close enough check...
-        /*for (var l in locs = utilities.getOccupiedSquares(cur, unit.w, unit.h)) {
-            for (var n in neighbors = utilities.neighbors(locs[l])) {
-                if (neighbors[n] == goal) {
-                    return this.getPath(cameFrom, cur, start);
-                }
-            }
-        }*/
 
       closedSet.push(cur);
       var neighbors = utilities.neighbors(cur);
@@ -482,7 +462,9 @@ Game.prototype.move = function(unit){
 
       for (var i = 0; i <neighbors.length; i++) {
         var t_gScore = gScore[cur] + utilities.distance(utilities.boxToCoords(cur), utilities.boxToCoords(neighbors[i]))/Game.boxSize;
-        var t_fScore = t_gScore + this.heuristic(neighbors[i], goal);
+        var heuristic = this.heuristic(neighbors[i], goal);
+        var t_fScore = t_gScore + heuristic;
+        distanceToGoal.enqueue(neighbors[i], heuristic);
         if ((closedSet.indexOf(neighbors[i])!=-1) && (t_fScore >=fScore[neighbors[i]])) {
           continue;
         }
@@ -503,7 +485,8 @@ Game.prototype.move = function(unit){
         
       }
     }
-    alert("ERROR!");
+    //if the goal was unreachable path to the thing we think is closest to it
+    return this.getPath(cameFrom, distanceToGoal.dequeue(), start);
   }
 
   //this should return the path as an array going from first move to last
