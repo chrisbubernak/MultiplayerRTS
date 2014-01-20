@@ -27,7 +27,7 @@ var Game = function(socket, id, clients, gameId) {
   }
   that.simTick++;
 });
-
+  this.astar = 0;
 
 //"private" variables
 this.units = new Array(); //array of units
@@ -260,7 +260,7 @@ Game.prototype.setup = function(){
           this.clients[0]
     )));
     this.units.push(
-      Object.create(new Mage(
+      Object.create(new Knight(
         this.createUnitId(),
         Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
         this.clients[1]
@@ -281,7 +281,7 @@ Game.prototype.update = function(){
 
 
 
-Game.prototype.combat = function(unit) {
+Game.prototype.combat = function (unit) {
   //need to check attacktimer & make sure the unit is not in the process of moving
   if (unit.attackTimer > 0 || unit.target.length > 0) {
     unit.attackTimer--;
@@ -291,22 +291,25 @@ Game.prototype.combat = function(unit) {
     for (var n in neighbors = utilities.neighbors(locs[l])) {
       var id = Game.grid[neighbors[n]];
       var enemy = utilities.findUnit(id, this.units);
-      if ( enemy != null && enemy.player != unit.player) {
+      if (enemy != null && enemy.player != unit.player) {
+        unit.setDirection(utilities.getDirection(unit.loc, enemy.loc));
         this.attack(unit, enemy);
         unit.attackTimer = unit.attackSpeed;
+        unit.inCombat = true;
         return;
       }
     }
   }
+  unit.inCombat = false;
 }
 
 Game.prototype.attack = function(attacker, defender) {
   var attackRange = attacker.attackMax - attacker.attackMin;
   var damage = utilities.random()*attackRange + attacker.attackMin;
   defender.health -= damage;
-    for (var l in locs = utilities.getOccupiedSquares(defender.loc, defender.w, defender.h)) {
-    drawer.drawSquare(locs[l], "red");
-  }
+  //for (var l in locs = utilities.getOccupiedSquares(defender.loc, defender.w, defender.h)) {
+  //  drawer.drawSquare(locs[l], "red");
+  //}
   if (defender.health <=0) {
     this.removeUnit(defender);
   }
@@ -410,6 +413,24 @@ Game.prototype.move = function(unit){
   else if (unit.target.length === 0) {
     unit.prevLoc = unit.loc;
 
+    if (!unit.inCombat) {
+      //if unit is not moving && not in combat, check if any enemies are near by, if they are start pathing to them
+      var height = unit.h + unit.attackRange * 2;
+      var width = unit.w + unit.attackRange * 2;
+      var coords = utilities.boxToCoords(unit.loc);
+      var loc = utilities.coordsToBox(coords.x - unit.attackRange, coords.y - unit.attackRange);
+      var locs = utilities.getOccupiedSquares(loc, width, height);
+      for (var i = 0; i < locs.length; i++) {
+        //drawer.drawSquare(locs[i], 'red');
+        if (Game.grid[locs[i]]) {
+          var potentialEnemy = utilities.findUnit(Game.grid[locs[i]], this.units);
+          if (potentialEnemy && potentialEnemy.player != unit.player) {
+            unit.target = this.aStar(unit.loc, potentialEnemy.loc, unit);
+            break;
+            }
+          }
+      }
+    }
   }
   //mark the locs occupied by this unit as true
   for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
@@ -419,6 +440,7 @@ Game.prototype.move = function(unit){
 
 
   Game.prototype.aStar = function(start, goal, unit) {
+    console.log(this.astar++)
     var closedSet = new Array();
     var openSet = new PriorityQueue();
     var distanceToGoal = new PriorityQueue(); //use this to choose a fallback goal state if we can't reach the goal
@@ -430,7 +452,10 @@ Game.prototype.move = function(unit){
     fScore[start] = gScore[start] + this.heuristic(start, goal);
     openSet.enqueue(start, fScore[start]);
     var cur;
-    while (!openSet.isEmpty()) {
+    var nodesExplored = 0;
+    var nodeThreshold = Game.boxesPerRow*2;
+    while (!openSet.isEmpty() && nodesExplored < nodeThreshold) {
+      nodesExplored++;
       cur = openSet.dequeue();
 
       //are we done?
@@ -447,9 +472,9 @@ Game.prototype.move = function(unit){
         if (((coords.x + unit.w) > Game.CANVAS_WIDTH) || ((coords.y + unit.h) > Game.CANVAS_HEIGHT) || (!Game.terrain[neighbors[i]].walkable) ) {
           //drawer.drawPathing(neighbors[i], "blue", 0);
           if (neighbors[i] == goal) {
+            alert('cool');
             //if the goal was unreachable path to the thing we think is closest to it
             var final = distanceToGoal.dequeue();
-            alert("IS THIS REACHABLE");
             return this.getPath(cameFrom, final, start);
           }
           neighbors.splice(i, 1);

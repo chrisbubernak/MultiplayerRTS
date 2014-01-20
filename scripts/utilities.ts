@@ -69,20 +69,25 @@ var utilities = (function() {
 
     //figure out if the unit is moving up, down, left, or right and return that direction
     getDirection: function (loc1, loc2) {
-        var coords1 = utilities.boxToCoords(loc1);
-        var coords2 = utilities.boxToCoords(loc2);
-        if (coords1.y > coords2.y) {
-            return 'up';
-        }
-        if (coords2.y > coords1.y) {
-            return 'down';
-        }
+      var coords1 = utilities.boxToCoords(loc1);
+      var coords2 = utilities.boxToCoords(loc2);
+      if (Math.abs(coords1.x - coords2.x) > Math.abs(coords1.y - coords2.y)) {
         if (coords1.x > coords2.x) {
-            return 'left';
+          return 'left';
         }
         if (coords1.x < coords2.x) {
-            return 'right';
+          return 'right';
         }
+      }
+      else {
+        if (coords1.y > coords2.y) {
+          return 'up';
+        }
+        if (coords2.y > coords1.y) {
+          return 'down';
+        }
+      }
+
         return;
     },
 
