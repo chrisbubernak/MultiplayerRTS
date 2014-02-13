@@ -20,6 +20,7 @@ class Game {
   private static SEED : number = 3;
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static units = new Array(); //array of units
+  private static clients;
 
   //"private" variables
   private tree; //the quad tree
@@ -27,14 +28,13 @@ class Game {
   private actions = new Array();
   private simTick : number = 0;
   private gameId: string;
-  private clients;
   private id: string;
   private socket;
   private shifted: boolean;
 
   constructor(socket, id, clients, gameId) {
     this.gameId = gameId;
-    this.clients = clients; //an array of all players ids in the game
+    Game.clients = clients; //an array of all players ids in the game
     this.id = id; //this players id
     this.socket = socket;
     var that = this;
@@ -137,11 +137,7 @@ class Game {
     for (var i = 0; i < (length = Game.units.length); i++) {
       if (Game.units[i].id == id) {
         Game.units.splice(i, 1);
-        //mark the old locs occupied by this unit as false
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)
-        for (var l in locs) {
-          this.grid[locs[l]] = null;
-        }
+        Game.unmarkGridLocs(unit);
         return;
       }
     }
@@ -150,6 +146,23 @@ class Game {
   public static getUnits() {
     return Game.units;
   }
+
+  public static markOccupiedGridLocs(unit: Unit) {
+    //mark the locs occupied by this unit
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    for (var l in locs) {
+      Game.setGridLoc(locs[l], unit.id);
+    }
+  }
+
+  public static unmarkGridLocs(unit: Unit) {
+    //unmark the locs occupied by this unit
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    for (var l in locs) {
+      Game.setGridLoc(locs[l], null);
+    }
+  }
+
   //Private Methods:
 
   private setup() {
@@ -219,24 +232,20 @@ class Game {
     var args = { x: 0, y: 0, h: Game.CANVAS_HEIGHT, w: Game.CANVAS_WIDTH, maxChildren: 5, maxDepth: 5 };
     this.tree = QUAD.init(args);
     for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
-      Game.units.push(
-        Object.create(new Knight(
-          Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
-          this.clients[0]
-          )));
-      Game.units.push(
-        Object.create(new Knight(
-          Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
-          this.clients[1]
-          )));
+      var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[0]);
+      Game.markOccupiedGridLocs(p1unit);
+      Game.units.push(p1unit);
+      var p2unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
+      Game.markOccupiedGridLocs(p2unit);
+      Game.units.push(p2unit);
     }
   }
 
   private update() {
     //iterate backwards b/c we could be removing units from the unit list 
-    //inside the combat function which would break this loop
+    //I THINK THERE IS A BUG WHERE IF UNIT 5 IS UPDATING AND KILLS UNIT 4 UNIT WILL THEN HAVE UPDATE
+    //CALLED ON IT AGAIN....NEED TO INVESTIGATE
     for (var i = Game.units.length - 1; i >= 0; i--) {
-      //this.combat(Game.units[i]);
       Game.units[i].update();
     }
   }

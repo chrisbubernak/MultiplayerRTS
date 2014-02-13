@@ -1,5 +1,4 @@
-﻿/// <reference path="../Knight2.ts" />
-/// <reference path="../State.ts" />
+﻿/// <reference path="../State.ts" />
 /// <reference path="WaitingState.ts" />
 /// <reference path="../Pathing.ts" />
 
@@ -20,6 +19,9 @@ class WalkingState extends State {
   }
 
   public Execute(unit: Unit) {
+    //update our walking art
+    unit.animateTimer = (unit.animateTimer + Unit.animationIncrememt) % unit.numberOfAnimations;
+
     if (unit.path.length == 0) {
       unit.target = null;
       unit.prevLoc = unit.loc;
@@ -27,11 +29,6 @@ class WalkingState extends State {
     }
     else {
       WalkingState.move(unit);
-    }
-    //mark the locs occupied by this unit as true
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
-    for (var l in locs) {
-      Game.setGridLoc(locs[l], unit.id);
     }
     console.log('WALKING STATE');
   }
@@ -41,6 +38,9 @@ class WalkingState extends State {
   }
 
   private static move(unit) {
+    //mark this units occuppied locs as unoccupied
+    Game.unmarkGridLocs(unit);
+
     //if the unit has a new target change our path
     if (unit.prevTar != unit.target) {
       unit.path = Pathing.aStar(unit.loc, unit.target, unit);
@@ -71,7 +71,8 @@ class WalkingState extends State {
     }
     unit.loc = unit.path[0] || unit.loc;
     unit.path.shift();
-    //every time the unit moves a location reset its attack timer
-    unit.attackTimer = unit.attackSpeed;
+
+    //mark the new locs occupied by this unit as true
+    Game.markOccupiedGridLocs(unit);
   }
 }

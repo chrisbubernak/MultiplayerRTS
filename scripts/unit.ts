@@ -100,13 +100,6 @@ class Unit extends BaseGameEntity {
     var moving = this.isMoving();
     var attacking = this.isAttacking();
 
-    if (this.isMoving()) {
-      this.animateTimer = (this.animateTimer + Unit.animationIncrememt) % this.numberOfAnimations;
-    }
-    if (attacking) {
-      this.attackArtTimer = (this.attackArtTimer + Unit.attackAnimationIncrememt) % this.numberOfAttackAnimations;
-    }
-
     if (this.direction == 'up') {
       if (attacking) {
         return { x: this.imageX + Math.floor(this.attackArtTimer) * this.imageW, y: this.imageY + 256 }
@@ -131,32 +124,6 @@ class Unit extends BaseGameEntity {
       }
       return { x: this.imageX + Math.floor(this.animateTimer) * this.imageW, y: this.imageY + this.imageH *3 }
     }
-
-    /*if (this.direction == 'up') {
-        return { x: this.imageX + Math.floor(this.animateTimer)*this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'down') {
-        return { x: this.imageX + 64 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'left') {
-        return { x: this.imageX + 128 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'right') {
-        return { x: this.imageX + 192 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }*/
-
-    /*if (this.direction == 'up') {
-        return { x: this.imageX + Math.floor(this.animateTimer)*this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'down') {
-        return { x: this.imageX + 64 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'left') {
-        return { x: this.imageX + 128 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }
-    if (this.direction == 'right') {
-        return { x: this.imageX + 192 + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
-    }*/
   }
 
   private isMoving() {
@@ -165,7 +132,10 @@ class Unit extends BaseGameEntity {
   }
 
   private isAttacking() {
-    return this.inCombat;
+    if (this.attackTimer > 0) {
+      return true;
+    }
+    return false;
   }
 }
 

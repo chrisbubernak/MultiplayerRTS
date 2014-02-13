@@ -24,11 +24,6 @@ class WaitingState extends State{
     else if (WaitingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy...
       unit.ChangeState(AttackingState.Instance()); //start fighting
     }
-    //mark the locs occupied by this unit as true
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
-    for (var l in locs) {
-      Game.setGridLoc(locs[l], unit.id);
-    }
     console.log('WAITING STATE');
   }
 
