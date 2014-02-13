@@ -69,12 +69,12 @@ var drawer = (function() {
       selectionContext.clearRect(0,0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT)
   	},
 
-  	drawUnit: function(unit) {
+    drawUnit: function (unit) {
       var coords = utilities.boxToCoords(unit.loc);
       var x = unit.x
       var y = unit.y;  
       var coords = unit.getDrawCoordinates(); 
-      unitContext.drawImage(unit.getImage(), coords.x,coords.y,unit.imageW,unit.imageH, x, y,unit.w,unit.h);
+      unitContext.drawImage(unit.getImage(), coords.x,coords.y, unit.imageW, unit.imageH, x, y,unit.w,unit.h);
       
       if (unit.selected) {
         unitContext.beginPath();
@@ -142,7 +142,8 @@ var drawer = (function() {
           selection.y, 
           selection.w, 
           selection.h);
-     selectionContext.globalAlpha = 1;
+      selectionContext.globalAlpha = 1;
+      //console.log(selection.y + " " + selection.x + " " + selection.w + " " + selection.h);
   	},
 
   	drawGrid : function() {

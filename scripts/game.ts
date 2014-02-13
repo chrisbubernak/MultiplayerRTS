@@ -1,548 +1,355 @@
-var Game = function(socket, id, clients, gameId) {
+/// <reference path="terrainTile.ts" />
+/// <reference path="drawer.ts" />
+/// <reference path="units/knight.ts" />
+/// <reference path="jquery.js" />
+/// <reference path="quadtree.ts" />
 
- //document.getElementById("gameId").innerHTML = "Game: " + gameId;
- //document.getElementById("clientId").innerHTML = "Client: " + id;
 
- this.gameId = gameId;
- this.clients = clients; //an array of all players ids in the game
- this.id = id; //this players id
- this.socket = socket;
- var that = this;
- this.socket.on('SendActionsToClient', function (data) {
-  for (var a in data.actions){
-    var unit = utilities.findUnit(data.actions[a].unit, that.units);
-    var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
-    var path = that.aStar(unit.loc, targetLoc, unit);   
-    if (data.actions[a].shift) {
-      for (var p in path) {
-        unit.target.push(path[p]);
+class Game {
+  //static variables
+  private static CANVAS_WIDTH : number = 1440;//1280;//960;//900//960;
+  private static CANVAS_HEIGHT : number = 720; //640//540//640;
+  private static boxesPerRow : number = 90;//30//60;
+  private static ratio : number = Game.CANVAS_WIDTH / Game.CANVAS_HEIGHT;
+  private static boxesPerCol : number = Game.boxesPerRow / Game.ratio;
+  private static boxSize : number = Game.CANVAS_WIDTH / Game.boxesPerRow;
+  private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
+  private static NUMBER_OF_UNITS : number = 2;
+  private static FPS : number = 60;
+  private static updateFPS : number = 10;
+  private static SEED : number = 3;
+  private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+  private static units = new Array(); //array of units
+
+  //"private" variables
+  private tree; //the quad tree
+  private selection = new Object(); //stores the coordinates of the players selection
+  private actions = new Array();
+  private simTick : number = 0;
+  private gameId: string;
+  private clients;
+  private id: string;
+  private socket;
+  private shifted: boolean;
+
+  constructor(socket, id, clients, gameId) {
+    this.gameId = gameId;
+    this.clients = clients; //an array of all players ids in the game
+    this.id = id; //this players id
+    this.socket = socket;
+    var that = this;
+    this.socket.on('SendActionsToClient', function (data) {
+      for (var a in data.actions) {
+        var unit = utilities.findUnit(data.actions[a].unit, Game.units);
+        var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
+        unit.target = targetLoc;
       }
-    }
-    else {
-      unit.target = [];
-      for (var p in path) {
-        unit.target.push(path[p]);
+      that.simTick++;
+    });
+  }
+
+  //Public Methods:
+
+  public run() {
+    this.setup();
+
+    //timing stuff
+    var oldTime = new Date().getTime();
+    var diffTime = 0;
+    var newTime = 0;
+    var oldTime2 = new Date().getTime();
+    var diffTime2 = 0;
+    var newTime2 = 0;
+
+    //loop that runs at 60 fps...aka drawing & selection stuff
+    var that = this;
+    setInterval(function () {
+      that.interpolate();
+      drawer.drawUnits(Game.units);
+      that.drawSelect();
+
+      //debugging stuff...
+      diffTime = newTime - oldTime;
+      oldTime = newTime;
+      newTime = new Date().getTime();
+    }, 1000 / Game.FPS);
+
+    //loop that runs much less frequently (10 fps)
+    //and handles physics/updating the game state/networking 
+    var fpsOut = document.getElementById("fps");
+    setInterval(function () {
+      that.tree.insert(Game.units);
+      that.update();
+      that.getSelection();
+      that.tree.clear();
+      that.socket.emit('SendActionsToServer', { actions: that.actions, simTick: that.simTick, game: that.gameId });
+      that.actions = new Array();
+      diffTime2 = newTime2 - oldTime2;
+      oldTime2 = newTime2;
+      newTime2 = new Date().getTime();
+      fpsOut.innerHTML = Math.round(1000 / diffTime) + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      /*DEBUGGING CODE!!!!!!!!!!!!!!!!!
+      if (that.simTick%100 == 0){
+        console.log("Sim: " + that.simTick)
+        for (var i = 0; i < Game.units.length; i++){
+          var unitLoc = utilities.boxToCoords(Game.units[i].loc);
+          console.log("x= " + unitLoc.x + " y= " + unitLoc.y);
+        }
+      }*/
+    }, 1000 / (Game.updateFPS));
+
+    //every 10 seconds check the world for desync errors (at the moment this means just comparing unit arrays)
+    setInterval(function () {
+      that.socket.emit('SendGameStateToServer', { units: Game.units, simTick: that.simTick });
+    }, 10000);
+  }
+
+  public static getGridLoc(index : number) {
+    return Game.grid[index];
+  }
+
+  public static setGridLoc(index: number, unitId: number) {
+    Game.grid[index] = unitId;
+  }
+
+  public static getTerrainLoc(index: number) {
+    return Game.terrain[index];
+  }
+
+  public static getBoxSize() {
+    return Game.boxSize;
+  }
+
+  public static getCanvasWidth() {
+    return Game.CANVAS_WIDTH;
+  }
+
+  public static getCanvasHeight() {
+    return Game.CANVAS_HEIGHT;
+  }
+
+  public static getBoxesPerRow() {
+    return Game.boxesPerRow;
+  }
+
+  public static removeUnit(unit: Unit) {
+    var id = unit.id;
+    for (var i = 0; i < (length = Game.units.length); i++) {
+      if (Game.units[i].id == id) {
+        Game.units.splice(i, 1);
+        //mark the old locs occupied by this unit as false
+        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)
+        for (var l in locs) {
+          this.grid[locs[l]] = null;
+        }
+        return;
       }
     }
   }
-  that.simTick++;
-});
-  this.astar = 0;
 
-//"private" variables
-this.units = new Array(); //array of units
-this.tree; //the quad tree
+  public static getUnits() {
+    return Game.units;
+  }
+  //Private Methods:
 
-//stores the coordinates of the players selection
-this.selection = new Object();
+  private setup() {
+    drawer.init(Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT, this.id,
+      document.getElementById("terrainCanvas"),
+      document.getElementById("unitCanvas"),
+      document.getElementById("fogCanvas"),
+      document.getElementById("selectionCanvas"))
+    this.generateTerrain();
+    drawer.drawTerrain(Game.terrain);
 
-this.actions = new Array();
-this.simTick = 0;
-this.unitId = 0;
+    //disable the right click so we can use it for other purposes
+    document.oncontextmenu = function () { return false; };
+
+    Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+    for (var g in Game.grid) {
+      Game.grid[g] = null;
+    }
+
+    var that = this;
+
+    //keep track of when shift is held down so we can queue up unit movements
+    //for debugging also listen for g clicked ...this signifies to draw the grid
+    $(document).bind('keyup keydown', function (e) {
+      var code = e.keyCode || e.which;
+      if (code == 71) {
+        drawer.drawGrid();
+      }
+      that.shifted = e.shiftKey;
+      return true;
+    });
+
+    $(document).mousedown(function (e) {
+      //on left click...
+      if (e.button == 0) {
+        $(this).data('mousedown', true);
+        var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
+        that.selection = Object.create(new that.select(coords.x, coords.y, coords.x + 1, coords.y + 1));
+        for (var u in Game.units) {
+          Game.units[u].selected = false;
+        }
+      }
+      //if right click...
+      else if (e.button == 2) {
+        for (var u in Game.units) {
+          if (Game.units[u].selected) {
+            var tar = that.getMousePos(document.getElementById("selectionCanvas"), e);
+            that.actions.push({ unit: Game.units[u].id, target: tar, shift: that.shifted });
+          }
+        }
+      }
+    });
+
+    $(document).mouseup(function (e) {
+      $(this).data('mousedown', false);
+    });
+
+    $(document).mousemove(function (e) {
+      if ($(this).data('mousedown')) {
+        var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
+        that.updateSelection(that.selection, coords.x, coords.y);
+      }
+    });
 
 
-//static constants
-Game.CANVAS_WIDTH = 1440;//1280;//960;//900//960;
-Game.CANVAS_HEIGHT = 720; //640//540//640;
-Game.boxesPerRow = 90;//30//60;
-Game.ratio = Game.CANVAS_WIDTH/Game.CANVAS_HEIGHT;
-Game.boxesPerCol = Game.boxesPerRow/Game.ratio;
-Game.boxSize = Game.CANVAS_WIDTH/Game.boxesPerRow;
+    // initialize the quadtree
+    var args = { x: 0, y: 0, h: Game.CANVAS_HEIGHT, w: Game.CANVAS_WIDTH, maxChildren: 5, maxDepth: 5 };
+    this.tree = QUAD.init(args);
+    for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
+      Game.units.push(
+        Object.create(new Knight(
+          Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
+          this.clients[0]
+          )));
+      Game.units.push(
+        Object.create(new Knight(
+          Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
+          this.clients[1]
+          )));
+    }
+  }
 
-Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
-Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
+  private update() {
+    //iterate backwards b/c we could be removing units from the unit list 
+    //inside the combat function which would break this loop
+    for (var i = Game.units.length - 1; i >= 0; i--) {
+      //this.combat(Game.units[i]);
+      Game.units[i].update();
+    }
+  }
 
-Game.NUMBER_OF_UNITS = 2;
-Game.FPS = 60;
-Game.updateFPS = 10;
-Game.SEED = 3;
-}
+  private interpolate() {
+    for (var i = 0; i < Game.units.length; i++) {
+      if (Game.units[i].prevLoc != Game.units[i].loc) {
+        var oldCoords = utilities.boxToCoords(Game.units[i].prevLoc);
+        var coords = utilities.boxToCoords(Game.units[i].loc);
+        Game.units[i].x -= (1 / (Game.FPS / Game.updateFPS)) * (oldCoords.x - coords.x);
+        Game.units[i].y -= (1 / (Game.FPS / Game.updateFPS)) * (oldCoords.y - coords.y);
+      }
+      else {
+        var coords = utilities.boxToCoords(Game.units[i].loc);
+        Game.units[i].x = coords.x;
+        Game.units[i].y = coords.y;
+      }
+    }
+  }
 
+  private drawSelect() {
+    var that = this;
+    if ($(document).data('mousedown')) {
+      drawer.drawSelect(that.selection);
+    }
+  }
 
-Game.prototype.generateTerrain = function () {
+  private getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+
+  private select(sX: number, sY: number) {
+    //TODO: make selection into its own object!!!
+    var selection = new Object();
+    selection.sX = sX;
+    selection.x = sX;
+    selection.sY = sY;
+    selection.y = sY;
+    selection.w = 0;
+    selection.h = 0;
+    selection.select = true;
+    return selection;
+  }
+
+  private updateSelection(selection, eX, eY) {
+    selection.x = Math.min(selection.sX, eX);
+    selection.y = Math.min(selection.sY, eY);
+    selection.w = Math.abs(selection.sX - eX);
+    selection.h = Math.abs(selection.sY - eY);
+    return selection;
+  }
+
+  private getSelection() {
+    var that = this;
+    if ($(document).data('mousedown')) {
+      //create the selection
+      var region = that.tree.retrieve(that.selection, function (item) {
+        var loc = utilities.boxToCoords(item.loc);
+        loc.w = item.w;
+        loc.h = item.h;
+        if ((item.player == that.id) && utilities.collides(that.selection, loc) && item != that.selection) {
+          item.selected = true;
+        }
+      });
+    }
+  }
+
+  private generateTerrain() {
     for (var i = 0; i < (length = Game.boxesPerRow * Game.boxesPerCol); i++) {
-        var type = utilities.random();
-        var grass = .5;
-
-        if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
-            grass -= .2;
-        }
-        if (Game.terrain[i - Game.boxesPerRow] && Game.terrain[i - Game.boxesPerRow].type == 'grass') {
-            grass -= .2;
-        }
-        if (type >= grass) {
-            Game.terrain[i] = new GrassTile();
-        }
-        else {
-            Game.terrain[i] = new DirtTile();
-        }
+      var type = utilities.random();
+      var grass = .5;
+      if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
+        grass -= .2;
+      }
+      if (Game.terrain[i - Game.boxesPerRow] && Game.terrain[i - Game.boxesPerRow].type == 'grass') {
+        grass -= .2;
+      }
+      if (type >= grass) {
+        Game.terrain[i] = new GrassTile();
+      }
+      else {
+        Game.terrain[i] = new DirtTile();
+      }
     }
     for (var i = 0; i < 6; i++) {
-        this.generateLake();
+      this.generateLake();
     }
-}
+  }
 
-Game.prototype.generateLake = function () {
+  private generateLake() {
     var first = Math.round(utilities.random() * Game.boxesPerCol * Game.boxesPerRow);
-    var lake= new Array();
+    var lake = new Array();
     var old = new Array();
     lake.push(first);
     var counter = 0;
     while (lake.length > 0 && counter < 23) {
-        Game.terrain[lake[0]] = new WaterTile();
-        var neighbors = utilities.neighbors(lake[0]);
-        for (var i = 0; i < neighbors.length; i++) {
-            if (utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
-                lake.push(neighbors[i]);
-            }
+      Game.terrain[lake[0]] = new WaterTile();
+      var neighbors = utilities.neighbors(lake[0]);
+      for (var i = 0; i < neighbors.length; i++) {
+        if (utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
+          lake.push(neighbors[i]);
         }
-        old.push(lake.shift());
-        counter++;
+      }
+      old.push(lake.shift());
+      counter++;
     }
     for (var i = 0; i < lake.length; i++) {
-        Game.terrain[lake[i]] = new WaterTile();
-    }
-}
-
-Game.prototype.createUnitId = function() {
-  this.unitId++;
-  return this.unitId;
-}
-
-//run the game
-Game.prototype.run = function(){
-  this.setup();
-
-  //timing stuff
-  var oldTime = new Date().getTime();
-  var diffTime = 0;
-  var newTime = 0;
-  var oldTime2 = new Date().getTime();
-  var diffTime2 = 0;
-  var newTime2 = 0;
-
-  //loop that runs at 60 fps...aka drawing & selection stuff
-  var that = this;
-  setInterval(function() {
-    that.interpolate();
-    drawer.drawUnits(that.units);
-    that.drawSelect();
-
-    //debugging stuff...
-    diffTime = newTime - oldTime;
-    oldTime = newTime;
-    newTime = new Date().getTime();
-  }, 1000/Game.FPS);
-
-  //loop that runs much less frequently (10 fps)
-  //and handles physics/updating the game state/networking 
-  var fpsOut = document.getElementById("fps");
-  setInterval(function() {
-
-    that.tree.insert(that.units);
-    that.update();
-    that.getSelection();
-    that.tree.clear();
-    that.socket.emit('SendActionsToServer', {actions: that.actions, simTick: that.simTick, game: that.gameId});
-    that.actions = new Array();
-    diffTime2 = newTime2 - oldTime2;
-    oldTime2 = newTime2;
-    newTime2 = new Date().getTime();
-    fpsOut.innerHTML = Math.round(1000/diffTime)  + " drawing fps " + Math.round(1000/diffTime2) + " updating fps";
-    if (that.simTick%100 == 0){
-      console.log("Sim: " + that.simTick)
-      for (var i = 0; i < that.units.length; i++){
-        var unitLoc = utilities.boxToCoords(that.units[i].loc);
-        console.log("x= " + unitLoc.x + " y= " + unitLoc.y);
-      }
-    }
-  }, 1000/(Game.updateFPS));
-
-    //every 10 seconds check the world for desync errors
-    // (at the moment this means just comparing unit arrays)
-    setInterval(function() {
-      that.socket.emit('SendGameStateToServer', {units: that.units, simTick: that.simTick});
-  }, 10000);
-
-}
-
-
-Game.prototype.interpolate = function () {
-  for (var i = 0; i < this.units.length; i++ ) {
-    if (this.units[i].prevLoc != this.units[i].loc) {
-      var oldCoords = utilities.boxToCoords(this.units[i].prevLoc);
-      var coords = utilities.boxToCoords(this.units[i].loc);
-      this.units[i].x -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.x - coords.x);
-      this.units[i].y -= (1/(Game.FPS/Game.updateFPS))*(oldCoords.y - coords.y);
-    }
-    else {
-      var coords = utilities.boxToCoords(this.units[i].loc);
-      this.units[i].x = coords.x;
-      this.units[i].y = coords.y;
+      Game.terrain[lake[i]] = new WaterTile();
     }
   }
 }
-
-
-Game.prototype.setup = function(){ 
-  drawer.init(Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT, this.id,
-    document.getElementById("terrainCanvas"),
-    document.getElementById("unitCanvas"),
-    document.getElementById("fogCanvas"),
-      document.getElementById("selectionCanvas"))
-  this.generateTerrain();
-  drawer.drawTerrain(Game.terrain);
-
-  //disable the right click so we can use it for other purposes
-  document.oncontextmenu = function() {return false;};
-  
-  Game.grid = new Array(Game.boxesPerRow*Game.boxesPerCol);
-  for (var g in Game.grid) {
-    Game.grid[g] = null;
-  }
-
-  var that = this;
-
-  //keep track of when shift is held down so we can queue up unit movements
-  //for debugging also listen for g clicked ...this signifies to draw the grid
-  $(document).bind('keyup keydown', function(e){
-    var code = e.keyCode || e.which;
-    if(code == 71) { 
-        drawer.drawGrid();
-    }
-    that.shifted = e.shiftKey;
-    return true;
-  });
-
-
-
-  $(document).mousedown(function(e) {
-    //on left click...
-    if (e.button == 0) {
-      $(this).data('mousedown', true);
-      var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
-      that.selection = Object.create(new that.select(coords.x, coords.y, coords.x+1, coords.y+1));
-      for (var u in that.units ) {
-        that.units[u].selected = false;
-      }
-    }
-  //if right click...
-    else if (e.button == 2){
-      for (var u in that.units) {
-        if (that.units[u].selected){
-          var tar = that.getMousePos(document.getElementById("selectionCanvas"), e);
-          that.actions.push({unit: that.units[u].id, target: tar, shift: that.shifted});
-        }
-      }
-    }
-  });
-  
-  $(document).mouseup(function(e) {
-    $(this).data('mousedown', false);
-  });
-
-  $(document).mousemove(function(e) {
-    if($(this).data('mousedown')) {
-      var coords = that.getMousePos(document.getElementById("selectionCanvas"), e);
-      that.updateSelection(that.selection, coords.x, coords.y); 
-    }
-  });
-
-
-  // initialize the quadtree
-  var  args = {x : 0, y : 0, h : Game.CANVAS_HEIGHT, w : Game.CANVAS_WIDTH, maxChildren : 5, maxDepth : 5};
-  this.tree = QUAD.init(args);
-  for (var i = 0; i<Game.NUMBER_OF_UNITS; i++){
-    this.units.push(
-      Object.create(new Knight(
-          this.createUnitId(),
-          Math.round(utilities.random()*Game.boxesPerRow*Game.boxesPerCol),
-          this.clients[0]
-    )));
-    this.units.push(
-      Object.create(new Knight(
-        this.createUnitId(),
-        Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol),
-        this.clients[1]
-    )));
-  }
-}
-
-
-Game.prototype.update = function(){
-  //iterate backwards b/c we could be removing units from the unit list 
-  //inside the combat function which would break this loop
-  for (var i = this.units.length - 1; i >= 0; i--) {
-    this.move(this.units[i]);
-    this.combat(this.units[i]);
-  }
-}
-
-
-
-
-Game.prototype.combat = function (unit) {
-  //need to check attacktimer & make sure the unit is not in the process of moving
-  if (unit.attackTimer > 0 || unit.target.length > 0) {
-    unit.attackTimer--;
-    return;
-  }
-  for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
-    for (var n in neighbors = utilities.neighbors(locs[l])) {
-      var id = Game.grid[neighbors[n]];
-      var enemy = utilities.findUnit(id, this.units);
-      if (enemy != null && enemy.player != unit.player) {
-        unit.setDirection(utilities.getDirection(unit.loc, enemy.loc));
-        this.attack(unit, enemy);
-        unit.attackTimer = unit.attackSpeed;
-        unit.inCombat = true;
-        return;
-      }
-    }
-  }
-  unit.inCombat = false;
-}
-
-Game.prototype.attack = function(attacker, defender) {
-  var attackRange = attacker.attackMax - attacker.attackMin;
-  var damage = utilities.random()*attackRange + attacker.attackMin;
-  defender.health -= damage;
-  //for (var l in locs = utilities.getOccupiedSquares(defender.loc, defender.w, defender.h)) {
-  //  drawer.drawSquare(locs[l], "red");
-  //}
-  if (defender.health <=0) {
-    this.removeUnit(defender);
-  }
-}
-
-Game.prototype.removeUnit = function (unit) {
-  var id = unit.id;
-  for (var i = 0; i < (length = this.units.length); i++){
-    if (this.units[i].id == id) {
-        this.units.splice(i, 1);
-        //mark the old locs occupied by this unit as false
-        for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
-          Game.grid[locs[l]] = null; 
-        }
-        return;
-    }
-  }
-}
-
-Game.prototype.getSelection = function(){
-  var that = this;
-  if($(document).data('mousedown')) {
-    //create the selection
-	  var region = that.tree.retrieve(that.selection, function(item) {
-      var loc = utilities.boxToCoords(item.loc);
-      loc.w = item.w;
-      loc.h = item.h;
-      if((item.player == that.id) && utilities.collides(that.selection, loc) && item != that.selection) {
-	      item.selected = true;
-      }
-    });
-  }
-}
-
-
-
-Game.prototype.drawSelect = function() {
-  var that = this;
-  if($(document).data('mousedown')) {
-    drawer.drawSelect(that.selection);
-  }
-}
-
-Game.prototype.select = function(sX, sY) {
-  var selection = new Object();
-  selection.sX = sX;
-  selection.x = sX;
-  selection.sY = sY;
-  selection.y = sY;
-  selection.w = 0;
-  selection.h = 0;
-  selection.select = true;
-  return selection;
-}
-
-Game.prototype.updateSelection = function(selection, eX, eY) {
-  selection.x = Math.min(selection.sX, eX);
-  selection.y = Math.min(selection.sY, eY);
-  selection.w = Math.abs(selection.sX - eX);
-  selection.h = Math.abs(selection.sY - eY);
-  return selection;
-}
-
-Game.prototype.getMousePos = function (canvas, evt) {
-  var rect = canvas.getBoundingClientRect();
-  return {
-    x: evt.clientX - rect.left,
-    y: evt.clientY - rect.top
-  };
-}
-
-Game.prototype.move = function(unit){
-  //if we are still in the process of moving...
-  if (unit.target.length > 0) {
-    unit.prevLoc = unit.loc;
-
-    //mark the old locs occupied by this unit as false
-    for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
-      Game.grid[locs[l]] = null; 
-    }
-    
-    //if something now stands in the units path re-path around it
-    for (var l in locs = utilities.getOccupiedSquares(unit.target[0], unit.w, unit.h)) {
-      if (Game.grid[locs[l]]!=unit.id && Game.grid[locs[l]] != null) {
-        unit.target = this.aStar(unit.loc, unit.target[unit.target.length-1], unit);
-        break;
-      }
-    }
-    //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-    var direction = utilities.getDirection(unit.loc, unit.target[0])
-    if (direction) {
-      unit.setDirection(direction);
-    }
-
-    unit.loc = unit.target[0] || unit.loc;  
-
-    unit.target.shift();
-    //every time the unit moves a location reset its attack timer
-    unit.attackTimer = unit.attackSpeed;
-  }
-  else if (unit.target.length === 0) {
-    unit.prevLoc = unit.loc;
-
-    if (!unit.inCombat) {
-      //if unit is not moving && not in combat, check if any enemies are near by, if they are start pathing to them
-      var height = unit.h + unit.attackRange * 2;
-      var width = unit.w + unit.attackRange * 2;
-      var coords = utilities.boxToCoords(unit.loc);
-      var loc = utilities.coordsToBox(coords.x - unit.attackRange, coords.y - unit.attackRange);
-      var locs = utilities.getOccupiedSquares(loc, width, height);
-      for (var i = 0; i < locs.length; i++) {
-        //drawer.drawSquare(locs[i], 'red');
-        if (Game.grid[locs[i]]) {
-          var potentialEnemy = utilities.findUnit(Game.grid[locs[i]], this.units);
-          if (potentialEnemy && potentialEnemy.player != unit.player) {
-            unit.target = this.aStar(unit.loc, potentialEnemy.loc, unit);
-            break;
-            }
-          }
-      }
-    }
-  }
-  //mark the locs occupied by this unit as true
-  for (var l in locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h)) {
-    Game.grid[locs[l]] = unit.id; 
-  }
-}
-
-
-  Game.prototype.aStar = function(start, goal, unit) {
-    console.log(this.astar++)
-    var closedSet = new Array();
-    var openSet = new PriorityQueue();
-    var distanceToGoal = new PriorityQueue(); //use this to choose a fallback goal state if we can't reach the goal
-    var cameFrom = new Object();
-    var gScore = new Object();
-    var fScore = new Object();
-
-    gScore[start] = 0;
-    fScore[start] = gScore[start] + this.heuristic(start, goal);
-    openSet.enqueue(start, fScore[start]);
-    var cur;
-    var nodesExplored = 0;
-    var nodeThreshold = Game.boxesPerRow*2;
-    while (!openSet.isEmpty() && nodesExplored < nodeThreshold) {
-      nodesExplored++;
-      cur = openSet.dequeue();
-
-      //are we done?
-      if (cur == goal) {
-        return this.getPath(cameFrom, goal, start);
-      }
-
-      closedSet.push(cur);
-      var neighbors = utilities.neighbors(cur);
-
-      //check all of the neighbor moves for collisions
-      for (var i = neighbors.length - 1; i >= 0; i--) { 
-        var coords = utilities.boxToCoords(neighbors[i]);
-        if (((coords.x + unit.w) > Game.CANVAS_WIDTH) || ((coords.y + unit.h) > Game.CANVAS_HEIGHT) || (!Game.terrain[neighbors[i]].walkable) ) {
-          //drawer.drawPathing(neighbors[i], "blue", 0);
-          if (neighbors[i] == goal) {
-            alert('cool');
-            //if the goal was unreachable path to the thing we think is closest to it
-            var final = distanceToGoal.dequeue();
-            return this.getPath(cameFrom, final, start);
-          }
-          neighbors.splice(i, 1);
-          continue;
-        }
-
-        //for each move make sure this unit could move there without colliding with any thing
-        for (var l in locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h)) {
-            if ((Game.grid[locs[l]] != unit.id && Game.grid[locs[l]] != null) || !Game.terrain[locs[l]].walkable) {
-             //drawer.drawPathing(neighbors[i], "blue", 0);
-             if (neighbors[i] == goal) {
-               //if the goal was unreachable path to the thing we think is closest to it
-               //pq could be null though at this point if our current location is good enough
-               //in that case our path is 0 length
-               var final = distanceToGoal.dequeue();
-               return this.getPath(cameFrom, final || start, start);
-             }
-             neighbors.splice(i, 1);
-             break;
-          }
-        }
-      }
-
-      for (var i = 0; i <neighbors.length; i++) {
-        var t_gScore = gScore[cur] + utilities.distance(utilities.boxToCoords(cur), utilities.boxToCoords(neighbors[i]))/Game.boxSize;
-        var heuristic = this.heuristic(neighbors[i], goal);
-        var t_fScore = t_gScore + heuristic;
-        distanceToGoal.enqueue(neighbors[i], heuristic);
-        if ((closedSet.indexOf(neighbors[i])!=-1) && (t_fScore >=fScore[neighbors[i]])) {
-          continue;
-        }
-        if ((openSet.indexOf(neighbors[i])==-1) || t_fScore < fScore[neighbors[i]]) {
-          cameFrom[neighbors[i]] = cur;
-
-          gScore[neighbors[i]] = t_gScore;
-          fScore[neighbors[i]] = t_fScore;
-          if (openSet.indexOf(neighbors[i])==-1) {
-            openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
-            //drawer.drawPathing(neighbors[i], "red", fScore[neighbors[i]]);
-          }
-          //if the neighbor was already in the openset we need to update it in the priority queue
-          else {
-            openSet.update(neighbors[i], fScore[neighbors[i]]);
-          }
-        }
-        
-      }
-    }
-    //if the goal was unreachable path to the thing we think is closest to it
-    return this.getPath(cameFrom, distanceToGoal.dequeue(), start);
-  }
-
-  //this should return the path as an array going from first move to last
-  Game.prototype.getPath = function(cameFrom, cur, start) {
-    var returnArray = new Array();
-    while (cur != start) {
-      returnArray.splice(0, 0, cur);
-      cur = cameFrom[cur];
-      //drawer.drawPathing(cur, "green", 0);
-    }
-    return returnArray;
-  }
-
-  Game.prototype.heuristic = function(a, b) {
-    var c = utilities.boxToCoords(a);
-    var d = utilities.boxToCoords(b);
-    var dx = Math.abs(c.x - d.x)/Game.boxSize;
-    var dy = Math.abs(c.y - d.y)/Game.boxSize;
-    return dx + dy;
-  }
 
