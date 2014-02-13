@@ -40,6 +40,12 @@ class AttackingState extends State {
   }
 
   private attack(attacker: Unit, defender: Unit) {
+    //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
+    var direction = utilities.getDirection(attacker.loc, defender.loc)
+    if (direction) {
+      attacker.setDirection(direction);
+    }
+
     if (attacker.attackTimer >= attacker.attackSpeed) {
       var attackRange = attacker.attackMax - attacker.attackMin;
       var damage = utilities.random() * attackRange + attacker.attackMin;
