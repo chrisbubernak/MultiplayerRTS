@@ -16,6 +16,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Content Include="images\knight.png" />
     <Content Include="images\units.png" />
     <Content Include="scripts\BaseGameEntity.ts" />
     <Content Include="scripts\Pathing.ts" />
