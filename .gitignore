@@ -160,4 +160,5 @@ $RECYCLE.BIN/
 node_modules/
 
 #js files...we only want to track ts files
-*.js
+#*.js
+#start tracking JS, we need this for deploying to azure automatically from github

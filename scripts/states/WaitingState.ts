@@ -1,6 +1,7 @@
 ﻿/// <reference path="../unit.ts" />
 /// <reference path="../State.ts" />
 /// <reference path="WalkingState.ts" />
+/// <reference path="AttackingState.ts" />
 /// <reference path="../Pathing.ts" />
 
 class WaitingState extends State{
@@ -14,7 +15,6 @@ class WaitingState extends State{
   }
 
   public Enter(unit: Unit) {
-    alert(this + " State Enter Function Not Implemented!");
   } 
 
   public Execute(unit: Unit) {
@@ -28,7 +28,6 @@ class WaitingState extends State{
   }
 
   public Exit(unit: Unit) {
-    alert(this + " State Exit Function Not Implemented!");
   }
 
   private enemyInRange(unit: Unit) {
