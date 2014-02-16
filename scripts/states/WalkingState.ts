@@ -30,11 +30,9 @@ class WalkingState extends State {
     else {
       WalkingState.move(unit);
     }
-    console.log('WALKING STATE');
   }
 
   public Exit(unit: Unit) {
-    alert(this + " State Enter Function Not Implemented!");
   }
 
   private static move(unit) {

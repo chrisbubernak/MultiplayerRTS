@@ -31,7 +31,6 @@ class AttackingState extends State {
     else if (enemy == null){ //if we no longer have a target enemy...
       unit.ChangeState(WaitingState.Instance()); //transition back to waiting
     }
-    console.log('ATTACKING STATE');
   }
 
   public Exit(unit: Unit) {

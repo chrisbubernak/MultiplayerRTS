@@ -36,7 +36,6 @@ var AttackingState = (function (_super) {
         } else if (enemy == null) {
             unit.ChangeState(WaitingState.Instance()); //transition back to waiting
         }
-        console.log('ATTACKING STATE');
     };
 
     AttackingState.prototype.Exit = function (unit) {

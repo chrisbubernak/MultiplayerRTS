@@ -30,7 +30,6 @@ var WaitingState = (function (_super) {
         } else if (WaitingState.Instance().enemyInRange(unit)) {
             unit.ChangeState(AttackingState.Instance()); //start fighting
         }
-        console.log('WAITING STATE');
     };
 
     WaitingState.prototype.Exit = function (unit) {

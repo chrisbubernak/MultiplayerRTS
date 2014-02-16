@@ -24,7 +24,6 @@ class WaitingState extends State{
     else if (WaitingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy...
       unit.ChangeState(AttackingState.Instance()); //start fighting
     }
-    console.log('WAITING STATE');
   }
 
   public Exit(unit: Unit) {

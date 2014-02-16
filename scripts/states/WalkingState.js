@@ -35,11 +35,9 @@ var WalkingState = (function (_super) {
         } else {
             WalkingState.move(unit);
         }
-        console.log('WALKING STATE');
     };
 
     WalkingState.prototype.Exit = function (unit) {
-        alert(this + " State Enter Function Not Implemented!");
     };
 
     WalkingState.move = function (unit) {
