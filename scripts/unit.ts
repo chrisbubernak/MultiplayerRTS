@@ -29,6 +29,8 @@ class Unit extends BaseGameEntity {
   totalHealth: number;
   health: number;
   attackSpeed: number;
+  moveSpeed: number = 2; //the number of update frames it takes for a unit to move from one grid loc to the next
+  moveTimer: number;
   attackTimer: number;
   inCombat: boolean = false;
   animateTimer: number; 

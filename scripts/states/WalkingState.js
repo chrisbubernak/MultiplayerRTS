@@ -22,13 +22,12 @@ var WalkingState = (function (_super) {
     WalkingState.prototype.Enter = function (unit) {
         unit.path = Pathing.aStar(unit.loc, unit.target, unit);
         unit.prevTar = unit.target;
+        unit.moveTimer = unit.moveSpeed;
     };
 
     WalkingState.prototype.Execute = function (unit) {
-        //update our walking art
-        unit.animateTimer = (unit.animateTimer + Unit.animationIncrememt) % unit.numberOfAnimations;
-
-        if (unit.path.length == 0) {
+        //make sure is path is empty and make sure we've finished interpolating (i.e that the move timer = movespeed)
+        if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
             unit.target = null;
             unit.prevLoc = unit.loc;
             unit.ChangeState(WaitingState.Instance());
@@ -38,46 +37,51 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Exit = function (unit) {
+        var coords = utilities.boxToCoords(unit.loc);
+        unit.x = coords.x;
+        unit.y = coords.y;
     };
 
     WalkingState.move = function (unit) {
-        //mark this units occuppied locs as unoccupied
-        Game.unmarkGridLocs(unit);
+        //update our walking art
+        unit.animateTimer = (unit.animateTimer + 1) % unit.numberOfAnimations;
 
-        //if the unit has a new target change our path
-        if (unit.prevTar != unit.target) {
-            unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-            unit.prevTar = unit.target;
-        }
+        if (unit.moveTimer >= unit.moveSpeed) {
+            //mark this units occuppied locs as unoccupied
+            Game.unmarkGridLocs(unit);
 
-        unit.prevLoc = unit.loc;
-
-        //mark the old locs occupied by this unit as false
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
-        for (var l in locs) {
-            Game.setGridLoc(locs[l], null);
-        }
-
-        //if something now stands in the units path re-path around it
-        var locs = utilities.getOccupiedSquares(unit.path[0], unit.w, unit.h);
-        for (var l in locs) {
-            var gridLoc = Game.getGridLoc(locs[l]);
-            if (gridLoc != unit.id && gridLoc != null) {
-                unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
-                break;
+            //if the unit has a new target change our path
+            if (unit.prevTar != unit.target) {
+                unit.path = Pathing.aStar(unit.loc, unit.target, unit);
+                unit.prevTar = unit.target;
             }
-        }
 
-        //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-        var direction = utilities.getDirection(unit.loc, unit.path[0]);
-        if (direction) {
-            unit.setDirection(direction);
-        }
-        unit.loc = unit.path[0] || unit.loc;
-        unit.path.shift();
+            unit.prevLoc = unit.loc;
 
-        //mark the new locs occupied by this unit as true
-        Game.markOccupiedGridLocs(unit);
+            //if something now stands in the units path re-path around it
+            var locs = utilities.getOccupiedSquares(unit.path[0], unit.w, unit.h);
+            for (var l in locs) {
+                var gridLoc = Game.getGridLoc(locs[l]);
+                if (gridLoc != unit.id && gridLoc != null) {
+                    unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
+                    break;
+                }
+            }
+
+            //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
+            var direction = utilities.getDirection(unit.loc, unit.path[0]);
+            if (direction) {
+                unit.setDirection(direction);
+            }
+            unit.loc = unit.path[0] || unit.loc;
+            unit.path.shift();
+            unit.moveTimer = 0;
+
+            //mark the new locs occupied by this unit as true
+            Game.markOccupiedGridLocs(unit);
+        } else {
+            unit.moveTimer++;
+        }
     };
     return WalkingState;
 })(State);

@@ -71,7 +71,6 @@ class AttackingState extends State {
         var id = Game.getGridLoc(neighbors[n]);
         var enemy = utilities.findUnit(id, Game.getUnits());
         if (enemy != null && enemy.player != unit.player) {
-          console.log(prefTarget)
           if (prefTarget == null || id == prefTarget.id) { //if we didn't have a preference or this was our preference return it
             unit.inCombatWith = enemy;
             return enemy;

@@ -15,7 +15,8 @@ class Game {
   private static boxSize : number = Game.CANVAS_WIDTH / Game.boxesPerRow;
   private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static NUMBER_OF_UNITS : number = 2;
-  private static FPS : number = 60;
+  private static FPS: number = 60;
+  private static RealFPS: number = Game.FPS;
   private static updateFPS : number = 10;
   private static SEED : number = 3;
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
@@ -87,15 +88,8 @@ class Game {
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      fpsOut.innerHTML = Math.round(1000 / diffTime) + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
-      /*DEBUGGING CODE!!!!!!!!!!!!!!!!!
-      if (that.simTick%100 == 0){
-        console.log("Sim: " + that.simTick)
-        for (var i = 0; i < Game.units.length; i++){
-          var unitLoc = utilities.boxToCoords(Game.units[i].loc);
-          console.log("x= " + unitLoc.x + " y= " + unitLoc.y);
-        }
-      }*/
+      Game.RealFPS = Math.round(1000 / diffTime);
+      fpsOut.innerHTML = Game.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (Game.updateFPS));
 
     //every 10 seconds check the world for desync errors (at the moment this means just comparing unit arrays)
@@ -252,17 +246,10 @@ class Game {
 
   private interpolate() {
     for (var i = 0; i < Game.units.length; i++) {
-      if (Game.units[i].prevLoc != Game.units[i].loc) {
         var oldCoords = utilities.boxToCoords(Game.units[i].prevLoc);
         var coords = utilities.boxToCoords(Game.units[i].loc);
-        Game.units[i].x -= (1 / (Game.FPS / Game.updateFPS)) * (oldCoords.x - coords.x);
-        Game.units[i].y -= (1 / (Game.FPS / Game.updateFPS)) * (oldCoords.y - coords.y);
-      }
-      else {
-        var coords = utilities.boxToCoords(Game.units[i].loc);
-        Game.units[i].x = coords.x;
-        Game.units[i].y = coords.y;
-      }
+        Game.units[i].x -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.x - coords.x)) / (Game.units[i].moveSpeed + 1);
+        Game.units[i].y -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.y - coords.y)) / (Game.units[i].moveSpeed + 1);
     }
   }
 

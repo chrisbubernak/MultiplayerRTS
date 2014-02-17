@@ -75,7 +75,6 @@ var AttackingState = (function (_super) {
                 var id = Game.getGridLoc(neighbors[n]);
                 var enemy = utilities.findUnit(id, Game.getUnits());
                 if (enemy != null && enemy.player != unit.player) {
-                    console.log(prefTarget);
                     if (prefTarget == null || id == prefTarget.id) {
                         unit.inCombatWith = enemy;
                         return enemy;

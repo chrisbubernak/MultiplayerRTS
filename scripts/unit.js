@@ -16,6 +16,7 @@ var Unit = (function (_super) {
         this.path = new Array();
         this.sightRange = 175;
         this.attackRange = 75;
+        this.moveSpeed = 2;
         this.inCombat = false;
         this.numberOfAnimations = 9;
         this.numberOfAttackAnimations = 6;
