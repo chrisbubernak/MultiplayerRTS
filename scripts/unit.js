@@ -20,7 +20,6 @@ var Unit = (function (_super) {
         this.inCombat = false;
         this.numberOfAnimations = 9;
         this.numberOfAttackAnimations = 6;
-        this.src = '/images/knight.png';
         this.direction = 'down';
         this.currentState = WaitingState.Instance();
         this.loc = loc;
@@ -53,18 +52,6 @@ var Unit = (function (_super) {
 
         //call entry method on new state
         this.currentState.Enter(this);
-    };
-
-    Unit.prototype.getImage = function () {
-        if (Unit.image) {
-            return Unit.image;
-        } else {
-            Unit.image = new Image();
-            Unit.image.onload = function () {
-                return Unit.image;
-            };
-            Unit.image.src = this.src;
-        }
     };
 
     Unit.prototype.setDirection = function (direction) {

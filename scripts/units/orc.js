@@ -5,9 +5,9 @@ var __extends = this.__extends || function (d, b) {
     d.prototype = new __();
 };
 /// <reference path="../../scripts/unit.ts" />
-var Knight = (function (_super) {
-    __extends(Knight, _super);
-    function Knight() {
+var Orc = (function (_super) {
+    __extends(Orc, _super);
+    function Orc() {
         _super.apply(this, arguments);
         this.w = 30;
         this.h = 30;
@@ -15,23 +15,23 @@ var Knight = (function (_super) {
         this.imageY = 512;
         this.imageW = 64;
         this.imageH = 64;
-        this.attackMax = 10;
+        this.attackMax = 13;
         this.attackMin = 5;
-        this.totalHealth = 100;
+        this.totalHealth = 120;
         this.health = this.totalHealth;
-        this.attackSpeed = 10;
-        this.src = '/images/knight.png';
+        this.attackSpeed = 15;
+        this.src = '/images/orc.png';
     }
-    Knight.prototype.getImage = function () {
-        if (Knight.image) {
-            return Knight.image;
+    Orc.prototype.getImage = function () {
+        if (Orc.image) {
+            return Orc.image;
         } else {
-            Knight.image = new Image();
-            Knight.image.onload = function () {
-                return Knight.image;
+            Orc.image = new Image();
+            Orc.image.onload = function () {
+                return Orc.image;
             };
-            Knight.image.src = this.src;
+            Orc.image.src = this.src;
         }
     };
-    return Knight;
+    return Orc;
 })(Unit);

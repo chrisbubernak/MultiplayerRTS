@@ -14,7 +14,7 @@ class Game {
   private static boxesPerCol : number = Game.boxesPerRow / Game.ratio;
   private static boxSize : number = Game.CANVAS_WIDTH / Game.boxesPerRow;
   private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
-  private static NUMBER_OF_UNITS : number = 2;
+  private static NUMBER_OF_UNITS : number = 3;
   private static FPS: number = 60;
   private static RealFPS: number = Game.FPS;
   private static updateFPS : number = 10;
@@ -229,7 +229,7 @@ class Game {
       var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[0]);
       Game.markOccupiedGridLocs(p1unit);
       Game.units.push(p1unit);
-      var p2unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
+      var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
       Game.markOccupiedGridLocs(p2unit);
       Game.units.push(p2unit);
     }

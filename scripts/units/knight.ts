@@ -11,4 +11,19 @@ class Knight extends Unit{
   totalHealth = 100;
   health = this.totalHealth;
   attackSpeed = 10;
+  src: string = '/images/knight.png';
+  static image;
+
+  public getImage() {
+    if (Knight.image) {
+      return Knight.image;
+    }
+    else {
+      Knight.image = new Image();
+      Knight.image.onload = function () {
+        return Knight.image;
+      };
+      Knight.image.src = this.src;
+    }
+  }
 }

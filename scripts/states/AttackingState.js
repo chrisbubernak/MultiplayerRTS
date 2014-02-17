@@ -86,6 +86,7 @@ var AttackingState = (function (_super) {
         if (enemies.length == 0) {
             return null;
         }
+        unit.inCombatWith = enemies[0]; //update your preferred target
         return enemies[0];
     };
     return AttackingState;

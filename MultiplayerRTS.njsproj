@@ -22,6 +22,7 @@
     <Content Include="bin\node.cmd" />
     <Content Include="bin\setup_web.cmd" />
     <Content Include="images\knight.png" />
+    <Content Include="images\orc.png" />
     <Content Include="images\units.png" />
     <Content Include="scripts\BaseGameEntity.ts" />
     <Content Include="scripts\Pathing.ts" />
@@ -29,6 +30,7 @@
     <Content Include="scripts\states\AttackingState.ts" />
     <Content Include="scripts\states\WaitingState.ts" />
     <Content Include="scripts\states\WalkingState.ts" />
+    <Content Include="scripts\units\orc.ts" />
     <Content Include="scripts\units\mage.ts" />
     <Content Include="scripts\terrainTile.ts" />
     <Content Include="views\index.html" />

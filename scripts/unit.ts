@@ -37,8 +37,7 @@ class Unit extends BaseGameEntity {
   attackArtTimer: number;
   numberOfAnimations: number = 9;
   numberOfAttackAnimations: number = 6;
-  src: string = '/images/knight.png';
-  static image;
+
   static animationIncrememt: number = .1;
   static attackAnimationIncrememt: number = .2;
 
@@ -80,18 +79,7 @@ class Unit extends BaseGameEntity {
     this.currentState.Enter(this);
   }
 
-  public getImage() {
-    if (Unit.image) {
-      return Unit.image;
-    }
-    else {
-      Unit.image = new Image();
-      Unit.image.onload = function () {
-        return Unit.image;
-      };
-      Unit.image.src = this.src;
-    }
-  }
+
 
   public setDirection(direction: string) {
     this.direction = direction;

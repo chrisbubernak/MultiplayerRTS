@@ -1,4 +1,4 @@
-﻿/// <reference path="terrainTile.ts" />
+/// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="jquery.js" />
@@ -195,7 +195,7 @@ var Game = (function () {
             var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[0]);
             Game.markOccupiedGridLocs(p1unit);
             Game.units.push(p1unit);
-            var p2unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
+            var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
             Game.markOccupiedGridLocs(p2unit);
             Game.units.push(p2unit);
         }
@@ -316,7 +316,7 @@ var Game = (function () {
     Game.boxesPerCol = Game.boxesPerRow / Game.ratio;
     Game.boxSize = Game.CANVAS_WIDTH / Game.boxesPerRow;
     Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
-    Game.NUMBER_OF_UNITS = 2;
+    Game.NUMBER_OF_UNITS = 3;
     Game.FPS = 60;
     Game.RealFPS = Game.FPS;
     Game.updateFPS = 10;
