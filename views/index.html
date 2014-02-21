@@ -17,18 +17,24 @@
 <script src="/scripts/utilities.js"></script>
 <script src="/scripts/Pathing.js"></script>
 <script src="/scripts/priorityQueue.js"></script>
+<script src="/scripts/peer.min.js"></script>
+
 <html>
   <head>
   </head>
   <style>
   canvas {
     position: absolute;
-    top: 25;
+    top: 50;
     left: 25;
+  }
+  .game {
+    border: solid 1px black;
+    width: auto;
   }
   </style>
   <body>
-
+    <div id="gameList" style="left:200px; top: 200px; margin: auto;"></div>
     <div id = "fps"></div>
     <div id = "gameId"></div>
     <div id = "clientId"></div>
@@ -42,5 +48,9 @@
       //load some stuff we are going to need
       var t = new TerrainTile();
       t.getImage();
+
+      /*window.onload = function () {
+        var c = new Client();
+      }*/
   </script>
 </html>

@@ -49,6 +49,7 @@
     <Compile Include="scripts\jquery.js" />
     <Compile Include="scripts\jquery.ts" />
     <Compile Include="scripts\Pathing.js" />
+    <Compile Include="scripts\peer.min.js" />
     <Compile Include="scripts\priorityQueue.js" />
     <Compile Include="scripts\quadtree.js" />
     <Compile Include="scripts\State.js" />

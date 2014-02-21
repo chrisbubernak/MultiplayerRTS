@@ -1,6 +1,7 @@
 /// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
+/// <reference path="units/orc.ts" />
 /// <reference path="jquery.js" />
 /// <reference path="quadtree.ts" />
 
@@ -22,6 +23,7 @@ class Game {
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static units = new Array(); //array of units
   private static clients;
+  private static conn; //PEERJS connection
 
   //"private" variables
   private tree; //the quad tree
@@ -32,20 +34,26 @@ class Game {
   private id: string;
   private socket;
   private shifted: boolean;
+  private enemyId;
+  private host; 
+  private actionList = new Array();
 
-  constructor(socket, id, clients, gameId) {
+  //constructor(socket, id, clients, gameId) {
+  constructor(conn, host, id, enemyId, gameId) {
     this.gameId = gameId;
-    Game.clients = clients; //an array of all players ids in the game
     this.id = id; //this players id
-    this.socket = socket;
+    this.enemyId = enemyId;
+    Game.conn = conn;
+    this.host = host;
+
     var that = this;
-    this.socket.on('SendActionsToClient', function (data) {
-      for (var a in data.actions) {
-        var unit = utilities.findUnit(data.actions[a].unit, Game.units);
-        var targetLoc = utilities.coordsToBox(data.actions[a].target.x, data.actions[a].target.y);
-        unit.target = targetLoc;
+    Game.conn.on('data', function (data) {
+      if (that.host) { //if we are the host it means the client sent us their actions, store these so we can send back an authoritatve action list 
+        that.actionList[data.simTick] = data.actions;
       }
-      that.simTick++;
+      else {
+        that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
+      }
     });
   }
 
@@ -78,24 +86,29 @@ class Game {
     //loop that runs much less frequently (10 fps)
     //and handles physics/updating the game state/networking 
     var fpsOut = document.getElementById("fps");
+    //var conn = Game.conn;
     setInterval(function () {
       that.tree.insert(Game.units);
       that.update();
       that.getSelection();
       that.tree.clear();
-      that.socket.emit('SendActionsToServer', { actions: that.actions, simTick: that.simTick, game: that.gameId });
-      that.actions = new Array();
+      if (!that.host) { //if we arean't the host just send our actions to the host
+        conn.send({ actions: that.actions, simTick: that.simTick });
+        that.actions = new Array();
+      }
+      else if (that.host && that.actionList[that.simTick]) { //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
+        that.actions = that.actions.concat(that.actionList[that.simTick]);
+        conn.send({ actions: that.actions, simTick: that.simTick });
+        that.applyActions(that.actions, that.simTick);
+        that.actions = new Array();
+      }
+
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
       Game.RealFPS = Math.round(1000 / diffTime);
       fpsOut.innerHTML = Game.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (Game.updateFPS));
-
-    //every 10 seconds check the world for desync errors (at the moment this means just comparing unit arrays)
-    setInterval(function () {
-      that.socket.emit('SendGameStateToServer', { units: Game.units, simTick: that.simTick });
-    }, 10000);
   }
 
   public static getGridLoc(index : number) {
@@ -226,13 +239,33 @@ class Game {
     var args = { x: 0, y: 0, h: Game.CANVAS_HEIGHT, w: Game.CANVAS_WIDTH, maxChildren: 5, maxDepth: 5 };
     this.tree = QUAD.init(args);
     for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
-      var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[0]);
+      var p1;
+      var p2;
+      if (this.host) {
+        p1 = this.id;
+        p2 = this.enemyId;
+      }
+      else {
+        p1 = this.enemyId;
+        p2 = this.id;
+      }
+
+      var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p1);
       Game.markOccupiedGridLocs(p1unit);
       Game.units.push(p1unit);
-      var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), Game.clients[1]);
+      var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p2);
       Game.markOccupiedGridLocs(p2unit);
       Game.units.push(p2unit);
     }
+  }
+
+  private applyActions(actions, simTick: number) {
+    for (var a in actions) {
+      var unit = utilities.findUnit(actions[a].unit, Game.units);
+      var targetLoc = utilities.coordsToBox(actions[a].target.x, actions[a].target.y);
+      unit.target = targetLoc;
+    }
+    this.simTick++;
   }
 
   private update() {
