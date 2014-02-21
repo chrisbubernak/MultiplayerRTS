@@ -54,6 +54,11 @@ window.onload = function() {
       myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
       myGame.run();
     }); 
+    peer.on('error', function (err) {
+      console.log('error!');
+      console.log(err);
+    });
+
   });
 }
 
