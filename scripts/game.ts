@@ -111,6 +111,10 @@ class Game {
     }, 1000 / (Game.updateFPS));
   }
 
+  public end(message: string) {
+    alert(message);
+  }
+
   public static getGridLoc(index : number) {
     return Game.grid[index];
   }

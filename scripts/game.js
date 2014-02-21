@@ -79,6 +79,10 @@ var Game = (function () {
         }, 1000 / (Game.updateFPS));
     };
 
+    Game.prototype.end = function (message) {
+        alert(message);
+    };
+
     Game.getGridLoc = function (index) {
         return Game.grid[index];
     };

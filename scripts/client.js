@@ -55,5 +55,8 @@ window.onload = function () {
             console.log('error!');
             console.log(err);
         });
+        conn.on('close', function () {
+            myGame.end('Enemy Quit');
+        });
     });
 };
