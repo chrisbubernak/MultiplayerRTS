@@ -1,4 +1,5 @@
 /// <reference path="game.ts" />
+/// <reference path="../node.d.ts" />
 var myGame;
 var start;
 var peer;
@@ -20,8 +21,8 @@ window.onload = function () {
     socket.on('ClientList', function (data) {
         document.getElementById('gameList').innerHTML = "Client List:\n";
         for (var c in data.clients) {
-            if (data.clients[c] != id) {
-                document.getElementById('gameList').innerHTML += '<div class="game" onclick=\'start("' + data.clients[c] + '")\'>' + data.clients[c] + '</div>';
+            if (data.clients[c].Socket != id) {
+                document.getElementById('gameList').innerHTML += '<div class="game" onclick=\'start("' + data.clients[c].Socket + '")\'>' + data.clients[c].Socket + " " + data.clients[c].UserId + '</div>';
             }
         }
     });

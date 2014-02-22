@@ -8,6 +8,7 @@
     "socket.io": "~0.9.16",
     "uuid": "~1.4.1",
     "typescript": "~0.9.5",
-    "typescript-compiler": "~0.9.1-1"
+    "typescript-compiler": "~0.9.1-1",
+    "msnodesql": "~0.2.1"
   }
 }

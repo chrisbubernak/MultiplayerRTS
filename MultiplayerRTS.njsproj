@@ -24,6 +24,7 @@
     <Content Include="images\knight.png" />
     <Content Include="images\orc.png" />
     <Content Include="images\units.png" />
+    <Content Include="node.d.ts" />
     <Content Include="scripts\BaseGameEntity.ts" />
     <Content Include="scripts\Pathing.ts" />
     <Content Include="scripts\State.ts" />
