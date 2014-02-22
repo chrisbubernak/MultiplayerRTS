@@ -155,9 +155,14 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 
+#We firstly un-ignored the “node_modules” folder. And then we ignored all sub folders but need git to check each sub folders. 
+#And then we un-ignore one of the sub folders named “msnodesql” which is the SQL Server Node.js Driver.
+!node_modules/
+node_modules/*
+!node_modules/msnodesql
 
-# node modules
-node_modules/
+# node modules OLD!!!!!
+# node_modules/
 
 #js files...we only want to track ts files
 #*.js
