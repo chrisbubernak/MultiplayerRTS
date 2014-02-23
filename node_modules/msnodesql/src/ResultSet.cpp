@@ -69,6 +69,7 @@ namespace mssql
             case SQL_BINARY:
             case SQL_VARBINARY:
             case SQL_LONGVARBINARY:
+            case SQL_SS_UDT:
                 typeName = L"binary";
                 break;
             default:
@@ -81,6 +82,10 @@ namespace mssql
             entry->Set(New(L"size"), Integer::New(definition.columnSize));
             entry->Set(New(L"nullable"), Boolean::New(definition.nullable != 0));
             entry->Set(New(L"type"), New(typeName));
+            entry->Set(New(L"sqlType"), New(definition.dataTypeName.c_str()));
+            if( definition.dataType == SQL_SS_UDT ) {
+                entry->Set(New(L"udtType"), New(definition.udtTypeName.c_str()));
+            }
 
             metadata->Set(metadata->Length(), entry);
         });

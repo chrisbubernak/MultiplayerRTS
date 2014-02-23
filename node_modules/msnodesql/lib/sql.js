@@ -343,16 +343,48 @@ function open(connectionString, callback) {
 
     function Connection() {
 
-        this.close = function (callback) { 
+        this.close = function (immediately, callback) { 
+
+            // require only callback
+            if( typeof immediately == 'function' ) {
+
+                callback = immediately;
+                immediately = false;
+            }
+            else if( typeof immediately != 'boolean' && typeof immediately != 'undefined' ) {
+
+                throw new Error( "[msnodesql] Invalid parameters passed to close." );
+            }
 
             function onClose( err ) {
 
                 callback( err );
+
+                // empty the queue
+                q = [];
             }
 
             callback = callback || defaultCallback;
 
-            ext.close( onClose ); 
+            // make calls on this connection throw errors now that the connection is closed.
+            this.close =            function() { /* noop */ }
+            this.queryRaw =         function() { throw new Error( "[msnodesql] Connection is closed." ); }
+            this.query =            function() { throw new Error( "[msnodesql] Connection is closed." ); }
+            this.beginTransaction = function() { throw new Error( "[msnodesql] Connection is closed." ); }
+            this.commit =           function() { throw new Error( "[msnodesql] Connection is closed." ); }
+            this.rollback =         function() { throw new Error( "[msnodesql] Connection is closed." ); }
+
+            if( immediately || q.length == 0 ) {
+
+                ext.close( onClose );
+            }
+            else {
+
+                 // since the queue is not empty, there is a pending operation, so add the close to be done
+                 // after that operation finishes
+                 var op = { fn: function( callback ) { ext.close( callback ) }, args: [ onClose ] };
+                 q.push( op );
+            }
         }
 
         this.queryRaw = function (query, paramsOrCallback, callback) {
@@ -496,7 +528,10 @@ function queryRaw(connectionString, query, paramsOrCallback, callback) {
 
     function onOpen( err, connection ) {
 
-        if( err ) {
+        if (err) {
+            if (connection) {
+                connection.close();
+            }
             chunky.callback( err );
             return;
         }
@@ -504,16 +539,28 @@ function queryRaw(connectionString, query, paramsOrCallback, callback) {
         readall(q, notify, ext, query, chunky.params, function (err, results, more) {
 
             if (err) {
+                connection.close();
                 routeStatementError(err, chunky.callback, notify);
                 return;
             }
 
             if( chunky.callback ) {
-                chunky.callback( err, results, more );
+
+                // otherwise just close the connection and rethrow the connection, which generally
+                // results in uncaught exception.
+                try {
+                    
+                    chunky.callback( err, results, more );
+                }
+                catch( ex ) {
+                    // close the connection and rethrow the exception as is
+                    connection.close();
+                    throw ex;
+                }
             }
 
             if( !more ) {
-                ext.close();
+                connection.close();
             }
         });
 
