@@ -17,10 +17,14 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="vendor\bootstrap\js\bootstrap.js" />
+    <Compile Include="vendor\bootstrap\js\bootstrap.min.js" />
+    <Compile Include="Vendor\jquery\jquery.forms.js" />
     <Content Include="bin\ChangeConfig.ps1" />
     <Content Include="bin\download.ps1" />
     <Content Include="bin\node.cmd" />
     <Content Include="bin\setup_web.cmd" />
+    <Content Include="css\style.css" />
     <Content Include="images\knight.png" />
     <Content Include="images\orc.png" />
     <Content Include="images\units.png" />
@@ -34,6 +38,17 @@
     <Content Include="scripts\units\orc.ts" />
     <Content Include="scripts\units\mage.ts" />
     <Content Include="scripts\terrainTile.ts" />
+    <Content Include="vendor\bootstrap\css\bootstrap-theme.css" />
+    <Content Include="vendor\bootstrap\css\bootstrap-theme.css.map" />
+    <Content Include="vendor\bootstrap\css\bootstrap-theme.min.css" />
+    <Content Include="vendor\bootstrap\css\bootstrap.css" />
+    <Content Include="vendor\bootstrap\css\bootstrap.css.map" />
+    <Content Include="vendor\bootstrap\css\bootstrap.min.css" />
+    <Content Include="vendor\bootstrap\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="vendor\bootstrap\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="vendor\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="vendor\bootstrap\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="views\home.jade" />
     <Content Include="views\index.html" />
     <Content Include="images\dirt.jpg" />
     <Content Include="images\grass.jpg" />
@@ -43,6 +58,7 @@
     <Compile Include="scripts\BaseGameEntity.js" />
     <Compile Include="scripts\client.js" />
     <Compile Include="scripts\client.ts" />
+    <Compile Include="scripts\controllers\login.js" />
     <Compile Include="scripts\drawer.js" />
     <Compile Include="scripts\drawer.ts" />
     <Compile Include="scripts\game.js" />
@@ -69,15 +85,25 @@
     <Compile Include="server.js" />
     <Compile Include="server.ts" />
     <Compile Include="scripts\utilities.ts" />
+    <Content Include="views\layout.jade" />
+    <Content Include="views\login.jade" />
     <Content Include="Web.config" />
     <None Include="Web.cloud.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="images\" />
+    <Folder Include="css\" />
+    <Folder Include="Vendor\" />
     <Folder Include="scripts\" />
+    <Folder Include="scripts\controllers\" />
     <Folder Include="scripts\states\" />
     <Folder Include="scripts\units\" />
+    <Folder Include="vendor\bootstrap\" />
+    <Folder Include="vendor\bootstrap\css\" />
+    <Folder Include="vendor\bootstrap\fonts\" />
+    <Folder Include="vendor\bootstrap\js\" />
+    <Folder Include="Vendor\jquery\" />
     <Folder Include="views\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />

@@ -1,0 +1,13 @@
+﻿extends layout
+
+block content
+  div.navbar.navbar-fixed-top
+    div.navbar-inner
+      div.container-fluid
+        ul#global-nvar.nav.pull-left
+          h1 Welcome, #{udata}
+          
+         
+block scripts
+  script(src='/scripts/jquery.js')
+  script(src='/vendor/jquery/jquery.forms.js')

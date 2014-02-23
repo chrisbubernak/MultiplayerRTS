@@ -1,0 +1,25 @@
+﻿extends layout
+
+block content
+  #login-container
+    form(method="post")#login-form.well
+      h1 Welcome to RTS
+      p.subheading Please Login
+      label Username
+      input(type='text', name='user', id='user-tf').required.width90
+      label Password
+      input(type='password', name='pass', id='pass-tf').required.width90
+      button(type='submit')#btn-login.btn.btn-primary
+        | Sign in
+      label#remember-me.checkbox Remember Me
+        input(type='checkbox', checked='checked')
+      div.clear-fix
+      hr
+      div.btm-links
+        a(href='#')#forgot-password Forgot Your Password?
+        a(href='/signup')#create-account Create An Account
+
+block scripts
+  script(src='/scripts/jquery.js')
+  script(src='/vendor/jquery/jquery.forms.js')
+  script(src='/scripts/controllers/login.js')
