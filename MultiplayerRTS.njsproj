@@ -17,6 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="scripts\controllers\signup.js" />
     <Compile Include="vendor\bootstrap\js\bootstrap.js" />
     <Compile Include="vendor\bootstrap\js\bootstrap.min.js" />
     <Compile Include="Vendor\jquery\jquery.forms.js" />
@@ -87,6 +88,7 @@
     <Compile Include="scripts\utilities.ts" />
     <Content Include="views\layout.jade" />
     <Content Include="views\login.jade" />
+    <Content Include="views\signup.jade" />
     <Content Include="Web.config" />
     <None Include="Web.cloud.config" />
   </ItemGroup>

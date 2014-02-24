@@ -1,0 +1,31 @@
+﻿extends layout
+
+block content
+  #account-form-container
+    form(method='post')#account-form.form-horizontal.well
+      h1 Signup
+      p#sub1.subheading Please Enter Account Info
+      hr
+      div.form-horizontal
+        #user-fg.form-group
+          label.control-label(for='user-tf') Username
+          div.col-sm-10
+            input#user-tf.col-sm-2(type='text', name='user', value='').form-control
+        #pass-fg.form-group
+          label.control-label(for='pass-tf') Password
+          div.col-sm-10
+            input#pass-tf.col-sm-2(type='password', name='pass', value='').form-control
+        #email-fg.form-group
+          label.control-label(for='pass-tf') Email
+          div.col-sm-10
+            input#pass-tf.col-sm-2(type='text', name='email', value='').form-control
+        div.btn-toolbar.col-md-offset-7
+          button(type='button')#account-form-btn1.btn.btn-default
+            | Cancel
+          button(type='submit')#account-form-btn2.btn.btn-primary
+            | Submit
+
+block scripts
+  script(src='/scripts/jquery.js')
+  script(src='/vendor/jquery/jquery.forms.js')
+  script(src='/scripts/controllers/signup.js')
