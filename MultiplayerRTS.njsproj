@@ -17,6 +17,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="app.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.min.js" />
     <Compile Include="public\vendor\jquery\jquery.forms.js" />
