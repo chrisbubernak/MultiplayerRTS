@@ -36,7 +36,6 @@
     <Content Include="public\vendor\bootstrap\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="public\vendor\bootstrap\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="public\vendor\jquery\jquery-2.1.0.min.map" />
-    <Content Include="router.ts" />
     <Content Include="views\404.jade" />
     <Content Include="views\game.jade" />
     <Content Include="views\home.jade" />
