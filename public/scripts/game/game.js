@@ -5,7 +5,6 @@
 /// <reference path="jquery.js" />
 /// <reference path="quadtree.ts" />
 var Game = (function () {
-    //constructor(socket, id, clients, gameId) {
     function Game(conn, host, id, enemyId, gameId) {
         this.selection = new Object();
         this.actions = new Array();
@@ -19,11 +18,20 @@ var Game = (function () {
 
         var that = this;
         Game.conn.on('data', function (data) {
+          if(!(typeof data.simTick === 'undefined')) {
+            console.log('data ' + data.simTick);
             if (that.host) {
                 that.actionList[data.simTick] = data.actions;
+                console.log("S " + data.actions + " " + data.simTick);
             } else {
                 that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
+                console.log("C " + data.actions + " " + data.simTick);
             }
+          }
+          else {
+            console.log('err ')
+            console.log(data);
+          }
         });
     }
     //Public Methods:
@@ -63,6 +71,7 @@ var Game = (function () {
             that.tree.clear();
             if (!that.host) {
                 conn.send({ actions: that.actions, simTick: that.simTick });
+                console.log(that.actions + " " + that.simTick);
                 that.actions = new Array();
             } else if (that.host && that.actionList[that.simTick]) {
                 that.actions = that.actions.concat(that.actionList[that.simTick]);
@@ -70,7 +79,7 @@ var Game = (function () {
                 that.applyActions(that.actions, that.simTick);
                 that.actions = new Array();
             }
-
+            console.log(that.simTick);
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();

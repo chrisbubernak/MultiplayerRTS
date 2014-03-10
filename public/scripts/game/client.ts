@@ -1,12 +1,12 @@
 /// <reference path="game.ts" />
-/// <reference path="../node.d.ts" />
+/// <reference path="../../../node.d.ts" />
 
 var myGame;
 var start;
 var peer;
 var conn;
 var id;
-window.onload = function() {
+window.onload = function () {
   var id;
 
   start = function (enemy) {
@@ -21,6 +21,7 @@ window.onload = function() {
 
   });
   socket.on('ClientList', function (data) {
+    console.log(data);
     document.getElementById('gameList').innerHTML = "Client List:\n";
     for (var c in data.clients) {
       if (data.clients[c].Socket != id) { //don't include ourself in the list
@@ -52,6 +53,9 @@ window.onload = function() {
       conn.on('open', function () {
         conn.send('Hey from player: ' + id);
       });
+      conn.on('close', function () {
+        myGame.end('Enemy Quit');
+      });
       myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
       myGame.run();
     }); 
@@ -59,10 +63,6 @@ window.onload = function() {
       console.log('error!');
       console.log(err);
     });
-    conn.on('close', function () {
-      myGame.end('Enemy Quit');
-    });
-
   });
 }
 

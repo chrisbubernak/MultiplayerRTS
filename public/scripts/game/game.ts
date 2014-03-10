@@ -50,9 +50,12 @@ class Game {
     Game.conn.on('data', function (data) {
       if (that.host) { //if we are the host it means the client sent us their actions, store these so we can send back an authoritatve action list 
         that.actionList[data.simTick] = data.actions;
+        console.log("S " + data.actions + " " + data.simTick);
+        console.log(that.actionList);
       }
       else {
         that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
+        console.log("C "+data.actions + " " + data.simTick);
       }
     });
   }
@@ -94,6 +97,7 @@ class Game {
       that.tree.clear();
       if (!that.host) { //if we arean't the host just send our actions to the host
         conn.send({ actions: that.actions, simTick: that.simTick });
+        console.log(that.actions + " " + that.simTick);
         that.actions = new Array();
       }
       else if (that.host && that.actionList[that.simTick]) { //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
@@ -102,7 +106,7 @@ class Game {
         that.applyActions(that.actions, that.simTick);
         that.actions = new Array();
       }
-
+      console.log(that.simTick);
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();

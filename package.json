@@ -10,6 +10,7 @@
     "typescript": "~0.9.5",
     "typescript-compiler": "~0.9.1-1",
     "msnodesql": "~0.2.1",
-    "jade": "^1.1.5"
+    "jade": "^1.1.5",
+    "stylus": "^0.42.3"
   }
 }
