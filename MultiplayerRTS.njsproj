@@ -60,7 +60,6 @@
     <Content Include="public\scripts\game\units\orc.ts" />
     <Content Include="public\scripts\game\units\mage.ts" />
     <Content Include="public\scripts\game\terrainTile.ts" />
-    <Content Include="index.html" />
     <Content Include="public\images\dirt.jpg" />
     <Content Include="public\images\grass.jpg" />
     <Content Include="public\images\terrain.jpg" />
