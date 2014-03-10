@@ -37,3 +37,24 @@ app.get('/game', routes.game);
 var server = http.createServer(app).listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
+
+//socket stuff...might want to move this somewhere else in the future to keep this file small and encapsulate lobby code
+var io = require('socket.io').listen(server);
+var LM = require('./routes/modules/lobbyManager')(io);
+
+io.sockets.on('connection', function (client) {
+    client.emit('ClientJoined', { userId: client.id });
+    LM.addClientToLobby(client);
+
+    //when a client requests a game, try and start it
+    client.on('RequestGame', function (data) {
+        var host = data.host;
+        var client = data.client;
+        io.sockets.socket(host).emit('StartGame', { host: host, client: client });
+        io.sockets.socket(client).emit('StartGame', { host: host, client: client });
+    });
+
+    client.on('disconnect', function () {
+        LM.clientDisconnect(client);
+    });
+});

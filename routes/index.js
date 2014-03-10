@@ -1,5 +1,6 @@
 ﻿var AM = require('./modules/accountManager');
 
+
 exports.index = function(req, res){
     res.render('login');
 };
