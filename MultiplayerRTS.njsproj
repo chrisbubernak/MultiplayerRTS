@@ -94,8 +94,6 @@
     <Compile Include="public\scripts\game\utilities.js" />
     <Compile Include="routes\index.js" />
     <Compile Include="routes\modules\accountManager.js" />
-    <Compile Include="server.js" />
-    <Compile Include="server.ts" />
     <Compile Include="public\scripts\game\utilities.ts" />
     <Content Include="Web.config" />
     <None Include="Web.cloud.config" />

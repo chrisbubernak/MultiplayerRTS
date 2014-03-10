@@ -1,0 +1,9 @@
+div {
+  color: #fff;
+}
+canvas {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  margin: auto;
+}
