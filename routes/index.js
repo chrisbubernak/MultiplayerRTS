@@ -11,6 +11,7 @@ exports.post = function(req, res) {
 			res.send(error, 400);
 		}	
     else{
+      req.session.user = user;
 			res.send(user, 200);
 		}
 	});
@@ -20,11 +21,11 @@ exports.game = function(req, res){
   res.render('game');
 };
 
-exports.home = function(req, res){
+exports.lobby = function(req, res){
   if (req.session.user == null) { //redirect if user is not logged in
     res.redirect('/');
   } else {
-    res.render('home', {
+    res.render('lobby', {
       udata: req.session.user
     });
   }
@@ -49,7 +50,7 @@ exports.signUpPost = function (req, res) {
 		}	
     else{
 		  req.session.user = user;
-			res.redirect('home');
+			res.redirect('lobby');
 		}
 	});
 };

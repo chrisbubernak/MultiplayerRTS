@@ -28,7 +28,7 @@ app.configure('development', function () {
 //routes
 app.get('/', routes.index);
 app.get('/login', routes.login);
-app.get('/home', routes.home);
+app.get('/lobby', routes.lobby);
 app.get('/signup', routes.signup);
 app.post('/', routes.post);
 app.post('/signup', routes.signUpPost);
@@ -44,7 +44,10 @@ var LM = require('./routes/modules/lobbyManager')(io);
 
 io.sockets.on('connection', function (client) {
     client.emit('ClientJoined', { userId: client.id });
-    LM.addClientToLobby(client);
+
+    client.on('SendUserInfoToServer', function (data) {
+        LM.addClientToLobby(data.username, data.socket);
+    });
 
     //when a client requests a game, try and start it
     client.on('RequestGame', function (data) {

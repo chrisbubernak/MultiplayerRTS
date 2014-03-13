@@ -8,8 +8,8 @@
     console.log("Client: " + client.id + " disconnected");
   }
 
-  this.addClientToLobby = function(client) {
-    sql.query(conn_str, "exec dbo.User_AddToLobby 1, '" + client.id + "'", function (err, results) {
+  this.addClientToLobby = function(username, socket) {
+    sql.query(conn_str, "exec dbo.User_AddToLobby '" + username + "', '" + socket + "'", function (err, results) {
       if (err) {
         console.log(err);
         return;

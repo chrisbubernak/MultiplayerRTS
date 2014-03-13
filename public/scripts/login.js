@@ -3,11 +3,12 @@
     success: function(response, status, xhr) {
       if (status == 'success') {
         document.getElementById('signin-status').innerHTML = '<div style="color: #5CB85C;">Success!</div>';
-        window.location.href = '/home';
+        window.location.href = '/lobby';
       }
     },
-    error: function(e) {
-      document.getElementById('signin-status').innerHTML = '<div style="color: #D9534F;">Login Failed</div>';
+    error: function(response, status, e) {
+      console.log(response)
+      document.getElementById('signin-status').innerHTML = '<div style="color: #D9534F;">Login Failed: ' + response.responseText + '</div>';
     }
   });
   $('#user-tf').focus();

@@ -3,16 +3,27 @@ var conn_str = process.env.ConnectionString || "Driver={SQL Server Native Client
 
 
 exports.login = function(user, pass, callback) {
-  sql.query(conn_str, "exec dbo.User_Login '" + user+ "', '" + pass + "'", function (err, results) {
+  sql.query(conn_str, "exec dbo.LobbyUser_Get null, '" + user + "'", function (err, results) {
     if (err) {
       callback(err, null);
+      return;
     }
-    else if (results.length > 0) {
-      callback(null, results[0].Username);
+    if (results.length > 0) {
+      callback('user already logged in', null);
+      return;
     }
-    else {
-      callback('invalid password or username', null);
-    }
+
+    sql.query(conn_str, "exec dbo.User_Login '" + user+ "', '" + pass + "'", function (err, results) {
+      if (err) {
+        callback(err, null);
+      }
+      else if (results.length > 0) {
+        callback(null, user);
+      }
+      else {
+        callback('invalid password or username', null);
+      }
+    });
   });
 }
 
