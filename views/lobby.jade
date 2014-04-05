@@ -1,0 +1,23 @@
+﻿extends layout
+
+block content
+  //div.navbar.navbar-fixed-top
+    //div.navbar-inner
+      //div.container-fluid
+        //ul#global-nvar.nav.pull-left
+          //h1 Welcome, #{udata}
+  div#playerList
+  div#chatContainer
+    div#chatHistory
+    div#chatInput
+      textarea
+      button  Send
+          
+         
+block scripts
+  script(src='/vendor/jquery/jquery-2.1.0.min.js')
+  script(src='/scripts/lobby.js')
+  link(rel='stylesheet', href='/css/lobby.css')
+  script(src='/socket.io/socket.io.js')
+  script
+    $(document).ready(function() {start('#{udata}');});

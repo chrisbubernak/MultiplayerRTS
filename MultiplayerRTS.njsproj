@@ -18,6 +18,8 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="public\scripts\game\peer.js" />
+    <Compile Include="public\scripts\game\units\orc.js" />
     <Compile Include="public\scripts\lobby.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.min.js" />
@@ -79,7 +81,6 @@
     <Compile Include="public\scripts\game\jquery.js" />
     <Compile Include="public\scripts\game\jquery.ts" />
     <Compile Include="public\scripts\game\Pathing.js" />
-    <Compile Include="public\scripts\game\peer.min.js" />
     <Compile Include="public\scripts\game\priorityQueue.js" />
     <Compile Include="public\scripts\game\quadtree.js" />
     <Compile Include="public\scripts\game\State.js" />

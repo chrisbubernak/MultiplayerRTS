@@ -4,7 +4,10 @@
 /// <reference path="units/orc.ts" />
 /// <reference path="jquery.js" />
 /// <reference path="quadtree.ts" />
+/// <reference path="unit.ts" />
+/// <reference path="utilities.ts" />
 var Game = (function () {
+    //constructor(socket, id, clients, gameId) {
     function Game(conn, host, id, enemyId, gameId) {
         this.selection = new Object();
         this.actions = new Array();
@@ -18,20 +21,13 @@ var Game = (function () {
 
         var that = this;
         Game.conn.on('data', function (data) {
-          if(!(typeof data.simTick === 'undefined')) {
-            console.log('data ' + data.simTick);
-            if (that.host) {
-                that.actionList[data.simTick] = data.actions;
-                console.log("S " + data.actions + " " + data.simTick);
-            } else {
-                that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
-                console.log("C " + data.actions + " " + data.simTick);
+            if (!(typeof (data.simTick) === 'undefined')) {
+                if (that.host) {
+                    that.actionList[data.simTick] = data.actions;
+                } else {
+                    that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
+                }
             }
-          }
-          else {
-            console.log('err ')
-            console.log(data);
-          }
         });
     }
     //Public Methods:
@@ -69,17 +65,18 @@ var Game = (function () {
             that.update();
             that.getSelection();
             that.tree.clear();
+
+            //if we arean't the host just send our actions to the host
             if (!that.host) {
-                conn.send({ actions: that.actions, simTick: that.simTick });
-                console.log(that.actions + " " + that.simTick);
+                Game.conn.send({ actions: that.actions, simTick: that.simTick });
                 that.actions = new Array();
             } else if (that.host && that.actionList[that.simTick]) {
                 that.actions = that.actions.concat(that.actionList[that.simTick]);
-                conn.send({ actions: that.actions, simTick: that.simTick });
+                Game.conn.send({ actions: that.actions, simTick: that.simTick });
                 that.applyActions(that.actions, that.simTick);
                 that.actions = new Array();
             }
-            console.log(that.simTick);
+
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();

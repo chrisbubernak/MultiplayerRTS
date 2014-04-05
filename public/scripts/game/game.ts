@@ -4,7 +4,8 @@
 /// <reference path="units/orc.ts" />
 /// <reference path="jquery.js" />
 /// <reference path="quadtree.ts" />
-
+/// <reference path="unit.ts" />
+/// <reference path="utilities.ts" />
 
 class Game {
   //static variables
@@ -48,14 +49,13 @@ class Game {
 
     var that = this;
     Game.conn.on('data', function (data) {
-      if (that.host) { //if we are the host it means the client sent us their actions, store these so we can send back an authoritatve action list 
-        that.actionList[data.simTick] = data.actions;
-        console.log("S " + data.actions + " " + data.simTick);
-        console.log(that.actionList);
-      }
-      else {
-        that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
-        console.log("C "+data.actions + " " + data.simTick);
+      if (!(typeof(data.simTick) === 'undefined')) {
+        if (that.host) { //if we are the host it means the client sent us their actions, store these so we can send back an authoritatve action list 
+          that.actionList[data.simTick] = data.actions;
+        }
+        else {
+          that.applyActions(data.actions, data.simTick); //if we are the client it means the host sent us an update and we should apply it
+        }
       }
     });
   }
@@ -95,18 +95,19 @@ class Game {
       that.update();
       that.getSelection();
       that.tree.clear();
-      if (!that.host) { //if we arean't the host just send our actions to the host
-        conn.send({ actions: that.actions, simTick: that.simTick });
-        console.log(that.actions + " " + that.simTick);
+      //if we arean't the host just send our actions to the host
+      if (!that.host) {
+        Game.conn.send({ actions: that.actions, simTick: that.simTick });
         that.actions = new Array();
       }
-      else if (that.host && that.actionList[that.simTick]) { //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
+      //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
+      else if (that.host && that.actionList[that.simTick]) {
         that.actions = that.actions.concat(that.actionList[that.simTick]);
-        conn.send({ actions: that.actions, simTick: that.simTick });
+        Game.conn.send({ actions: that.actions, simTick: that.simTick });
         that.applyActions(that.actions, that.simTick);
         that.actions = new Array();
       }
-      console.log(that.simTick);
+
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();

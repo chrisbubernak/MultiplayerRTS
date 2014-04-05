@@ -18,7 +18,10 @@ exports.post = function(req, res) {
 };
 
 exports.game = function(req, res){
-  res.render('game');
+  var host = req.param('host');
+  var id = req.param('id');
+  var enemyId = req.param('enemyId');
+  res.render('game', {id: id, enemyId: enemyId, host: host});
 };
 
 exports.lobby = function(req, res){

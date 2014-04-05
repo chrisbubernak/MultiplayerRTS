@@ -1,8 +1,6 @@
 ﻿extends layout
 
-
 block content
-  div#gameList
   div#fps
   div#gameId
   div#clientId
@@ -26,27 +24,56 @@ block scripts
   script(src='/scripts/game/states/attackingstate.js')
   script(src='/scripts/game/units/mage.js')
   script(src='/scripts/game/game.js')
-  script(src='/scripts/game/client.js')
   script(src='/scripts/game/quadtree.js')
   script(src='/scripts/game/drawer.js')
   script(src='/scripts/game/utilities.js')
   script(src='/scripts/game/Pathing.js')
   script(src='/scripts/game/priorityQueue.js')
-  script(src='/scripts/game/peer.min.js')
+  script(src='/scripts/game/peer.js')
   script.
     $(document).ready(function() {
-    var t = new TerrainTile()
-    t.getImage()
+      //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
+      var t = new TerrainTile()
+      t.getImage()
+      
+      var id = '#{id}';
+      var enemyId = '#{enemyId}';
+      var host = #{host};
+      var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' });
+
+      var conn;      
+      var myGame;
+      peer.on('error', function (err) {
+        console.log('error connecting!');
+        console.log(err);
+      });
+      if(host) {
+        //connect to peer
+        conn = peer.connect(enemyId);
+        conn.on('open', function () {
+          conn.send('Hey from player: ' + id);
+          myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+          myGame.run();
+        });
+        conn.on('close', function () {
+          console.log('connection closed!');
+          myGame.end('Enemy Quit');
+        });
+      }
+      else {
+        //wait for connection
+        peer.on('connection', function (conn) {
+          console.log('client ' + conn)
+          conn.on('open', function () {
+            conn.send('Hey from player: ' + id);
+            myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+            myGame.run();
+          });
+          conn.on('close', function () {
+            console.log('connection closed!');
+            myGame.end('Enemy Quit');
+          });
+        });
+      }
     })
 
-  //<style>
-  //canvas {
-  //  position: absolute;
-  //  top: 50;
-  //  left: 25;
-  //}
-  //.game {
-  //  border: solid 1px black;
-  //  width: auto;
-  //}
-  //</style>
