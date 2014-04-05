@@ -39,8 +39,7 @@ block scripts
       var id = '#{id}';
       var enemyId = '#{enemyId}';
       var host = #{host};
-      var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' });
-
+      var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
       var conn;      
       var myGame;
       peer.on('error', function (err) {
