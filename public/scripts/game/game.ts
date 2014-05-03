@@ -271,8 +271,10 @@ class Game {
   private applyActions(actions, simTick: number) {
     for (var a in actions) {
       var unit = utilities.findUnit(actions[a].unit, Game.units);
-      var targetLoc = utilities.coordsToBox(actions[a].target.x, actions[a].target.y);
-      unit.target = targetLoc;
+      if (unit != null) {
+        var targetLoc = utilities.coordsToBox(actions[a].target.x, actions[a].target.y);
+        unit.target = targetLoc;
+      }
     }
     this.simTick++;
   }
