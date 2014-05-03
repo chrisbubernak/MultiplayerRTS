@@ -36,8 +36,9 @@ block scripts
       var t = new TerrainTile()
       t.getImage()
       
-      var id = '#{id}'.replace('_', '').replace('-', '');
-      var enemyId = '#{enemyId}'.replace('_', '').replace('-', '');
+      var id = '#{id.split('_').join('').split('-').join('')}';
+      var enemyId = '#{enemyId.split('_').join('').split('-').join('')}';
+      console.log('id: ' + id)
       var host = #{host};
       var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
       var conn;      
@@ -47,6 +48,7 @@ block scripts
         console.log(err);
       });
       if(host) {
+        console.log('im initiating a connection')
         //connect to peer
         conn = peer.connect(enemyId);
         conn.on('open', function () {
@@ -60,6 +62,7 @@ block scripts
         });
       }
       else {
+        console.log('im waiting for a connection')
         //wait for connection
         peer.on('connection', function (conn) {
           console.log('client ' + conn)
