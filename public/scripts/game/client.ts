@@ -7,7 +7,6 @@ var peer;
 var conn;
 var id;
 window.onload = function () {
-  alert('fdas')
   var id;
 
   start = function (enemy) {

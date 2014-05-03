@@ -36,8 +36,8 @@ block scripts
       var t = new TerrainTile()
       t.getImage()
       
-      var id = '#{id}';
-      var enemyId = '#{enemyId}';
+      var id = '#{id}'.replace('_', '').replace('-', '');
+      var enemyId = '#{enemyId}'.replace('_', '').replace('-', '');
       var host = #{host};
       var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
       var conn;      
