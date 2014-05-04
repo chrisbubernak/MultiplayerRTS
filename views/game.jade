@@ -47,27 +47,12 @@ block scripts
         console.log('error connecting!');
         console.log(err);
       });
-      if(host) {
-        console.log('im initiating a connection')
-        //connect to peer
-        conn = peer.connect(enemyId);
-        conn.on('open', function () {
-          conn.send('Hey from player: ' + id);
-          myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
-          myGame.run();
-        });
-        conn.on('close', function () {
-          console.log('connection closed!');
-          myGame.end('Enemy Quit');
-        });
-        console.log('conn:')
-        console.log(conn)
-      }
-      else {
-        console.log('im waiting for a connection')
-        //wait for connection
-        peer.on('connection', function (conn) {
-          console.log('client ' + conn)
+      peer.on('open', function() {
+        console.log('peer is open!');
+        if(host) {
+          console.log('im initiating a connection')
+          //connect to peer
+          conn = peer.connect(enemyId,  {reliable:true} );
           conn.on('open', function () {
             conn.send('Hey from player: ' + id);
             myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
@@ -77,7 +62,25 @@ block scripts
             console.log('connection closed!');
             myGame.end('Enemy Quit');
           });
-        });
-      }
+          console.log('conn:')
+          console.log(conn)
+        }
+        else {
+          console.log('im waiting for a connection')
+          //wait for connection
+          peer.on('connection', function (conn) {
+            console.log('client ' + conn)
+            conn.on('open', function () {
+              conn.send('Hey from player: ' + id);
+              myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+              myGame.run();
+            });
+            conn.on('close', function () {
+              console.log('connection closed!');
+              myGame.end('Enemy Quit');
+            });
+          });
+        }
+      });
     })
 
