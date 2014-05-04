@@ -66,7 +66,7 @@ var drawer = (function () {
             var x = unit.x;
             var y = unit.y;
             var coords = unit.getDrawCoordinates();
-            unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, unit.w, unit.h);
+            unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x - unit.w / 2, y - unit.h / 2, unit.w * 2, unit.h * 2);
 
             if (unit.selected) {
                 unitContext.beginPath();
