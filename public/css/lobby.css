@@ -1,0 +1,35 @@
+#chatContainer {
+  border: 1px solid #000;
+  background-color: #fff;
+  overflow: hidden;
+  height: 100%;
+}
+#chatHistory {
+  border: 1px solid #000;
+  background-color: #ff0;
+  height: 90%;
+}
+#chatInput {
+  border: 1px solid #000;
+  background-color: #008000;
+  height: 10%;
+}
+#playerList {
+  float: left;
+  border: 1px solid #000;
+  width: 20%;
+  height: 100%;
+  color: #fff;
+}
+textarea {
+  height: 100%;
+  width: 90%;
+}
+button {
+  float: right;
+}
+body,
+html {
+  border: 1px solid #000;
+  height: 100%;
+}
