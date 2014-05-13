@@ -3,7 +3,6 @@
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
 /// <reference path="jquery.js" />
-/// <reference path="quadtree.ts" />
 /// <reference path="unit.ts" />
 /// <reference path="utilities.ts" />
 
@@ -24,7 +23,6 @@ class Game {
   private static conn; //PEERJS connection
   private static updateFPS: number = 10;
   private static FPS: number = 60;
-  public tree; //the quad tree ....really should remove this now that we are grid based
 
   //"private" variables
   private selection = new Object(); //stores the coordinates of the players selection
@@ -78,11 +76,7 @@ class Game {
       return true;
     });
 
- 
 
-    // initialize the quadtree
-    var args = { x: 0, y: 0, h: Game.CANVAS_HEIGHT, w: Game.CANVAS_WIDTH, maxChildren: 5, maxDepth: 5 };
-    this.tree = QUAD.init(args);
     for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
       var p1;
       var p2;
@@ -216,14 +210,17 @@ class Game {
     var that = this;
     if ($(document).data('mousedown')) {
       //create the selection
-      var region = that.tree.retrieve(that.selection, function (item) {
-        var loc = utilities.boxToCoords(item.loc);
-        loc.w = item.w;
-        loc.h = item.h;
-        if ((item.player == that.id) && utilities.collides(that.selection, loc) && item != that.selection) {
-          item.selected = true;
+      var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
+      var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
+      for (var o in occupied) {
+        var id = Game.grid[occupied[o]];
+        if (id != null) {
+          var unit = utilities.findUnit(id, Game.units);
+          if (unit.player == that.id) {
+            unit.selected = true;
+          }
         }
-      });
+      }
     }
   }
 

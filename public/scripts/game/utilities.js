@@ -1,4 +1,4 @@
-var utilities = (function () {
+﻿var utilities = (function () {
     return {
         //returns the upper left corner of the box given its index
         boxToCoords: function (i) {

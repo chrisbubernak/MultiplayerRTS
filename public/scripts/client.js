@@ -162,10 +162,8 @@ var Client = (function () {
 
         //var conn = Game.conn;
         setInterval(function () {
-            that.myGame.tree.insert(Game.getUnits());
             that.myGame.update();
             that.myGame.getSelection();
-            that.myGame.tree.clear();
 
             //if we arean't the host just send our actions to the host
             if (!that.host) {

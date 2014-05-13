@@ -54,7 +54,7 @@ var utilities = (function() {
     },
 
     //given a unit, return the locs that it occupies (given its height, width, and loc)
-    getOccupiedSquares : function(loc, w, h) {
+    getOccupiedSquares: function (loc, w, h) {
       var locs = new Array();
       var width = Math.ceil(w/Game.boxSize);
       var height = Math.ceil(h/Game.boxSize);

@@ -82,7 +82,6 @@
     <Compile Include="public\scripts\game\jquery.ts" />
     <Compile Include="public\scripts\game\Pathing.js" />
     <Compile Include="public\scripts\game\priorityQueue.js" />
-    <Compile Include="public\scripts\game\quadtree.js" />
     <Compile Include="public\scripts\game\State.js" />
     <Compile Include="public\scripts\game\states\AttackingState.js" />
     <Compile Include="public\scripts\game\states\WaitingState.js" />
@@ -92,7 +91,6 @@
     <Compile Include="public\scripts\game\units\knight.js" />
     <Compile Include="public\scripts\game\units\knight.ts" />
     <Compile Include="public\scripts\game\priorityQueue.ts" />
-    <Compile Include="public\scripts\game\quadtree.ts" />
     <Compile Include="public\scripts\game\unit.ts" />
     <Compile Include="public\scripts\game\units\mage.js" />
     <Compile Include="public\scripts\game\utilities.js" />
