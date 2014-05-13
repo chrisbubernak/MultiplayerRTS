@@ -29,58 +29,12 @@ block scripts
   script(src='/scripts/game/utilities.js')
   script(src='/scripts/game/Pathing.js')
   script(src='/scripts/game/priorityQueue.js')
-  script(src='/scripts/game/peer.js')
+  script(src='/scripts/peer.js')
+  script(src='/scripts/client.js')
   script.
-    $(document).ready(function() {
-      //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
-      var t = new TerrainTile()
-      t.getImage()
-      
-      var id = '#{id.split('_').join('').split('-').join('')}';
-      var enemyId = '#{enemyId.split('_').join('').split('-').join('')}';
-      console.log('id: ' + id)
-      var host = #{host};
-      var peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
-      var conn;      
-      var myGame;
-      peer.on('error', function (err) {
-        console.log('error connecting!');
-        console.log(err);
-      });
-      peer.on('open', function() {
-        console.log('peer is open!');
-        if(host) {
-          console.log('im initiating a connection')
-          //connect to peer
-          conn = peer.connect(enemyId,  {reliable:true} );
-          conn.on('open', function () {
-            conn.send('Hey from player: ' + id);
-            myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
-            myGame.run();
-          });
-          conn.on('close', function () {
-            console.log('connection closed!');
-            myGame.end('Enemy Quit');
-          });
-          console.log('conn:')
-          console.log(conn)
-        }
-        else {
-          console.log('im waiting for a connection')
-          //wait for connection
-          peer.on('connection', function (conn) {
-            console.log('client ' + conn)
-            conn.on('open', function () {
-              conn.send('Hey from player: ' + id);
-              myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
-              myGame.run();
-            });
-            conn.on('close', function () {
-              console.log('connection closed!');
-              myGame.end('Enemy Quit');
-            });
-          });
-        }
-      });
-    })
-
+    $(document).ready(function () {
+      var id = '#{id.split('_').join('').split(' - ').join('')}';
+      var enemyId = '#{enemyId.split('_').join('').split(' - ').join('')}';
+      var host = #{host };
+      var c = new Client(id, enemyId, host);
+    });

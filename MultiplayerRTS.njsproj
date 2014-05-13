@@ -18,7 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="public\scripts\game\peer.js" />
+    <Compile Include="public\scripts\peer.js" />
     <Compile Include="public\scripts\game\units\orc.js" />
     <Compile Include="public\scripts\lobby.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
@@ -71,8 +71,8 @@
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Compile Include="public\scripts\game\BaseGameEntity.js" />
-    <Compile Include="public\scripts\game\client.js" />
-    <Compile Include="public\scripts\game\client.ts" />
+    <Compile Include="public\scripts\client.js" />
+    <Compile Include="public\scripts\client.ts" />
     <Compile Include="public\scripts\login.js" />
     <Compile Include="public\scripts\game\drawer.js" />
     <Compile Include="public\scripts\game\drawer.ts" />
