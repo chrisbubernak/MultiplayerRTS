@@ -28,6 +28,7 @@
     <Compile Include="public\scripts\signup.js" />
     <Compile Include="routes\modules\lobbyManager.js" />
     <Content Include="app.ts" />
+    <Content Include="public\scripts\definitions\jquery.d.ts" />
     <Content Include="public\css\game.styl" />
     <Content Include="public\css\lobby.styl" />
     <Content Include="public\css\style.css" />
@@ -55,7 +56,7 @@
     <Content Include="public\images\knight.png" />
     <Content Include="public\images\orc.png" />
     <Content Include="public\images\units.png" />
-    <Content Include="node.d.ts" />
+    <Content Include="public\scripts\definitions\node.d.ts" />
     <Content Include="public\scripts\game\BaseGameEntity.ts" />
     <Content Include="public\scripts\game\Pathing.ts" />
     <Content Include="public\scripts\game\State.ts" />
@@ -104,6 +105,7 @@
     <Folder Include="public\css\" />
     <Folder Include="public\scripts\" />
     <Folder Include="public\scripts\game\" />
+    <Folder Include="public\scripts\definitions\" />
     <Folder Include="public\vendor\" />
     <Folder Include="public\vendor\bootstrap\" />
     <Folder Include="public\vendor\bootstrap\css\" />

@@ -36,17 +36,6 @@ var Game = (function () {
 
         var that = this;
 
-        //keep track of when shift is held down so we can queue up unit movements
-        //for debugging also listen for g clicked ...this signifies to draw the grid
-        $(document).bind('keyup keydown', function (e) {
-            var code = e.keyCode || e.which;
-            if (code == 71) {
-                drawer.drawGrid();
-            }
-            that.shifted = e.shiftKey;
-            return true;
-        });
-
         for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
             var p1;
             var p2;
@@ -201,12 +190,14 @@ var Game = (function () {
         };
     };
 
-    Game.prototype.setSelection = function (s) {
-        this.selection = s;
+    Game.prototype.setSelection = function (coords) {
+        this.selection = Object.create(new this.select(coords.x, coords.y));
     };
 
-    Game.prototype.getShifted = function () {
-        return this.shifted;
+    Game.prototype.unselectAll = function () {
+        for (var u in Game.getUnits()) {
+            Game.units[u].selected = false;
+        }
     };
 
     Game.prototype.select = function (sX, sY) {

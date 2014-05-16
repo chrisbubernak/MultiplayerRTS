@@ -31,7 +31,6 @@ class Game {
   private gameId: string;
   private id: string;
   private socket;
-  private shifted: boolean;
   private enemyId;
   private host; 
   private actionList = new Array();
@@ -65,16 +64,7 @@ class Game {
 
     var that = this;
 
-    //keep track of when shift is held down so we can queue up unit movements
-    //for debugging also listen for g clicked ...this signifies to draw the grid
-    $(document).bind('keyup keydown', function (e) {
-      var code = e.keyCode || e.which;
-      if (code == 71) {
-        drawer.drawGrid();
-      }
-      that.shifted = e.shiftKey;
-      return true;
-    });
+
 
 
     for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
@@ -236,14 +226,15 @@ class Game {
     };
   }
 
-  public setSelection(s) {
-    this.selection = s;
+  public setSelection(coords) {
+    this.selection = Object.create(new this.select(coords.x, coords.y))
   }
 
-  public getShifted() {
-    return this.shifted;
+  public unselectAll() {
+    for (var u in Game.getUnits()) {
+      Game.units[u].selected = false;
+    }
   }
-
 
   public select(sX: number, sY: number) {
     //TODO: make selection into its own object!!!

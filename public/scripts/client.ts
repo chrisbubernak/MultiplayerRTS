@@ -1,7 +1,9 @@
 /// <reference path="game/game.ts" />
 /// <reference path="peer.js" />
 /// <reference path="game/drawer.ts" />
-/// <reference path="../../node.d.ts" />
+/// <reference path="game/jquery.ts" />
+/// <reference path="definitions/node.d.ts" />
+/// <reference path="definitions/jquery.d.ts" />
 class Client {
   private myGame: Game;
   private host: Boolean;
@@ -15,6 +17,7 @@ class Client {
   private RealFPS: number = this.FPS;
   private updateFPS: number = 10;
   private actionList = new Array();
+  private shifted: boolean;
 
   constructor(id, enemyId, host) {
     //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
@@ -32,17 +35,16 @@ class Client {
       if (e.button == 0) {
         $(this).data('mousedown', true);
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-        that.myGame.setSelection(Object.create(new that.myGame.select(coords.x, coords.y)));
-        for (var u in Game.getUnits()) {
-          Game.units[u].selected = false;
-        }
+        that.myGame.setSelection(coords);
+        that.myGame.unselectAll();
       }
       //if right click...
       else if (e.button == 2) {
-        for (var u in Game.getUnits()) {
-          if (Game.units[u].selected) {
+        var units = Game.getUnits();
+        for (var u in units) {
+          if (units[u].selected) {
             var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-            that.actions.push({ unit: Game.getUnits()[u].id, target: tar, shift: that.myGame.getShifted() });
+            that.actions.push({ unit: Game.getUnits()[u].id, target: tar, shift: that.shifted });
           }
         }
       }
@@ -57,6 +59,17 @@ class Client {
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.myGame.updateSelection(that.myGame.getSelectionObject(), coords.x, coords.y);
       }
+    });
+
+    //keep track of when shift is held down so we can queue up unit movements
+    //for debugging also listen for g clicked ...this signifies to draw the grid
+    $(document).bind('keyup keydown', function (e) {
+      var code = e.keyCode || e.which;
+      if (code == 71) {
+        drawer.drawGrid();
+      }
+      that.shifted = e.shiftKey;
+      return true;
     });
     //mouse move stuff END
 

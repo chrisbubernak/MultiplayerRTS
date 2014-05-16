@@ -1,7 +1,9 @@
 /// <reference path="game/game.ts" />
 /// <reference path="peer.js" />
 /// <reference path="game/drawer.ts" />
-/// <reference path="../../node.d.ts" />
+/// <reference path="game/jquery.ts" />
+/// <reference path="definitions/node.d.ts" />
+/// <reference path="definitions/jquery.d.ts" />
 var Client = (function () {
     function Client(id, enemyId, host) {
         this.actions = new Array();
@@ -25,15 +27,14 @@ var Client = (function () {
             if (e.button == 0) {
                 $(this).data('mousedown', true);
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.myGame.setSelection(Object.create(new that.myGame.select(coords.x, coords.y)));
-                for (var u in Game.getUnits()) {
-                    Game.units[u].selected = false;
-                }
+                that.myGame.setSelection(coords);
+                that.myGame.unselectAll();
             } else if (e.button == 2) {
-                for (var u in Game.getUnits()) {
-                    if (Game.units[u].selected) {
+                var units = Game.getUnits();
+                for (var u in units) {
+                    if (units[u].selected) {
                         var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                        that.actions.push({ unit: Game.getUnits()[u].id, target: tar, shift: that.myGame.getShifted() });
+                        that.actions.push({ unit: Game.getUnits()[u].id, target: tar, shift: that.shifted });
                     }
                 }
             }
@@ -48,6 +49,17 @@ var Client = (function () {
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.myGame.updateSelection(that.myGame.getSelectionObject(), coords.x, coords.y);
             }
+        });
+
+        //keep track of when shift is held down so we can queue up unit movements
+        //for debugging also listen for g clicked ...this signifies to draw the grid
+        $(document).bind('keyup keydown', function (e) {
+            var code = e.keyCode || e.which;
+            if (code == 71) {
+                drawer.drawGrid();
+            }
+            that.shifted = e.shiftKey;
+            return true;
         });
 
         //mouse move stuff END
