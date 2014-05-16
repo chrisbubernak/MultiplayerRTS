@@ -24,12 +24,12 @@ var Client = (function () {
         //mouse move stuff
         $(document).mousedown(function (e) {
             //on left click...
-            if (e.button == 0) {
+            if (e.which == 1) {
                 $(this).data('mousedown', true);
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.myGame.setSelection(coords);
                 that.myGame.unselectAll();
-            } else if (e.button == 2) {
+            } else if (e.which == 3) {
                 var units = Game.getUnits();
                 for (var u in units) {
                     if (units[u].selected) {
