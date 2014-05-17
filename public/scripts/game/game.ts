@@ -2,9 +2,10 @@
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
-/// <reference path="jquery.js" />
+/// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="unit.ts" />
 /// <reference path="utilities.ts" />
+/// <reference path="selectionObject.ts" />
 
 class Game {
   //static variables
@@ -24,7 +25,7 @@ class Game {
   private static FPS: number = 60;
 
   //"private" variables
-  private selection = new Object(); //stores the coordinates of the players selection
+  private selection: SelectionObject;
   private actions = new Array();
   private simTick : number = 0;
   private gameId: string;
@@ -227,7 +228,7 @@ class Game {
   }
 
   public setSelection(coords) {
-    this.selection = Object.create(new this.select(coords.x, coords.y))
+    this.selection = new SelectionObject(coords.x, coords.y);
   }
 
   public unselectAll() {
@@ -235,20 +236,6 @@ class Game {
       Game.units[u].selected = false;
     }
   }
-
-  public select(sX: number, sY: number) {
-    //TODO: make selection into its own object!!!
-    var selection = new Object();
-    selection.sX = sX;
-    selection.x = sX;
-    selection.sY = sY;
-    selection.y = sY;
-    selection.w = 0;
-    selection.h = 0;
-    selection.select = true;
-    return selection;
-  }
-
 
   public updateSelection(selection, eX, eY) {
     selection.x = Math.min(selection.sX, eX);

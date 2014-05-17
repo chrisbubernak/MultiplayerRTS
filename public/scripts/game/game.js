@@ -2,14 +2,13 @@
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
-/// <reference path="jquery.js" />
+/// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="unit.ts" />
 /// <reference path="utilities.ts" />
+/// <reference path="selectionObject.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(conn, host, id, enemyId, gameId) {
-        //"private" variables
-        this.selection = new Object();
         this.actions = new Array();
         this.simTick = 0;
         this.actionList = new Array();
@@ -195,26 +194,13 @@ var Game = (function () {
     };
 
     Game.prototype.setSelection = function (coords) {
-        this.selection = Object.create(new this.select(coords.x, coords.y));
+        this.selection = new SelectionObject(coords.x, coords.y);
     };
 
     Game.prototype.unselectAll = function () {
         for (var u in Game.getUnits()) {
             Game.units[u].selected = false;
         }
-    };
-
-    Game.prototype.select = function (sX, sY) {
-        //TODO: make selection into its own object!!!
-        var selection = new Object();
-        selection.sX = sX;
-        selection.x = sX;
-        selection.sY = sY;
-        selection.y = sY;
-        selection.w = 0;
-        selection.h = 0;
-        selection.select = true;
-        return selection;
     };
 
     Game.prototype.updateSelection = function (selection, eX, eY) {
