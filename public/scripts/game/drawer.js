@@ -1,3 +1,4 @@
+/// <reference path="coords.ts" />
 var drawer = (function () {
     //conts...
     var GREEN = "#39FF14";
@@ -34,10 +35,10 @@ var drawer = (function () {
         },
         drawUnits: function (units) {
             fogContext.globalCompositeOperation = 'source-over';
-            fogContext.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+            fogContext.clearRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight());
             fogContext.fillStyle = FOG;
-            fogContext.fillRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
-            unitContext.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+            fogContext.fillRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight());
+            unitContext.clearRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight());
             for (var i = 0; i < units.length; i++) {
                 if (units[i].player == playerId) {
                     var coords = utilities.boxToCoords(units[i].loc);
@@ -59,14 +60,13 @@ var drawer = (function () {
                 }
                 drawer.drawUnit(units[i]);
             }
-            selectionContext.clearRect(0, 0, Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT);
+            selectionContext.clearRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight());
         },
         drawUnit: function (unit) {
-            var coords = utilities.boxToCoords(unit.loc);
             var x = unit.x;
             var y = unit.y;
             var coords = unit.getDrawCoordinates();
-            unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x - unit.w / 2, y - unit.h / 2, unit.w * 2, unit.h * 2);
+            unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x - unit.w / 2, y - unit.h, unit.w * 2, unit.h * 2);
 
             if (unit.selected) {
                 unitContext.beginPath();
@@ -91,7 +91,7 @@ var drawer = (function () {
             for (var i = 0; i < (length = tiles.length); i++) {
                 var tile = tiles[i];
                 if (tile.getImage()) {
-                    terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, utilities.boxToCoords(i).x, utilities.boxToCoords(i).y, Game.boxSize, Game.boxSize);
+                    terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, utilities.boxToCoords(i).x, utilities.boxToCoords(i).y, Game.getBoxSize(), Game.getBoxSize());
                 } else {
                     //console.log("failed to load image");
                 }
@@ -102,15 +102,15 @@ var drawer = (function () {
         drawSquare: function (loc, color) {
             var coords = utilities.boxToCoords(loc);
             selectionContext.fillStyle = color;
-            selectionContext.fillRect(coords.x, coords.y, Game.boxSize, Game.boxSize);
+            selectionContext.fillRect(coords.x, coords.y, Game.getBoxSize(), Game.getBoxSize());
         },
         //used for debugging a* pathing
         drawPathing: function (loc, color, val) {
             var coords = utilities.boxToCoords(loc);
             selectionContext.fillStyle = color;
-            selectionContext.fillRect(coords.x, coords.y, Game.boxSize, Game.boxSize);
+            selectionContext.fillRect(coords.x, coords.y, Game.getBoxSize(), Game.getBoxSize());
             selectionContext.fillStyle = "black";
-            selectionContext.fillText(Math.round(val), coords.x, coords.y + Game.boxSize / 2);
+            selectionContext.fillText(Math.round(val), coords.x, coords.y + Game.getBoxSize() / 2);
             //selectionContext.globalAlpha = 1;
         },
         drawSelect: function (selection) {
@@ -122,16 +122,17 @@ var drawer = (function () {
         },
         drawGrid: function () {
             terrainContext.strokeStyle = GREEN;
-            for (var i = 0; i <= Game.boxesPerRow; i++) {
-                terrainContext.moveTo(i * Game.boxSize, 0);
-                terrainContext.lineTo(i * Game.boxSize, Game.CANVAS_HEIGHT);
+            for (var i = 0; i <= Game.getBoxesPerRow(); i++) {
+                terrainContext.moveTo(i * Game.getBoxSize(), 0);
+                terrainContext.lineTo(i * Game.getBoxSize(), Game.getCanvasHeight());
                 terrainContext.stroke();
             }
-            for (var i = 0; i <= Game.boxesPerCol; i++) {
-                terrainContext.moveTo(0, i * Game.boxSize);
-                terrainContext.lineTo(Game.CANVAS_WIDTH, i * Game.boxSize);
+            for (var i = 0; i <= Game.getBoxesPerCol(); i++) {
+                terrainContext.moveTo(0, i * Game.getBoxSize());
+                terrainContext.lineTo(Game.getCanvasWidth(), i * Game.getBoxSize());
                 terrainContext.stroke();
             }
         }
     };
 })();
+;

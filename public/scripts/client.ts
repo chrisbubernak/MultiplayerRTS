@@ -4,6 +4,8 @@
 /// <reference path="game/jquery.ts" />
 /// <reference path="definitions/node.d.ts" />
 /// <reference path="definitions/jquery.d.ts" />
+/// <reference path="definitions/peer.d.ts" />
+
 class Client {
   private myGame: Game;
   private host: Boolean;

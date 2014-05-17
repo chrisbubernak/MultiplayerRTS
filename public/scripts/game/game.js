@@ -221,6 +221,14 @@ var Game = (function () {
         return selection;
     };
 
+    Game.prototype.getCanvasHeight = function () {
+        return Game.CANVAS_HEIGHT;
+    };
+
+    Game.prototype.getCanvasWidth = function () {
+        return Game.CANVAS_WIDTH;
+    };
+
     //Private Methods:
     Game.prototype.generateTerrain = function () {
         for (var i = 0; i < (length = Game.boxesPerRow * Game.boxesPerCol); i++) {

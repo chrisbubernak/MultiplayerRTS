@@ -64,9 +64,6 @@ class Game {
 
     var that = this;
 
-
-
-
     for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
       var p1;
       var p2;
@@ -123,6 +120,10 @@ class Game {
 
   public static getBoxesPerRow() {
     return Game.boxesPerRow;
+  }
+
+  public static getBoxesPerCol() {
+    return Game.boxesPerCol;
   }
 
   public static removeUnit(unit: Unit) {
@@ -256,6 +257,14 @@ class Game {
     selection.w = Math.abs(selection.sX - eX);
     selection.h = Math.abs(selection.sY - eY);
     return selection;
+  }
+
+  public getCanvasHeight() {
+    return Game.CANVAS_HEIGHT;
+  }
+
+  public getCanvasWidth() {
+    return Game.CANVAS_WIDTH;
   }
 
   //Private Methods:

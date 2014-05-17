@@ -2,6 +2,7 @@
 /// <reference path="State.ts" />
 /// <reference path="states/WaitingState.ts" />
 /// <reference path="states/WalkingState.ts" />
+/// <reference path="coords.ts" />
 
 class Unit extends BaseGameEntity {
   currentState: State;
@@ -92,27 +93,27 @@ class Unit extends BaseGameEntity {
 
     if (this.direction == 'up') {
       if (attacking) {
-        return { x: this.imageX + Math.floor(this.attackArtTimer) * this.imageW, y: this.imageY + 256 }
+        return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 256);
       }
-      return { x: this.imageX + Math.floor(this.animateTimer) * this.imageW, y: this.imageY }
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY)
     }
     if (this.direction == 'down') {
       if (attacking) {
-        return { x: this.imageX + Math.floor(this.attackArtTimer) * this.imageW, y: this.imageY + 384 }
+        return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 384);
       }
-      return { x: this.imageX + Math.floor(this.animateTimer) * this.imageW, y: this.imageY + this.imageH*2 }
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 2);
     }
     if (this.direction == 'left') {
       if (attacking) {
-        return { x: this.imageX + Math.floor(this.attackArtTimer) * this.imageW, y: this.imageY + 320 }
+        return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 320);
       }
-      return { x: this.imageX + Math.floor(this.animateTimer) * this.imageW, y: this.imageY + this.imageH  }
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH);
     }
     if (this.direction == 'right') {
       if (attacking) {
-        return { x: this.imageX + Math.floor(this.attackArtTimer) * this.imageW, y: this.imageY + 448 }
+        return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 448);
       }
-      return { x: this.imageX + Math.floor(this.animateTimer) * this.imageW, y: this.imageY + this.imageH *3 }
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 3);
     }
   }
 

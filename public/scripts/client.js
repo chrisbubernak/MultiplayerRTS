@@ -4,6 +4,7 @@
 /// <reference path="game/jquery.ts" />
 /// <reference path="definitions/node.d.ts" />
 /// <reference path="definitions/jquery.d.ts" />
+/// <reference path="definitions/peer.d.ts" />
 var Client = (function () {
     function Client(id, enemyId, host) {
         this.actions = new Array();

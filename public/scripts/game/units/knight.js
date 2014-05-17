@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-/// <reference path="../../scripts/unit.ts" />
+/// <reference path="../unit.ts" />
 var Knight = (function (_super) {
     __extends(Knight, _super);
     function Knight() {

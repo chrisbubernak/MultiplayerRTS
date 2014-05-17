@@ -1,4 +1,4 @@
-/// <reference path="../../scripts/unit.ts" />
+/// <reference path="../unit.ts" />
 class Knight extends Unit{
   w = 30;
   h = 30;
