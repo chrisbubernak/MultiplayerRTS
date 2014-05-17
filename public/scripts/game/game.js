@@ -92,6 +92,10 @@ var Game = (function () {
         return Game.boxesPerRow;
     };
 
+    Game.getBoxesPerCol = function () {
+        return Game.boxesPerCol;
+    };
+
     Game.removeUnit = function (unit) {
         var id = unit.id;
         for (var i = 0; i < (length = Game.units.length); i++) {
@@ -280,7 +284,6 @@ var Game = (function () {
     Game.boxSize = Game.CANVAS_WIDTH / Game.boxesPerRow;
     Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
     Game.NUMBER_OF_UNITS = 3;
-    Game.SEED = 3;
     Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
     Game.units = new Array();
 

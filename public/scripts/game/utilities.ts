@@ -1,19 +1,23 @@
-var utilities = (function() {
+/// <reference path="game.ts" />
+
+
+var utilities = (function () {
+  var SEED = 3;
 
   return {
     //returns the upper left corner of the box given its index 
     boxToCoords : function(i) {
-      var y = Math.floor(i/Game.boxesPerRow)*Game.boxSize;
-      var x = i%Game.boxesPerRow*Game.boxSize;
+      var y = Math.floor(i/Game.getBoxesPerRow())*Game.getBoxSize();
+      var x = i % Game.getBoxesPerRow() * Game.getBoxSize();
       return {x: x, y: y}
     },
 
 
     //given the row and col of a box this returns the box index
     coordsToBox : function(x , y) {
-      var newX = Math.floor((x%Game.CANVAS_WIDTH)/Game.boxSize);
-      var newY = Math.floor((y%Game.CANVAS_HEIGHT)/Game.boxSize);
-      var boxNumber = newX+Game.boxesPerRow*newY;
+      var newX = Math.floor((x % Game.getCanvasHeight()) / Game.getBoxSize());
+      var newY = Math.floor((y % Game.getCanvasHeight()) / Game.getBoxSize());
+      var boxNumber = newX+Game.getBoxesPerRow()*newY;
       return boxNumber;
     },
 
@@ -48,19 +52,19 @@ var utilities = (function() {
       return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
     },
 
-    random : function() {
-      var x = Math.sin(Game.SEED++) * 10000;
+    random: function () {
+      var x = Math.sin(SEED++) * 10000;
       return x - Math.floor(x);
     },
 
     //given a unit, return the locs that it occupies (given its height, width, and loc)
     getOccupiedSquares: function (loc, w, h) {
       var locs = new Array();
-      var width = Math.ceil(w/Game.boxSize);
-      var height = Math.ceil(h/Game.boxSize);
+      var width = Math.ceil(w / Game.getBoxSize());
+      var height = Math.ceil(h / Game.getBoxSize());
       for (var i = 0; i < height; i++) {
         for (var j = 0; j < width; j++) {
-          locs.push(loc+(i*Game.boxesPerRow)+j);
+          locs.push(loc + (i * Game.getBoxesPerRow())+j);
         }
       }
       return locs;
@@ -95,38 +99,38 @@ var utilities = (function() {
       var neighbors = new Array();
 
       //if we arean't on the left edge of the board add neighbor to the left
-      if (boxNumber%Game.boxesPerRow != 0){
+      if (boxNumber % Game.getBoxesPerRow() != 0){
         neighbors.push(boxNumber - 1);
       }
       //if we arean't on the right edge of the board add neighbor to the right 
-      if ((boxNumber+1)%Game.boxesPerRow != 0){
+      if ((boxNumber + 1) % Game.getBoxesPerRow() != 0){
         neighbors.push(boxNumber + 1);
       }
        //if we arean't on the top of the board add neighbor above us
-      if (boxNumber >= Game.boxesPerRow){
-         neighbors.push(boxNumber - Game.boxesPerRow);
+      if (boxNumber >= Game.getBoxesPerRow()){
+        neighbors.push(boxNumber - Game.getBoxesPerRow());
        } 
       //if we arean't on the bottom of the board add neighbor beneath us
-      if (boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
-        neighbors.push(boxNumber + Game.boxesPerRow);
+      if (boxNumber < Game.getBoxesPerRow() * (Game.getBoxesPerCol()-1)){
+        neighbors.push(boxNumber + Game.getBoxesPerRow());
       }
       //diagonal cases...refactor this logic later for speed ups!!
 
       //if we arean't on the left edge and we arean't on the top of the board add the left/up beighbor
-      if (boxNumber%Game.boxesPerRow != 0 && boxNumber >= Game.boxesPerRow){
-        neighbors.push(boxNumber - Game.boxesPerRow -1);
+      if (boxNumber % Game.getBoxesPerRow() != 0 && boxNumber >= Game.getBoxesPerRow()){
+        neighbors.push(boxNumber - Game.getBoxesPerRow() -1);
       }
       //if we arean't on the left edge and we arean't on the bottom of the board add the left/below neighbor
-      if (boxNumber%Game.boxesPerRow != 0 && boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
-        neighbors.push(boxNumber + Game.boxesPerRow-1);
+      if (boxNumber % Game.getBoxesPerRow() != 0 && boxNumber < Game.getBoxesPerRow() * (Game.getBoxesPerCol()-1)){
+        neighbors.push(boxNumber + Game.getBoxesPerRow()-1);
       }
       //if we arean't on the right edge of the board and we arean't on the top of the board add right/up neighbor
-      if ((boxNumber+1)%Game.boxesPerRow != 0 && boxNumber >= Game.boxesPerRow){
-        neighbors.push(boxNumber - Game.boxesPerRow +1);
+      if ((boxNumber + 1) % Game.getBoxesPerRow() != 0 && boxNumber >= Game.getBoxesPerRow()){
+        neighbors.push(boxNumber - Game.getBoxesPerRow() +1);
       }
       //if we arean't on the right edge of the board and we arean't on the bottom of the board add right/below neighbor
-      if ((boxNumber+1)%Game.boxesPerRow != 0 && boxNumber < Game.boxesPerRow*(Game.boxesPerCol-1)){
-        neighbors.push(boxNumber + Game.boxesPerRow+1);
+      if ((boxNumber + 1) % Game.getBoxesPerRow() != 0 && boxNumber < Game.getBoxesPerRow() * (Game.getBoxesPerCol()-1)){
+        neighbors.push(boxNumber + Game.getBoxesPerRow()+1);
       }
       return neighbors;
     } 

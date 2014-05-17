@@ -16,7 +16,6 @@ class Game {
   private static boxSize : number = Game.CANVAS_WIDTH / Game.boxesPerRow;
   private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static NUMBER_OF_UNITS : number = 3;
-  private static SEED : number = 3;
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static units = new Array(); //array of units
   private static clients;
