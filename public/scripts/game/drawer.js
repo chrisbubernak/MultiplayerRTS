@@ -1,4 +1,5 @@
 /// <reference path="coords.ts" />
+/// <reference path="unit.ts" />
 var drawer = (function () {
     //conts...
     var GREEN = "#39FF14";
@@ -61,6 +62,10 @@ var drawer = (function () {
                 drawer.drawUnit(units[i]);
             }
             selectionContext.clearRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight());
+
+            for (var u in units) {
+                drawer.drawSquare(units[u].target, 'red');
+            }
         },
         drawUnit: function (unit) {
             var x = unit.x;
@@ -135,4 +140,3 @@ var drawer = (function () {
         }
     };
 })();
-;

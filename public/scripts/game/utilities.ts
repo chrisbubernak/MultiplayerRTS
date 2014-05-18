@@ -15,7 +15,7 @@ var utilities = (function () {
 
     //given the row and col of a box this returns the box index
     coordsToBox : function(x , y) {
-      var newX = Math.floor((x % Game.getCanvasHeight()) / Game.getBoxSize());
+      var newX = Math.floor((x % Game.getCanvasWidth()) / Game.getBoxSize());
       var newY = Math.floor((y % Game.getCanvasHeight()) / Game.getBoxSize());
       var boxNumber = newX+Game.getBoxesPerRow()*newY;
       return boxNumber;

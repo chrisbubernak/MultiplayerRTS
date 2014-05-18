@@ -1,4 +1,5 @@
 /// <reference path="coords.ts" />
+/// <reference path="unit.ts" />
 
 var drawer = (function () {
   //conts...
@@ -69,9 +70,14 @@ var drawer = (function () {
         drawer.drawUnit(units[i]);   
       }
       selectionContext.clearRect(0, 0, Game.getCanvasWidth(), Game.getCanvasHeight())
+
+      //debugging....
+      for (var u in units) {
+        drawer.drawSquare(units[u].target, 'red');
+      }
   	},
 
-    drawUnit: function (unit) {
+    drawUnit: function (unit: Unit) {
       var x = unit.x
       var y = unit.y;  
       var coords = unit.getDrawCoordinates(); 
