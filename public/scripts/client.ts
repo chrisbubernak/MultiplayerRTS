@@ -1,15 +1,12 @@
 /// <reference path="game/game.ts" />
-/// <reference path="peer.js" />
 /// <reference path="game/drawer.ts" />
-/// <reference path="game/jquery.ts" />
-/// <reference path="definitions/node.d.ts" />
 /// <reference path="definitions/jquery.d.ts" />
-/// <reference path="definitions/peer.d.ts" />
+/// <reference path="definitions/Peer.d.ts" />
 
 class Client {
   private myGame: Game;
   private host: Boolean;
-  private peer: Peer;
+  private peer;
   private conn;
   private interval;
   private actionsFromClient;
@@ -20,6 +17,7 @@ class Client {
   private updateFPS: number = 10;
   private actionList = new Array();
   private shifted: boolean;
+  private selection: SelectionObject;
 
   constructor(id, enemyId, host) {
     //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
@@ -37,7 +35,7 @@ class Client {
       if (e.which == 1) {
         $(this).data('mousedown', true);
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-        that.myGame.setSelection(coords);
+        that.setSelection(coords);
         that.myGame.unselectAll();
       }
       //if right click...
@@ -59,7 +57,7 @@ class Client {
     $(document).mousemove(function (e) {
       if ($(this).data('mousedown')) {
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-        that.myGame.updateSelection(that.myGame.getSelectionObject(), coords.x, coords.y);
+        that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
 
@@ -176,7 +174,7 @@ class Client {
     setInterval(function () {
       that.myGame.interpolate();
       drawer.drawUnits(Game.getUnits());
-      that.myGame.drawSelect();
+      that.drawSelect();
 
       //debugging stuff...
       diffTime = newTime - oldTime;
@@ -190,7 +188,7 @@ class Client {
     //var conn = Game.conn;
     setInterval(function () {
       that.myGame.update();
-      that.myGame.getSelection();
+      that.getSelection();
       //if we arean't the host just send our actions to the host
       if (!that.host) {
         that.conn.send({ actions: that.actions, simTick: that.myGame.getSimTick() });
@@ -210,5 +208,42 @@ class Client {
       that.RealFPS = Math.round(1000 / diffTime);
       fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
+  }
+
+  public drawSelect() {
+    var that = this;
+    if ($(document).data('mousedown')) {
+      drawer.drawSelect(this.selection);
+    }
+  }
+
+  public setSelection(coords) {
+    this.selection = new SelectionObject(coords.x, coords.y);
+  }
+
+  public updateSelection(selection, eX, eY) {
+    selection.x = Math.min(selection.sX, eX);
+    selection.y = Math.min(selection.sY, eY);
+    selection.w = Math.abs(selection.sX - eX);
+    selection.h = Math.abs(selection.sY - eY);
+    return selection;
+  }
+
+  public getSelection() {
+    var that = this;
+    if ($(document).data('mousedown')) {
+      //create the selection
+      var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
+      var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
+      for (var o in occupied) {
+        var id = Game.getGridLoc(occupied[o]);
+        if (id != null) {
+          var unit = utilities.findUnit(id, Game.getUnits());
+          if (unit.player == that.myGame.getId()) {
+            unit.selected = true;
+          }
+        }
+      }
+    }
   }
 }

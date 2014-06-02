@@ -33,6 +33,9 @@ var Unit = (function (_super) {
         this.animateTimer = 0;
         this.attackArtTimer = 0;
     }
+    Unit.prototype.getImage = function () {
+    };
+
     Unit.prototype.update = function () {
         if (this.currentState != null) {
             this.currentState.Execute(this);

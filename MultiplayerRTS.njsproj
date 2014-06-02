@@ -20,7 +20,6 @@
     <Compile Include="app.js" />
     <Compile Include="public\scripts\game\coords.js" />
     <Compile Include="public\scripts\game\selectionObject.js" />
-    <Compile Include="public\scripts\peer.js" />
     <Compile Include="public\scripts\game\units\orc.js" />
     <Compile Include="public\scripts\lobby.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
@@ -61,7 +60,6 @@
     <Content Include="public\images\knight.png" />
     <Content Include="public\images\orc.png" />
     <Content Include="public\images\units.png" />
-    <Content Include="public\scripts\definitions\node.d.ts" />
     <Content Include="public\scripts\game\BaseGameEntity.ts" />
     <Content Include="public\scripts\game\Pathing.ts" />
     <Content Include="public\scripts\game\State.ts" />
@@ -84,8 +82,6 @@
     <Compile Include="public\scripts\game\drawer.ts" />
     <Compile Include="public\scripts\game\game.js" />
     <Compile Include="public\scripts\game\game.ts" />
-    <Compile Include="public\scripts\game\jquery.js" />
-    <Compile Include="public\scripts\game\jquery.ts" />
     <Compile Include="public\scripts\game\Pathing.js" />
     <Compile Include="public\scripts\game\priorityQueue.js" />
     <Compile Include="public\scripts\game\State.js" />

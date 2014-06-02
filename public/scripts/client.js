@@ -1,10 +1,7 @@
 /// <reference path="game/game.ts" />
-/// <reference path="peer.js" />
 /// <reference path="game/drawer.ts" />
-/// <reference path="game/jquery.ts" />
-/// <reference path="definitions/node.d.ts" />
 /// <reference path="definitions/jquery.d.ts" />
-/// <reference path="definitions/peer.d.ts" />
+/// <reference path="definitions/Peer.d.ts" />
 var Client = (function () {
     function Client(id, enemyId, host) {
         this.actions = new Array();
@@ -28,7 +25,7 @@ var Client = (function () {
             if (e.which == 1) {
                 $(this).data('mousedown', true);
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.myGame.setSelection(coords);
+                that.setSelection(coords);
                 that.myGame.unselectAll();
             } else if (e.which == 3) {
                 var units = Game.getUnits();
@@ -48,7 +45,7 @@ var Client = (function () {
         $(document).mousemove(function (e) {
             if ($(this).data('mousedown')) {
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.myGame.updateSelection(that.myGame.getSelectionObject(), coords.x, coords.y);
+                that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
 
@@ -161,7 +158,7 @@ var Client = (function () {
         setInterval(function () {
             that.myGame.interpolate();
             drawer.drawUnits(Game.getUnits());
-            that.myGame.drawSelect();
+            that.drawSelect();
 
             //debugging stuff...
             diffTime = newTime - oldTime;
@@ -176,7 +173,7 @@ var Client = (function () {
         //var conn = Game.conn;
         setInterval(function () {
             that.myGame.update();
-            that.myGame.getSelection();
+            that.getSelection();
 
             //if we arean't the host just send our actions to the host
             if (!that.host) {
@@ -195,6 +192,43 @@ var Client = (function () {
             that.RealFPS = Math.round(1000 / diffTime);
             fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
+    };
+
+    Client.prototype.drawSelect = function () {
+        var that = this;
+        if ($(document).data('mousedown')) {
+            drawer.drawSelect(this.selection);
+        }
+    };
+
+    Client.prototype.setSelection = function (coords) {
+        this.selection = new SelectionObject(coords.x, coords.y);
+    };
+
+    Client.prototype.updateSelection = function (selection, eX, eY) {
+        selection.x = Math.min(selection.sX, eX);
+        selection.y = Math.min(selection.sY, eY);
+        selection.w = Math.abs(selection.sX - eX);
+        selection.h = Math.abs(selection.sY - eY);
+        return selection;
+    };
+
+    Client.prototype.getSelection = function () {
+        var that = this;
+        if ($(document).data('mousedown')) {
+            //create the selection
+            var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
+            for (var o in occupied) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id != null) {
+                    var unit = utilities.findUnit(id, Game.getUnits());
+                    if (unit.player == that.myGame.getId()) {
+                        unit.selected = true;
+                    }
+                }
+            }
+        }
     };
     Client.updateFPS = 10;
     return Client;

@@ -20,12 +20,10 @@ class Game {
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static units = new Array(); //array of units
   private static clients;
-  private static conn; //PEERJS connection
   private static updateFPS: number = 10;
   private static FPS: number = 60;
 
   //"private" variables
-  private selection: SelectionObject;
   private actions = new Array();
   private simTick : number = 0;
   private gameId: string;
@@ -41,7 +39,6 @@ class Game {
     this.gameId = gameId;
     this.id = id; //this players id
     this.enemyId = enemyId;
-    Game.conn = conn;
     this.host = host;
   }
 
@@ -126,6 +123,14 @@ class Game {
     return Game.boxesPerCol;
   }
 
+  public getId() {
+    return this.id;
+  }
+
+  public getGridLoc(g) {
+    return Game.grid[g];
+  } 
+
   public static removeUnit(unit: Unit) {
     var id = unit.id;
     for (var i = 0; i < (length = Game.units.length); i++) {
@@ -181,12 +186,7 @@ class Game {
     }
   }
 
-  public drawSelect() {
-    var that = this;
-    if ($(document).data('mousedown')) {
-      drawer.drawSelect(that.selection);
-    }
-  }
+
 
   public update() {
     //iterate backwards b/c we could be removing units from the unit list 
@@ -197,27 +197,7 @@ class Game {
     }
   }
 
-  public getSelection() {
-    var that = this;
-    if ($(document).data('mousedown')) {
-      //create the selection
-      var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
-      for (var o in occupied) {
-        var id = Game.grid[occupied[o]];
-        if (id != null) {
-          var unit = utilities.findUnit(id, Game.units);
-          if (unit.player == that.id) {
-            unit.selected = true;
-          }
-        }
-      }
-    }
-  }
 
-  public getSelectionObject() {
-    return this.selection;
-  }
 
   public getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -227,9 +207,6 @@ class Game {
     };
   }
 
-  public setSelection(coords) {
-    this.selection = new SelectionObject(coords.x, coords.y);
-  }
 
   public unselectAll() {
     for (var u in Game.getUnits()) {
@@ -237,13 +214,7 @@ class Game {
     }
   }
 
-  public updateSelection(selection, eX, eY) {
-    selection.x = Math.min(selection.sX, eX);
-    selection.y = Math.min(selection.sY, eY);
-    selection.w = Math.abs(selection.sX - eX);
-    selection.h = Math.abs(selection.sY - eY);
-    return selection;
-  }
+
 
   public getCanvasHeight() {
     return Game.CANVAS_HEIGHT;

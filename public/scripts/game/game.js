@@ -9,13 +9,13 @@
 var Game = (function () {
     //Public Methods:
     function Game(conn, host, id, enemyId, gameId) {
+        //"private" variables
         this.actions = new Array();
         this.simTick = 0;
         this.actionList = new Array();
         this.gameId = gameId;
         this.id = id; //this players id
         this.enemyId = enemyId;
-        Game.conn = conn;
         this.host = host;
     }
     Game.prototype.setup = function () {
@@ -95,6 +95,14 @@ var Game = (function () {
         return Game.boxesPerCol;
     };
 
+    Game.prototype.getId = function () {
+        return this.id;
+    };
+
+    Game.prototype.getGridLoc = function (g) {
+        return Game.grid[g];
+    };
+
     Game.removeUnit = function (unit) {
         var id = unit.id;
         for (var i = 0; i < (length = Game.units.length); i++) {
@@ -150,39 +158,10 @@ var Game = (function () {
         }
     };
 
-    Game.prototype.drawSelect = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            drawer.drawSelect(that.selection);
-        }
-    };
-
     Game.prototype.update = function () {
         for (var i = Game.units.length - 1; i >= 0; i--) {
             Game.units[i].update();
         }
-    };
-
-    Game.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            //create the selection
-            var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
-            for (var o in occupied) {
-                var id = Game.grid[occupied[o]];
-                if (id != null) {
-                    var unit = utilities.findUnit(id, Game.units);
-                    if (unit.player == that.id) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
-
-    Game.prototype.getSelectionObject = function () {
-        return this.selection;
     };
 
     Game.prototype.getMousePos = function (canvas, evt) {
@@ -193,22 +172,10 @@ var Game = (function () {
         };
     };
 
-    Game.prototype.setSelection = function (coords) {
-        this.selection = new SelectionObject(coords.x, coords.y);
-    };
-
     Game.prototype.unselectAll = function () {
         for (var u in Game.getUnits()) {
             Game.units[u].selected = false;
         }
-    };
-
-    Game.prototype.updateSelection = function (selection, eX, eY) {
-        selection.x = Math.min(selection.sX, eX);
-        selection.y = Math.min(selection.sY, eY);
-        selection.w = Math.abs(selection.sX - eX);
-        selection.h = Math.abs(selection.sY - eY);
-        return selection;
     };
 
     Game.prototype.getCanvasHeight = function () {

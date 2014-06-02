@@ -58,6 +58,9 @@ class Unit extends BaseGameEntity {
     this.attackArtTimer = 0;
   }
 
+  public getImage() {
+  }
+
   public update() {
     if (this.currentState != null) {
       this.currentState.Execute(this);
