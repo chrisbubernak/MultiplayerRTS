@@ -25,9 +25,10 @@ var Unit = (function (_super) {
         this.currentState = WaitingState.Instance();
         this.loc = loc;
         this.prevLoc = loc;
-        var coords = drawer.boxToCoords(loc);
+
+        /*var coords = drawer.boxToCoords(loc); //THIS NEEDS TO BE REMOVED!!!
         this.x = coords.x;
-        this.y = coords.y;
+        this.y = coords.y;*/
         this.player = player;
         this.attackTimer = 0;
         this.animateTimer = 0;
@@ -108,3 +109,4 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
+//# sourceMappingURL=unit.js.map

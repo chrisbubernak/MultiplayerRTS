@@ -51,9 +51,9 @@ class Unit extends BaseGameEntity {
     this.currentState = WaitingState.Instance();
     this.loc = loc;
     this.prevLoc = loc;
-    var coords = drawer.boxToCoords(loc); //THIS NEEDS TO BE REMOVED!!!
+    /*var coords = drawer.boxToCoords(loc); //THIS NEEDS TO BE REMOVED!!!
     this.x = coords.x;
-    this.y = coords.y;
+    this.y = coords.y;*/
     this.player = player;
     this.attackTimer = 0;
     this.animateTimer = 0;

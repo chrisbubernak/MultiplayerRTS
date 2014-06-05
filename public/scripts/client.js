@@ -16,10 +16,8 @@ var Client = (function () {
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame;
         this.host = host;
-
-        //initiate the drawer module
-        drawer.init(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"));
-        drawer.drawTerrain();
+        this.drawer = new Drawer(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"));
+        this.drawer.drawTerrain();
 
         var that = this;
 
@@ -36,7 +34,7 @@ var Client = (function () {
                 for (var u in units) {
                     if (units[u].selected) {
                         var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                        var a = new Action(drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+                        var a = new Action(this.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push(a);
                     }
                 }
@@ -59,7 +57,7 @@ var Client = (function () {
         $(document).bind('keyup keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code == 71) {
-                drawer.drawGrid();
+                this.drawer.drawGrid();
             }
             that.shifted = e.shiftKey;
             return true;
@@ -149,7 +147,7 @@ var Client = (function () {
 
     Client.prototype.run = function () {
         this.myGame.setup();
-        drawer.drawTerrain();
+        this.drawer.drawTerrain();
 
         //timing stuff
         var oldTime = new Date().getTime();
@@ -162,8 +160,8 @@ var Client = (function () {
         //loop that runs at 60 fps...aka drawing & selection stuff
         var that = this;
         setInterval(function () {
-            drawer.interpolate();
-            drawer.drawUnits(Game.getUnits());
+            this.drawer.interpolate();
+            this.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
 
             //debugging stuff...
@@ -204,7 +202,7 @@ var Client = (function () {
     Client.prototype.drawSelect = function () {
         var that = this;
         if ($(document).data('mousedown')) {
-            drawer.drawSelect(this.selection);
+            this.drawer.drawSelect(this.selection);
         }
     };
 
@@ -224,7 +222,7 @@ var Client = (function () {
         var that = this;
         if ($(document).data('mousedown')) {
             //create the selection
-            var selectionLoc = drawer.coordsToBox(that.selection.x, that.selection.y);
+            var selectionLoc = this.drawer.coordsToBox(that.selection.x, that.selection.y);
             var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
             for (var o in occupied) {
                 var id = Game.getGridLoc(occupied[o]);

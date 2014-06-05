@@ -1,4 +1,4 @@
-/// <reference path="game.ts" />
+﻿/// <reference path="game.ts" />
 var utilities = (function () {
     var SEED = 3;
 
@@ -111,3 +111,4 @@ var utilities = (function () {
         }
     };
 })();
+//# sourceMappingURL=utilities.js.map
