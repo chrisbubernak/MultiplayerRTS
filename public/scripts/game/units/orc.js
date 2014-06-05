@@ -11,6 +11,8 @@ var Orc = (function (_super) {
         _super.apply(this, arguments);
         this.w = 30;
         this.h = 30;
+        this.gridWidth = 2;
+        this.gridHeight = 2;
         this.imageX = 0;
         this.imageY = 512;
         this.imageW = 64;

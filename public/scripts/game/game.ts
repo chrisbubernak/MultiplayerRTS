@@ -6,32 +6,24 @@
 /// <reference path="unit.ts" />
 /// <reference path="utilities.ts" />
 /// <reference path="selectionObject.ts" />
+/// <reference path="action.ts" />
 
 class Game {
   //static variables
-  private static CANVAS_WIDTH : number = 1440;//1280;//960;//900//960;
-  private static CANVAS_HEIGHT : number = 720; //640//540//640;
   private static boxesPerRow : number = 90;//30//60;
-  private static ratio : number = Game.CANVAS_WIDTH / Game.CANVAS_HEIGHT;
-  private static boxesPerCol : number = Game.boxesPerRow / Game.ratio;
-  private static boxSize : number = Game.CANVAS_WIDTH / Game.boxesPerRow;
+  private static boxesPerCol: number = 45;
   private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static NUMBER_OF_UNITS : number = 3;
   private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
   private static units = new Array(); //array of units
-  private static clients;
-  private static updateFPS: number = 10;
-  private static FPS: number = 60;
+
 
   //"private" variables
-  private actions = new Array();
   private simTick : number = 0;
   private gameId: string;
   private id: string;
-  private socket;
   private enemyId;
   private host; 
-  private actionList = new Array();
 
 
   //Public Methods:
@@ -43,11 +35,6 @@ class Game {
   }
 
   public setup() {
-    drawer.init(Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT, this.id,
-      document.getElementById("terrainCanvas"),
-      document.getElementById("unitCanvas"),
-      document.getElementById("fogCanvas"),
-      document.getElementById("selectionCanvas"))
     this.generateTerrain();
     drawer.drawTerrain(Game.terrain);
 
@@ -103,18 +90,6 @@ class Game {
     return Game.terrain[index];
   }
 
-  public static getBoxSize() {
-    return Game.boxSize;
-  }
-
-  public static getCanvasWidth() {
-    return Game.CANVAS_WIDTH;
-  }
-
-  public static getCanvasHeight() {
-    return Game.CANVAS_HEIGHT;
-  }
-
   public static getBoxesPerRow() {
     return Game.boxesPerRow;
   }
@@ -148,7 +123,7 @@ class Game {
 
   public static markOccupiedGridLocs(unit: Unit) {
     //mark the locs occupied by this unit
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       Game.setGridLoc(locs[l], unit.id);
     }
@@ -156,17 +131,17 @@ class Game {
 
   public static unmarkGridLocs(unit: Unit) {
     //unmark the locs occupied by this unit
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       Game.setGridLoc(locs[l], null);
     }
   }
 
-  public applyActions(actions, simTick: number) {
+  public applyActions(actions: Array<Action>, simTick: number) {
     for (var a in actions) {
-      var unit = utilities.findUnit(actions[a].unit, Game.units);
+      var unit = utilities.findUnit(actions[a].getUnit(), Game.units);
       if (unit != null) {
-        var targetLoc = utilities.coordsToBox(actions[a].target.x, actions[a].target.y);
+        var targetLoc = actions[a].getTarget();
         unit.target = targetLoc;
       }
     }
@@ -176,17 +151,6 @@ class Game {
   public getSimTick() {
     return this.simTick;
   }
-
-  public interpolate() {
-    for (var i = 0; i < Game.units.length; i++) {
-      var oldCoords = utilities.boxToCoords(Game.units[i].prevLoc);
-      var coords = utilities.boxToCoords(Game.units[i].loc);
-      Game.units[i].x -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.x - coords.x)) / (Game.units[i].moveSpeed + 1);
-      Game.units[i].y -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.y - coords.y)) / (Game.units[i].moveSpeed + 1);
-    }
-  }
-
-
 
   public update() {
     //iterate backwards b/c we could be removing units from the unit list 
@@ -212,16 +176,6 @@ class Game {
     for (var u in Game.getUnits()) {
       Game.units[u].selected = false;
     }
-  }
-
-
-
-  public getCanvasHeight() {
-    return Game.CANVAS_HEIGHT;
-  }
-
-  public getCanvasWidth() {
-    return Game.CANVAS_WIDTH;
   }
 
   //Private Methods:

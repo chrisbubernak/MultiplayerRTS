@@ -11,8 +11,10 @@ class Unit extends BaseGameEntity {
   prevLoc: number;
   x: number;
   y: number;
-  w: number;
-  h: number;
+  w: number; //refers to size of image...refactor me!!
+  h: number; //refers to size of image...refactor me!!
+  gridWidth: number; //width in # of grid locs
+  gridHeight: number; //height in #of  grid locs
   player: string;
   imageX: number;
   imageY: number;
@@ -49,7 +51,7 @@ class Unit extends BaseGameEntity {
     this.currentState = WaitingState.Instance();
     this.loc = loc;
     this.prevLoc = loc;
-    var coords = utilities.boxToCoords(loc);
+    var coords = drawer.boxToCoords(loc); //THIS NEEDS TO BE REMOVED!!!
     this.x = coords.x;
     this.y = coords.y;
     this.player = player;

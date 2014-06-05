@@ -5,21 +5,6 @@ var utilities = (function () {
   var SEED = 3;
 
   return {
-    //returns the upper left corner of the box given its index 
-    boxToCoords : function(i) {
-      var y = Math.floor(i/Game.getBoxesPerRow())*Game.getBoxSize();
-      var x = i % Game.getBoxesPerRow() * Game.getBoxSize();
-      return {x: x, y: y}
-    },
-
-
-    //given the row and col of a box this returns the box index
-    coordsToBox : function(x , y) {
-      var newX = Math.floor((x % Game.getCanvasWidth()) / Game.getBoxSize());
-      var newY = Math.floor((y % Game.getCanvasHeight()) / Game.getBoxSize());
-      var boxNumber = newX+Game.getBoxesPerRow()*newY;
-      return boxNumber;
-    },
 
     minIndex : function(array){
       var min = array[0];
@@ -33,8 +18,13 @@ var utilities = (function () {
       return minIndex;
     },
 
-    distance : function(a, b){
-      return Math.sqrt(Math.pow((a.x-b.x),2) + Math.pow((a.y - b.y),2));
+    distance: function (a, b) {
+      var x1 = (a.loc % Game.getBoxesPerRow());
+      var y1 = (a.loc % Game.getBoxesPerRow());
+      var x2 = (b.loc % Game.getBoxesPerRow());
+      var y2 = (b.loc % Game.getBoxesPerRow());
+      return Math.sqrt(Math.pow(x1-x2,2)) + Math.sqrt(Math.pow(y1-y2,2));
+      //return Math.sqrt(Math.pow((a.x-b.x),2) + Math.pow((a.y - b.y),2));
     },
 
     //return the index of the unit with a given id
@@ -58,10 +48,8 @@ var utilities = (function () {
     },
 
     //given a unit, return the locs that it occupies (given its height, width, and loc)
-    getOccupiedSquares: function (loc, w, h) {
+    getOccupiedSquares: function (loc, width, height) {
       var locs = new Array();
-      var width = Math.ceil(w / Game.getBoxSize());
-      var height = Math.ceil(h / Game.getBoxSize());
       for (var i = 0; i < height; i++) {
         for (var j = 0; j < width; j++) {
           locs.push(loc + (i * Game.getBoxesPerRow())+j);
@@ -70,29 +58,21 @@ var utilities = (function () {
       return locs;
     },
 
-
     //figure out if the unit is moving up, down, left, or right and return that direction
     getDirection: function (loc1, loc2) {
-      var coords1 = utilities.boxToCoords(loc1);
-      var coords2 = utilities.boxToCoords(loc2);
-      if (Math.abs(coords1.x - coords2.x) > Math.abs(coords1.y - coords2.y)) {
-        if (coords1.x > coords2.x) {
-          return 'left';
-        }
-        if (coords1.x < coords2.x) {
+      if (loc1 < loc2) { //we are moving right or down
+        if (loc1 % Game.getBoxesPerRow() < loc2 % Game.getBoxesPerRow()) {
           return 'right';
         }
+        return 'down';
       }
-      else {
-        if (coords1.y > coords2.y) {
+      else { // we are moving left or up
+        if (loc1 % Game.getBoxesPerRow() < loc2 % Game.getBoxesPerRow()) {
           return 'up';
         }
-        if (coords2.y > coords1.y) {
-          return 'down';
-        }
+        return 'left';
       }
-
-        return;
+      console.log('ERROR: utilities.getDirection() did not set a direction');
     },
 
     neighbors : function(boxNumber) {

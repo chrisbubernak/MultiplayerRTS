@@ -30,7 +30,7 @@ class WaitingState extends State{
   }
 
   private enemyInRange(unit: Unit) {
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       var neighbors = utilities.neighbors(locs[l]);
       for (var n in neighbors) {

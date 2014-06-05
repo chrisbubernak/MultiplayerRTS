@@ -6,20 +6,18 @@
 /// <reference path="unit.ts" />
 /// <reference path="utilities.ts" />
 /// <reference path="selectionObject.ts" />
+/// <reference path="action.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(conn, host, id, enemyId, gameId) {
         //"private" variables
-        this.actions = new Array();
         this.simTick = 0;
-        this.actionList = new Array();
         this.gameId = gameId;
         this.id = id; //this players id
         this.enemyId = enemyId;
         this.host = host;
     }
     Game.prototype.setup = function () {
-        drawer.init(Game.CANVAS_WIDTH, Game.CANVAS_HEIGHT, this.id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"));
         this.generateTerrain();
         drawer.drawTerrain(Game.terrain);
 
@@ -75,18 +73,6 @@ var Game = (function () {
         return Game.terrain[index];
     };
 
-    Game.getBoxSize = function () {
-        return Game.boxSize;
-    };
-
-    Game.getCanvasWidth = function () {
-        return Game.CANVAS_WIDTH;
-    };
-
-    Game.getCanvasHeight = function () {
-        return Game.CANVAS_HEIGHT;
-    };
-
     Game.getBoxesPerRow = function () {
         return Game.boxesPerRow;
     };
@@ -120,7 +106,7 @@ var Game = (function () {
 
     Game.markOccupiedGridLocs = function (unit) {
         //mark the locs occupied by this unit
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             Game.setGridLoc(locs[l], unit.id);
         }
@@ -128,7 +114,7 @@ var Game = (function () {
 
     Game.unmarkGridLocs = function (unit) {
         //unmark the locs occupied by this unit
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             Game.setGridLoc(locs[l], null);
         }
@@ -136,9 +122,9 @@ var Game = (function () {
 
     Game.prototype.applyActions = function (actions, simTick) {
         for (var a in actions) {
-            var unit = utilities.findUnit(actions[a].unit, Game.units);
+            var unit = utilities.findUnit(actions[a].getUnit(), Game.units);
             if (unit != null) {
-                var targetLoc = utilities.coordsToBox(actions[a].target.x, actions[a].target.y);
+                var targetLoc = actions[a].getTarget();
                 unit.target = targetLoc;
             }
         }
@@ -147,15 +133,6 @@ var Game = (function () {
 
     Game.prototype.getSimTick = function () {
         return this.simTick;
-    };
-
-    Game.prototype.interpolate = function () {
-        for (var i = 0; i < Game.units.length; i++) {
-            var oldCoords = utilities.boxToCoords(Game.units[i].prevLoc);
-            var coords = utilities.boxToCoords(Game.units[i].loc);
-            Game.units[i].x -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.x - coords.x)) / (Game.units[i].moveSpeed + 1);
-            Game.units[i].y -= ((1 / (Game.FPS / Game.updateFPS)) * (oldCoords.y - coords.y)) / (Game.units[i].moveSpeed + 1);
-        }
     };
 
     Game.prototype.update = function () {
@@ -176,14 +153,6 @@ var Game = (function () {
         for (var u in Game.getUnits()) {
             Game.units[u].selected = false;
         }
-    };
-
-    Game.prototype.getCanvasHeight = function () {
-        return Game.CANVAS_HEIGHT;
-    };
-
-    Game.prototype.getCanvasWidth = function () {
-        return Game.CANVAS_WIDTH;
     };
 
     //Private Methods:
@@ -229,18 +198,11 @@ var Game = (function () {
             Game.terrain[lake[i]] = new WaterTile();
         }
     };
-    Game.CANVAS_WIDTH = 1440;
-    Game.CANVAS_HEIGHT = 720;
     Game.boxesPerRow = 90;
-    Game.ratio = Game.CANVAS_WIDTH / Game.CANVAS_HEIGHT;
-    Game.boxesPerCol = Game.boxesPerRow / Game.ratio;
-    Game.boxSize = Game.CANVAS_WIDTH / Game.boxesPerRow;
+    Game.boxesPerCol = 45;
     Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
     Game.NUMBER_OF_UNITS = 3;
     Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
     Game.units = new Array();
-
-    Game.updateFPS = 10;
-    Game.FPS = 60;
     return Game;
 })();

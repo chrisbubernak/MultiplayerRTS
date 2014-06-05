@@ -32,9 +32,10 @@ class WalkingState extends State {
   }
 
   public Exit(unit: Unit) {
-    var coords = utilities.boxToCoords(unit.loc);
+    /*var coords = utilities.boxToCoords(unit.loc);
     unit.x = coords.x;
-    unit.y = coords.y;
+    unit.y = coords.y;*/
+    console.log('MAKE SURE UNIT HAS REACHED LOCATION!!');
   }
 
   private static move(unit) {
@@ -54,7 +55,7 @@ class WalkingState extends State {
       unit.prevLoc = unit.loc;
 
       //if something now stands in the units path re-path around it
-      var locs = utilities.getOccupiedSquares(unit.path[0], unit.w, unit.h)
+      var locs = utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight)
       for (var l in locs) {
         var gridLoc = Game.getGridLoc(locs[l]);
         if (gridLoc != unit.id && gridLoc != null) {

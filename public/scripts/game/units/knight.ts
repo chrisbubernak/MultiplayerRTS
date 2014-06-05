@@ -2,6 +2,8 @@
 class Knight extends Unit{
   w = 30;
   h = 30;
+  gridWidth = 2;
+  gridHeight = 2;
   imageX = 0;
   imageY = 512;
   imageW = 64;

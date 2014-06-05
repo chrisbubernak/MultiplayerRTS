@@ -31,8 +31,10 @@ var Pathing = (function () {
             var neighbors = utilities.neighbors(cur);
 
             for (var i = neighbors.length - 1; i >= 0; i--) {
-                var coords = utilities.boxToCoords(neighbors[i]);
-                if (((coords.x + unit.w) > Game.getCanvasWidth()) || ((coords.y + unit.h) > Game.getCanvasHeight()) || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
+                //var coords = utilities.boxToCoords(neighbors[i]);
+                var offGridRight = (((unit.loc % Game.getBoxesPerRow()) + unit.gridWidth) > Game.getBoxesPerRow);
+                var offGridBottom = (((unit.loc % Game.getBoxesPerRow()) + unit.gridHeight) > Game.getBoxesPerCol());
+                if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
                     //drawer.drawPathing(neighbors[i], "blue", 0);
                     if (neighbors[i] == goal) {
                         //if the goal was unreachable path to the thing we think is closest to it
@@ -44,7 +46,7 @@ var Pathing = (function () {
                 }
 
                 //for each move make sure this unit could move there without colliding with any thing
-                var locs = locs = utilities.getOccupiedSquares(neighbors[i], unit.w, unit.h);
+                var locs = locs = utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
                 for (var l in locs) {
                     var gridLoc = Game.getGridLoc(locs[l]);
                     var terrainLoc = Game.getTerrainLoc(locs[l]);
@@ -64,7 +66,7 @@ var Pathing = (function () {
             }
 
             for (var i = 0; i < neighbors.length; i++) {
-                var t_gScore = gScore[cur] + utilities.distance(utilities.boxToCoords(cur), utilities.boxToCoords(neighbors[i])) / Game.getBoxSize();
+                var t_gScore = gScore[cur] + utilities.distance(cur, neighbors[i]);
                 var heuristic = this.heuristic(neighbors[i], goal);
                 var t_fScore = t_gScore + heuristic;
                 distanceToGoal.enqueue(neighbors[i], heuristic);
@@ -102,11 +104,12 @@ var Pathing = (function () {
     };
 
     Pathing.heuristic = function (a, b) {
-        var c = utilities.boxToCoords(a);
+        /*var c = utilities.boxToCoords(a);
         var d = utilities.boxToCoords(b);
         var dx = Math.abs(c.x - d.x) / Game.getBoxSize();
         var dy = Math.abs(c.y - d.y) / Game.getBoxSize();
-        return dx + dy;
+        return dx + dy;*/
+        return utilities.distance(a, b);
     };
     return Pathing;
 })();

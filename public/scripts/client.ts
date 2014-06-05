@@ -28,6 +28,14 @@ class Client {
     this.myGame;
     this.host = host;
 
+    //initiate the drawer module
+    drawer.init(1440, 720, id,
+      document.getElementById("terrainCanvas"),
+      document.getElementById("unitCanvas"),
+      document.getElementById("fogCanvas"),
+      document.getElementById("selectionCanvas"))
+
+
     var that = this;
     //mouse move stuff
     $(document).mousedown(function (e) {
@@ -44,7 +52,8 @@ class Client {
         for (var u in units) {
           if (units[u].selected) {
             var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-            that.actions.push({ unit: Game.getUnits()[u].id, target: tar, shift: that.shifted });
+            var a = new Action(drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+            that.actions.push(a);
           }
         }
       }
@@ -172,7 +181,7 @@ class Client {
     //loop that runs at 60 fps...aka drawing & selection stuff
     var that = this;
     setInterval(function () {
-      that.myGame.interpolate();
+      drawer.interpolate();
       drawer.drawUnits(Game.getUnits());
       that.drawSelect();
 
@@ -233,7 +242,7 @@ class Client {
     var that = this;
     if ($(document).data('mousedown')) {
       //create the selection
-      var selectionLoc = utilities.coordsToBox(that.selection.x, that.selection.y);
+      var selectionLoc = drawer.coordsToBox(that.selection.x, that.selection.y);
       var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
       for (var o in occupied) {
         var id = Game.getGridLoc(occupied[o]);

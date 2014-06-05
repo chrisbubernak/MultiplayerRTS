@@ -64,7 +64,7 @@ class AttackingState extends State {
   private getEnemy(unit: Unit, prefTarget: Unit) {
     var enemies = new Array();
 
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       var neighbors = utilities.neighbors(locs[l]);
       for (var n in neighbors) {

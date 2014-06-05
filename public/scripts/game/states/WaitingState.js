@@ -36,7 +36,7 @@ var WaitingState = (function (_super) {
     };
 
     WaitingState.prototype.enemyInRange = function (unit) {
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.w, unit.h);
+        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             var neighbors = utilities.neighbors(locs[l]);
             for (var n in neighbors) {
