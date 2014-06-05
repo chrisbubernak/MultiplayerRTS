@@ -19,6 +19,7 @@ var Client = (function () {
 
         //initiate the drawer module
         drawer.init(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"));
+        drawer.drawTerrain();
 
         var that = this;
 
@@ -148,6 +149,7 @@ var Client = (function () {
 
     Client.prototype.run = function () {
         this.myGame.setup();
+        drawer.drawTerrain();
 
         //timing stuff
         var oldTime = new Date().getTime();
@@ -176,17 +178,18 @@ var Client = (function () {
 
         //var conn = Game.conn;
         setInterval(function () {
+            var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
             that.getSelection();
 
             //if we arean't the host just send our actions to the host
             if (!that.host) {
-                that.conn.send({ actions: that.actions, simTick: that.myGame.getSimTick() });
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
                 that.actions = new Array();
-            } else if (that.host && that.actionList[that.myGame.getSimTick()]) {
-                that.actions = that.actions.concat(that.actionList[that.myGame.getSimTick()]);
-                that.conn.send({ actions: that.actions, simTick: that.myGame.getSimTick() });
-                that.myGame.applyActions(that.actions, that.myGame.getSimTick());
+            } else if (that.host && that.actionList[currentSimTick]) {
+                that.actions = that.actions.concat(that.actionList[currentSimTick]);
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.myGame.applyActions(that.actions, currentSimTick);
                 that.actions = new Array();
             }
 

@@ -108,9 +108,10 @@ var drawer = (function () {
                 units[i].y -= ((1 / (FPS / updateFPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
             }
         },
-        drawTerrain: function (tiles) {
-            for (var i = 0; i < (length = tiles.length); i++) {
-                var tile = tiles[i];
+        drawTerrain: function () {
+            var gridSize = Game.getBoxesPerCol() * Game.getBoxesPerRow();
+            for (var i = 0; i < gridSize; i++) {
+                var tile = Game.getTerrainLoc(i);
                 if (tile.getImage()) {
                     terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, this.boxToCoords(i).x, this.boxToCoords(i).y, boxSize, boxSize);
                 } else {
@@ -172,3 +173,4 @@ var drawer = (function () {
         }
     };
 })();
+//# sourceMappingURL=drawer.js.map

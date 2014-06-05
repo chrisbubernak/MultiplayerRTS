@@ -120,9 +120,10 @@ var drawer = (function () {
       }
     },
 
-  	drawTerrain: function(tiles) {       
-        for (var i = 0; i < (length = tiles.length); i++) {
-            var tile = tiles[i];
+    drawTerrain: function () {    
+      var gridSize = Game.getBoxesPerCol() * Game.getBoxesPerRow();   
+        for (var i = 0; i < gridSize; i++) {
+            var tile = Game.getTerrainLoc(i);
             if (tile.getImage()) {
               terrainContext.drawImage(
                 tile.getImage(),

@@ -36,7 +36,6 @@ class Game {
 
   public setup() {
     this.generateTerrain();
-    drawer.drawTerrain(Game.terrain);
 
     //disable the right click so we can use it for other purposes
     document.oncontextmenu = function () { return false; };

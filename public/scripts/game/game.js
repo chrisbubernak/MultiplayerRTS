@@ -19,7 +19,6 @@ var Game = (function () {
     }
     Game.prototype.setup = function () {
         this.generateTerrain();
-        drawer.drawTerrain(Game.terrain);
 
         //disable the right click so we can use it for other purposes
         document.oncontextmenu = function () {
@@ -206,3 +205,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map
