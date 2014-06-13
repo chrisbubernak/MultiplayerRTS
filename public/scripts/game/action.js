@@ -12,5 +12,9 @@ var Action = (function () {
     Action.prototype.getUnit = function () {
         return this.unit;
     };
+
+    Action.prototype.getShifted = function () {
+        return this.shift;
+    };
     return Action;
 })();
