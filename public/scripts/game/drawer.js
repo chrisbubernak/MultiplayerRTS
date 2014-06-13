@@ -157,11 +157,15 @@ var Drawer = (function () {
         var x = null;
         var y = null;
         if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
+            console.log(unit.x + " " + unit.y);
+
             //this is pretty hacky storing x & y info on units (which arean't supposed to know about this kind of info...but it will have to do for now)
             var unitCoords = this.boxToCoords(unit.loc);
+            unit.x = unitCoords.x;
+            unit.y = unitCoords.y;
         }
-        x = unitCoords.x;
-        y = unitCoords.y;
+        x = unit.x;
+        y = unit.y;
         var coords = unit.getDrawCoordinates();
         this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x - unit.w / 2, y - unit.h, unit.w * 2, unit.h * 2);
 
@@ -186,3 +190,4 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
+//# sourceMappingURL=drawer.js.map
