@@ -33,7 +33,6 @@ class Client {
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"))
-    this.drawer.drawTerrain();
 
     var that = this;
     //mouse move stuff
@@ -51,8 +50,8 @@ class Client {
         for (var u in units) {
           if (units[u].selected) {
             var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-            var a = new Action(this.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
-            that.actions.push(a);
+            var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+            that.actions.push({target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
           }
         }
       }
@@ -181,8 +180,8 @@ class Client {
     //loop that runs at 60 fps...aka drawing & selection stuff
     var that = this;
     setInterval(function () {
-      this.drawer.interpolate();
-      this.drawer.drawUnits(Game.getUnits());
+      that.drawer.interpolate();
+      that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
 
       //debugging stuff...
@@ -243,8 +242,8 @@ class Client {
     var that = this;
     if ($(document).data('mousedown')) {
       //create the selection
-      var selectionLoc = this.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w, that.selection.h);
+      var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w/that.drawer.getBoxWidth(), that.selection.h/that.drawer.getBoxHeight());
       for (var o in occupied) {
         var id = Game.getGridLoc(occupied[o]);
         if (id != null) {

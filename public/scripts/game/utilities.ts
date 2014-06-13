@@ -19,12 +19,11 @@ var utilities = (function () {
     },
 
     distance: function (a, b) {
-      var x1 = (a.loc % Game.getBoxesPerRow());
-      var y1 = (a.loc % Game.getBoxesPerRow());
-      var x2 = (b.loc % Game.getBoxesPerRow());
-      var y2 = (b.loc % Game.getBoxesPerRow());
-      return Math.sqrt(Math.pow(x1-x2,2)) + Math.sqrt(Math.pow(y1-y2,2));
-      //return Math.sqrt(Math.pow((a.x-b.x),2) + Math.pow((a.y - b.y),2));
+      var x1 = (a % Game.getBoxesPerRow());
+      var y1 = Math.floor(a/Game.getBoxesPerRow());
+      var x2 = (b% Game.getBoxesPerRow());
+      var y2 = Math.floor(b/ Game.getBoxesPerRow());
+      return Math.pow(x1-x2,2) + Math.pow(y1-y2,2);
     },
 
     //return the index of the unit with a given id
@@ -52,7 +51,9 @@ var utilities = (function () {
       var locs = new Array();
       for (var i = 0; i < height; i++) {
         for (var j = 0; j < width; j++) {
-          locs.push(loc + (i * Game.getBoxesPerRow())+j);
+          if (loc + (i * Game.getBoxesPerRow()) + j < (Game.getBoxesPerCol() * Game.getBoxesPerRow())) {
+            locs.push(loc + (i * Game.getBoxesPerRow()) + j);
+          }
         }
       }
       return locs;
@@ -61,13 +62,13 @@ var utilities = (function () {
     //figure out if the unit is moving up, down, left, or right and return that direction
     getDirection: function (loc1, loc2) {
       if (loc1 < loc2) { //we are moving right or down
-        if (loc1 % Game.getBoxesPerRow() < loc2 % Game.getBoxesPerRow()) {
+        if ((loc1 % Game.getBoxesPerRow()) <= (loc2 % Game.getBoxesPerRow())) {
           return 'right';
         }
         return 'down';
       }
       else { // we are moving left or up
-        if (loc1 % Game.getBoxesPerRow() < loc2 % Game.getBoxesPerRow()) {
+        if (Math.floor(loc1 / Game.getBoxesPerRow()) > Math.floor(loc2 / Game.getBoxesPerRow())) {
           return 'up';
         }
         return 'left';

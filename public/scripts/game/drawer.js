@@ -26,7 +26,13 @@ var Drawer = (function () {
         this.unitContext = unitCanvas.getContext("2d");
         this.fogContext = fogCanvas.getContext("2d");
         this.selectionContext = selectionCanvas.getContext("2d");
+
+        Drawer.context = this;
     }
+    Drawer.drawSquare = function (loc, color) {
+        Drawer.context.drawSquare(loc, color);
+    };
+
     Drawer.prototype.getTerrainContext = function () {
         return this.terrainContext;
     };
@@ -39,6 +45,14 @@ var Drawer = (function () {
             units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
             units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
         }
+    };
+
+    Drawer.prototype.getBoxWidth = function () {
+        return this.BOX_SIZE;
+    };
+
+    Drawer.prototype.getBoxHeight = function () {
+        return this.BOX_SIZE;
     };
 
     Drawer.prototype.drawUnits = function (units) {
@@ -142,7 +156,7 @@ var Drawer = (function () {
     Drawer.prototype.drawUnit = function (unit) {
         var x = null;
         var y = null;
-        if (unit.x == null || unit.y == null) {
+        if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
             //this is pretty hacky storing x & y info on units (which arean't supposed to know about this kind of info...but it will have to do for now)
             var unitCoords = this.boxToCoords(unit.loc);
         }
@@ -172,4 +186,3 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
-//# sourceMappingURL=drawer.js.map

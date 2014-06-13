@@ -121,9 +121,12 @@ var Game = (function () {
 
     Game.prototype.applyActions = function (actions, simTick) {
         for (var a in actions) {
-            var unit = utilities.findUnit(actions[a].getUnit(), Game.units);
+            //this is a little silly at the moment to convert the data into an object but I'd like to
+            //be able to just pass around this object in the future without modifying the following code
+            var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
+            var unit = utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
-                var targetLoc = actions[a].getTarget();
+                var targetLoc = action.getTarget();
                 unit.target = targetLoc;
             }
         }
@@ -205,4 +208,3 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
-//# sourceMappingURL=game.js.map

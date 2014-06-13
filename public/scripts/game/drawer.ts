@@ -2,6 +2,8 @@
 /// <reference path="unit.ts" />
 
 class Drawer {
+  private static context: Drawer;
+
   //consts
   private CANVAS_WIDTH: number = 1440;
   private CANVAS_HEIGHT: number = 720;
@@ -37,6 +39,12 @@ class Drawer {
     this.unitContext = unitCanvas.getContext("2d");
     this.fogContext = fogCanvas.getContext("2d");
     this.selectionContext = selectionCanvas.getContext("2d");
+
+    Drawer.context = this;
+  }
+
+  public static drawSquare(loc, color) {
+    Drawer.context.drawSquare(loc, color);
   }
 
   public getTerrainContext() {
@@ -51,6 +59,14 @@ class Drawer {
       units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
       units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
     }
+  }
+
+  public getBoxWidth() {
+    return this.BOX_SIZE;
+  }
+
+  public getBoxHeight() {
+    return this.BOX_SIZE;
   }
 
   public drawUnits(units) {
@@ -177,7 +193,7 @@ class Drawer {
   private drawUnit(unit: Unit) {
     var x = null;
     var y = null;
-    if (unit.x == null || unit.y == null) {
+    if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
       //this is pretty hacky storing x & y info on units (which arean't supposed to know about this kind of info...but it will have to do for now)
       var unitCoords = this.boxToCoords(unit.loc);
 

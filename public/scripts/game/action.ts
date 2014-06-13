@@ -18,4 +18,8 @@ class Action {
   public getUnit() {
     return this.unit;
   }
+
+  public getShifted() {
+    return this.shift;
+  }
 }

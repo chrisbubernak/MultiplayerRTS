@@ -33,9 +33,9 @@ class Pathing {
       for (var i = neighbors.length - 1; i >= 0; i--) {
         //var coords = utilities.boxToCoords(neighbors[i]);
         var offGridRight = (((unit.loc % Game.getBoxesPerRow()) + unit.gridWidth) > Game.getBoxesPerRow);
-        var offGridBottom = (((unit.loc % Game.getBoxesPerRow()) + unit.gridHeight)> Game.getBoxesPerCol())
+        var offGridBottom = ((Math.floor(unit.loc / Game.getBoxesPerRow()) + unit.gridHeight) > Game.getBoxesPerCol())
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-          //drawer.drawPathing(neighbors[i], "blue", 0);
+          //Drawer.drawSquare(neighbors[i], "blue");
           if (neighbors[i] == goal) {
             //if the goal was unreachable path to the thing we think is closest to it
             var final = distanceToGoal.dequeue();
@@ -50,8 +50,9 @@ class Pathing {
         for (var l in locs) {
           var gridLoc = Game.getGridLoc(locs[l]);
           var terrainLoc = Game.getTerrainLoc(locs[l]);
+
           if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
-            //drawer.drawPathing(neighbors[i], "blue", 0);
+            //Drawer.drawSquare(neighbors[i], "blue");
             if (neighbors[i] == goal) {
               //if the goal was unreachable path to the thing we think is closest to it
               //pq could be null though at this point if our current location is good enough
@@ -80,7 +81,7 @@ class Pathing {
           fScore[neighbors[i]] = t_fScore;
           if (openSet.indexOf(neighbors[i]) == -1) {
             openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
-            //drawer.drawPathing(neighbors[i], "red", fScore[neighbors[i]]);
+            //Drawer.drawSquare(neighbors[i], "yellow");
           }
           //if the neighbor was already in the openset we need to update it in the priority queue
           else {
@@ -99,17 +100,12 @@ class Pathing {
     while (cur != start) {
       returnArray.splice(0, 0, cur);
       cur = cameFrom[cur];
-      //drawer.drawPathing(cur, "green", 0);
+      //Drawer.drawSquare(cur, "green");
     }
     return returnArray;
   }
 
   private static heuristic(a: number, b: number) {
-    /*var c = utilities.boxToCoords(a);
-    var d = utilities.boxToCoords(b);
-    var dx = Math.abs(c.x - d.x) / Game.getBoxSize();
-    var dy = Math.abs(c.y - d.y) / Game.getBoxSize();
-    return dx + dy;*/
     return utilities.distance(a, b);
   }
 }
