@@ -139,32 +139,6 @@ class Client {
     });
   }
 
-  public run2() {
-    var that = this;
-    var interval = setInterval(function () {
-      if (that.myGame.isOver()) {
-        //stops this callback from firing again once the game is over
-        clearInterval(that.interval);
-        //return to lobby code goes here
-        return;
-      }
-
-      if (that.host) {
-        if (that.actionsFromClient != null) {//wait to get game update from client
-
-          that.myGame.applyActions(that.actions, that.myGame.getSimTick());
-        }
-      }
-      else {
-        //send actions to host
-        //wait for full action list to come from host
-        //game.apply(actions)
-        //game.counter++
-      }
-    }, 1000 / (Client.updateFPS));
-  }
-
-
   public run() {
     this.myGame.setup();
     this.drawer.drawTerrain();

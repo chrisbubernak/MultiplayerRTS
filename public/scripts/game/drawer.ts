@@ -58,6 +58,10 @@ class Drawer {
       var coords = this.boxToCoords(units[i].loc);
       units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
       units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
+      if (units[i].prevLoc == units[i].loc) {
+        units[i].x = coords.x;
+        units[i].y = coords.y;
+      }
     }
   }
 
@@ -194,7 +198,6 @@ class Drawer {
     var x = null;
     var y = null;
     if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
-      console.log(unit.x + " " + unit.y);
       //this is pretty hacky storing x & y info on units (which arean't supposed to know about this kind of info...but it will have to do for now)
       var unitCoords = this.boxToCoords(unit.loc);
       unit.x = unitCoords.x;
