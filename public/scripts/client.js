@@ -35,6 +35,7 @@ var Client = (function () {
                         var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
+                        console.log(a.getTarget());
                     }
                 }
             }

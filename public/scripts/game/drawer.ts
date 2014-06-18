@@ -146,6 +146,11 @@ class Drawer {
   //debugging function...just colors a specified grid loc with a color
   public drawSquare(loc, color) {
     var coords = this.boxToCoords(loc);
+    this.fogContext.fillStyle = color;
+    this.fogContext.fillRect(coords.x,
+      coords.y,
+      this.BOX_SIZE,
+      this.BOX_SIZE);
     this.unitContext.fillStyle = color;
     this.unitContext.fillRect(coords.x,
       coords.y,
