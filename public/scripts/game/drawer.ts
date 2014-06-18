@@ -104,11 +104,6 @@ class Drawer {
       this.drawUnit(units[i]);
     }
     this.selectionContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT)
-
-      //debugging....remove me later!
-      for (var u in units) {
-      this.drawSquare(units[u].target, 'red');
-    }
   }
 
   public drawTerrain() {
@@ -151,8 +146,8 @@ class Drawer {
   //debugging function...just colors a specified grid loc with a color
   public drawSquare(loc, color) {
     var coords = this.boxToCoords(loc);
-    this.selectionContext.fillStyle = color;
-    this.selectionContext.fillRect(coords.x,
+    this.unitContext.fillStyle = color;
+    this.unitContext.fillRect(coords.x,
       coords.y,
       this.BOX_SIZE,
       this.BOX_SIZE);
@@ -213,6 +208,10 @@ class Drawer {
       this.unitContext.strokeStyle = this.GREEN;
       this.unitContext.arc(x + unit.w / 2, y + unit.h / 2, Math.max(unit.w, unit.h) * .75, 0, 2 * Math.PI);
       this.unitContext.stroke();
+      //for all selected units with targets, indicate their targets with a red square on map (todo: change this to some sort of other marker)
+      if (typeof (unit.target) !== 'undefined' && unit.target !== null) {
+        this.drawSquare(unit.target, 'red');
+      }
     }
     //draw the health bar above the unit...todo: move this elsewhere
     var percent = unit.health / unit.totalHealth;
