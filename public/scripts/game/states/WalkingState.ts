@@ -32,10 +32,6 @@ class WalkingState extends State {
   }
 
   public Exit(unit: Unit) {
-    /*var coords = utilities.boxToCoords(unit.loc);
-    unit.x = coords.x;
-    unit.y = coords.y;*/
-    console.log('MAKE SURE UNIT HAS REACHED LOCATION!!');
   }
 
   private static move(unit) {

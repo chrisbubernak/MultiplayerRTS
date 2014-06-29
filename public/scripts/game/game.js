@@ -119,6 +119,17 @@ var Game = (function () {
         }
     };
 
+    Game.getUnitsForPlayer = function (id) {
+        var myUnits = new Array();
+        for (var u in Game.units) {
+            var unit = Game.units[u];
+            if (unit.player === id) {
+                myUnits.push(unit);
+            }
+        }
+        return myUnits;
+    };
+
     Game.prototype.applyActions = function (actions, simTick) {
         for (var a in actions) {
             //this is a little silly at the moment to convert the data into an object but I'd like to
@@ -128,6 +139,11 @@ var Game = (function () {
             if (unit != null) {
                 var targetLoc = action.getTarget();
                 unit.target = targetLoc;
+                if (Game.grid[targetLoc] != null) {
+                    unit.unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+                } else {
+                    unit.unitTarget = null;
+                }
             }
         }
         this.simTick++;
@@ -208,3 +224,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map

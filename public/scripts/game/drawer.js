@@ -72,7 +72,7 @@ var Drawer = (function () {
                 var y = coords.y;
 
                 //this stuff does the "sight" circles in the fog
-                var r1 = units[i].sightRange;
+                var r1 = units[i].sightRange * this.BOX_SIZE * 2;
                 var r2 = r1 + 50;
                 var density = .4;
 
@@ -195,4 +195,3 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
-//# sourceMappingURL=drawer.js.map

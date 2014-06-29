@@ -2,6 +2,7 @@
 /// <reference path="../State.ts" />
 /// <reference path="WalkingState.ts" />
 /// <reference path="AttackingState.ts" />
+/// <reference path="PursuingState.ts" />
 /// <reference path="../Pathing.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -25,10 +26,17 @@ var WaitingState = (function (_super) {
     };
 
     WaitingState.prototype.Execute = function (unit) {
-        if (unit.target) {
+        if (unit.target && (unit.unitTarget === null)) {
             unit.ChangeState(WalkingState.Instance()); //start walking there
+        } else if (unit.target && unit.unitTarget) {
+            unit.ChangeState(PursuingState.Instance());
         } else if (WaitingState.Instance().enemyInRange(unit)) {
             unit.ChangeState(AttackingState.Instance()); //start fighting
+        } else if (WaitingState.Instance().enemyInSight(unit) !== null) {
+            var unitTarget = WaitingState.Instance().enemyInSight(unit);
+            unit.unitTarget = unitTarget;
+            unit.target = unitTarget.loc;
+            unit.ChangeState(PursuingState.Instance());
         }
     };
 
@@ -48,6 +56,24 @@ var WaitingState = (function (_super) {
             }
         }
         return false;
+    };
+
+    WaitingState.prototype.enemyInSight = function (unit) {
+        var topLeft = unit.loc - unit.targetAquireRange - Game.getBoxesPerRow() * unit.targetAquireRange;
+        var width = unit.targetAquireRange * 2 + unit.gridWidth;
+        var height = unit.targetAquireRange * 2 + unit.gridHeight;
+        var locs = utilities.getOccupiedSquares(topLeft, width, height);
+        for (var l in locs) {
+            var neighbors = utilities.neighbors(locs[l]);
+            for (var n in neighbors) {
+                var id = Game.getGridLoc(neighbors[n]);
+                var enemy = utilities.findUnit(id, Game.getUnits());
+                if (enemy != null && enemy.player != unit.player) {
+                    return enemy;
+                }
+            }
+        }
+        return null;
     };
     return WaitingState;
 })(State);

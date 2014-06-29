@@ -20,15 +20,16 @@ class Unit extends BaseGameEntity {
   imageY: number;
   imageW: number;
   imageH: number;
-  target: number;
+  target: number; //the location on the map we are moving toward
+  unitTarget: Unit = null; //the unit we are targeting...if any
   prevTar: number;
   inCombatWith: Unit = null;
   path = new Array();
   attackMax: number;
   attackMin: number;
   selected: boolean;
-  sightRange: number = 175;
-  attackRange: number = 75;
+  sightRange: number = 5; //# of grid locs away unit can see (aka if it is 4 then unit has vision of a 16 unit square  
+  targetAquireRange: number = 3; //# of grid locs away a unit will engage another unit from
   totalHealth: number;
   health: number;
   attackSpeed: number;

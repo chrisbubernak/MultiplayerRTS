@@ -20,6 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="public\scripts\game\action.js" />
     <Compile Include="public\scripts\game\coords.js" />
     <Compile Include="public\scripts\game\selectionObject.js" />
     <Compile Include="public\scripts\game\units\orc.js" />
@@ -128,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="public\scripts\game\action.ts" />
+    <TypeScriptCompile Include="public\scripts\game\states\PursuingState.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />

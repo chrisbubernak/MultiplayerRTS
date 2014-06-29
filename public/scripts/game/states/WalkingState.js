@@ -37,10 +37,6 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Exit = function (unit) {
-        /*var coords = utilities.boxToCoords(unit.loc);
-        unit.x = coords.x;
-        unit.y = coords.y;*/
-        console.log('MAKE SURE UNIT HAS REACHED LOCATION!!');
     };
 
     WalkingState.move = function (unit) {

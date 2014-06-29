@@ -136,6 +136,17 @@ class Game {
     }
   }
 
+  public static getUnitsForPlayer(id: string) {
+    var myUnits = new Array();
+    for (var u in Game.units) {
+      var unit = Game.units[u];
+      if (unit.player === id) {
+        myUnits.push(unit);
+      }
+    }
+    return myUnits;
+  }
+
   public applyActions(actions, simTick: number) {
     for (var a in actions) {
       //this is a little silly at the moment to convert the data into an object but I'd like to 
@@ -145,6 +156,12 @@ class Game {
       if (unit != null) {
         var targetLoc = action.getTarget();
         unit.target = targetLoc;
+        if (Game.grid[targetLoc] != null) {
+          unit.unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+        }
+        else {
+          unit.unitTarget = null;
+        }
       }
     }
     this.simTick++;

@@ -13,10 +13,11 @@ var Unit = (function (_super) {
     __extends(Unit, _super);
     function Unit(loc, player) {
         _super.call(this);
+        this.unitTarget = null;
         this.inCombatWith = null;
         this.path = new Array();
-        this.sightRange = 175;
-        this.attackRange = 75;
+        this.sightRange = 5;
+        this.targetAquireRange = 3;
         this.moveSpeed = 2;
         this.inCombat = false;
         this.numberOfAnimations = 9;
@@ -109,3 +110,4 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
+//# sourceMappingURL=unit.js.map
