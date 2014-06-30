@@ -110,4 +110,3 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
-//# sourceMappingURL=unit.js.map

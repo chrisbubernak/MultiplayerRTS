@@ -32,11 +32,9 @@
     <Compile Include="public\scripts\signup.js" />
     <Compile Include="routes\modules\lobbyManager.js" />
     <Content Include="app.ts" />
-    <Content Include="public\css\game.css" />
     <Content Include="public\css\lobby.css" />
     <Content Include="public\scripts\definitions\jquery.d.ts" />
     <Content Include="public\css\game.styl" />
-    <Content Include="public\css\lobby.styl" />
     <Content Include="public\css\style.css" />
     <Content Include="public\scripts\definitions\peer.d.ts" />
     <Content Include="public\scripts\game\coords.ts" />
