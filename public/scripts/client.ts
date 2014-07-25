@@ -58,7 +58,7 @@ class Client {
     });
 
     $(window).resize(function() {
-      console.log('window was resized');
+      that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
     $(document).mouseup(function (e) {

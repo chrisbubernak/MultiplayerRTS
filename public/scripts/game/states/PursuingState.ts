@@ -57,7 +57,7 @@ class PursuingState extends State {
     //for each of my units check if they can see enemy
     var units = Game.getUnitsForPlayer(unit.player);
     for (var u in units) {
-      var topLeft = unit.loc - unit.sightRange - Game.getBoxesPerRow() * unit.sightRange;
+      var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
       var width = unit.sightRange * 2 + unit.gridWidth;
       var height = unit.sightRange * 2 + unit.gridHeight;
       var locs = utilities.getOccupiedSquares(topLeft, width, height);

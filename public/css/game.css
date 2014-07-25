@@ -1,9 +1,26 @@
 div {
   color: #fff;
 }
+
+* {
+  margin: 0;
+  padding: 0;
+}
+/* to remove the top and left whitespace */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+/* just to be sure these are full screen*/
+
 canvas {
   position: absolute;
-  left: 20px;
-  top: 20px;
-  margin: auto;
+  display: block;
+}
+
+#fps {
+  z-index:100;
+  position: absolute;
 }

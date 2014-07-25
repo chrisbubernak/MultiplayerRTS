@@ -55,7 +55,7 @@ class WaitingState extends State{
   }
 
   private enemyInSight(unit: Unit) {
-    var topLeft = unit.loc - unit.targetAquireRange - Game.getBoxesPerRow() * unit.targetAquireRange;
+    var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
     var width = unit.targetAquireRange * 2 + unit.gridWidth;
     var height = unit.targetAquireRange * 2 + unit.gridHeight;
     var locs = utilities.getOccupiedSquares(topLeft, width, height);

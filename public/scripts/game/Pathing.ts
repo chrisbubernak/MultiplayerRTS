@@ -16,7 +16,7 @@ class Pathing {
     openSet.enqueue(start, fScore[start]);
     var cur;
     var nodesExplored = 0;
-    var nodeThreshold = Game.getBoxesPerRow() * 2;
+    var nodeThreshold = Game.getNumOfCols() * 2;
     while (!openSet.isEmpty() && nodesExplored < nodeThreshold) {
       nodesExplored++;
       cur = openSet.dequeue();
@@ -32,8 +32,8 @@ class Pathing {
       //check all of the neighbor moves for collisions
       for (var i = neighbors.length - 1; i >= 0; i--) {
         //var coords = utilities.boxToCoords(neighbors[i]);
-        var offGridRight = (((unit.loc % Game.getBoxesPerRow()) + unit.gridWidth) > Game.getBoxesPerRow);
-        var offGridBottom = ((Math.floor(unit.loc / Game.getBoxesPerRow()) + unit.gridHeight) > Game.getBoxesPerCol())
+        var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
+        var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows())
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
           //Drawer.drawSquare(neighbors[i], "blue");
           if (neighbors[i] == goal) {

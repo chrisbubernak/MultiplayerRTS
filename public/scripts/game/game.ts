@@ -10,11 +10,15 @@
 
 class Game {
   //static variables
-  private static boxesPerRow : number = 90;//30//60;
-  private static boxesPerCol: number = 45;
-  private static terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
+  /*private static boxesPerRow : number = 90;//30//60;
+  private static boxesPerCol: number = 45;*/
+  private static RATIO: number = 1.6;
+  private static NUM_OF_COL: number = 40;
+  private static NUM_OF_ROW: number = (Game.NUM_OF_COL / Game.RATIO);
+
+  private static terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
   private static NUMBER_OF_UNITS : number = 3;
-  private static grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+  private static grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
   private static units = new Array(); //array of units
 
 
@@ -40,7 +44,7 @@ class Game {
     //disable the right click so we can use it for other purposes
     document.oncontextmenu = function () { return false; };
 
-    Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+    Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
     for (var g in Game.grid) {
       Game.grid[g] = null;
     }
@@ -59,10 +63,10 @@ class Game {
         p2 = this.id;
       }
 
-      var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p1);
+      var p1unit = new Knight(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p1);
       Game.markOccupiedGridLocs(p1unit);
       Game.units.push(p1unit);
-      var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p2);
+      var p2unit = new Orc(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p2);
       Game.markOccupiedGridLocs(p2unit);
       Game.units.push(p2unit);
     }
@@ -89,12 +93,16 @@ class Game {
     return Game.terrain[index];
   }
 
-  public static getBoxesPerRow() {
-    return Game.boxesPerRow;
+  public static getNumOfCols() {
+    return Game.NUM_OF_COL;
   }
 
-  public static getBoxesPerCol() {
-    return Game.boxesPerCol;
+  public static getNumOfRows() {
+    return Game.NUM_OF_ROW;
+  }
+
+  public static getRatio() {
+    return Game.RATIO;
   }
 
   public getId() {
@@ -200,13 +208,13 @@ class Game {
   //Private Methods:
 
   private generateTerrain() {
-    for (var i = 0; i < (length = Game.boxesPerRow * Game.boxesPerCol); i++) {
+    for (var i = 0; i < (length = Game.NUM_OF_COL * Game.NUM_OF_ROW); i++) {
       var type = utilities.random();
       var grass = .5;
       if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
         grass -= .2;
       }
-      if (Game.terrain[i - Game.boxesPerRow] && Game.terrain[i - Game.boxesPerRow].type == 'grass') {
+      if (Game.terrain[i - Game.NUM_OF_COL] && Game.terrain[i - Game.NUM_OF_COL].type == 'grass') {
         grass -= .2;
       }
       if (type >= grass) {
@@ -222,7 +230,7 @@ class Game {
   }
 
   private generateLake() {
-    var first = Math.round(utilities.random() * Game.boxesPerCol * Game.boxesPerRow);
+    var first = Math.round(utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
     var lake = new Array();
     var old = new Array();
     lake.push(first);

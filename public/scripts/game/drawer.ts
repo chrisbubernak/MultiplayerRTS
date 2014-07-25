@@ -12,6 +12,7 @@ class Drawer {
   private HEALTH_BAR_HEIGHT: number = 5;
   private FOG: string = "black";
 
+
   //globals
   private boxSize: number;
   private canvasWidth: number;
@@ -25,6 +26,7 @@ class Drawer {
   private fogContext;
   private selectionContext;
   private playerId;
+
 
   constructor(width, height, player,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
@@ -68,6 +70,21 @@ class Drawer {
   }
 
   public updateDimensions(width: number, height: number) {
+    var winWidth = $(window).width();
+    var winHeight = $(window).height();
+    var calculatedWidth = $(window).height() * Game.getRatio();
+    var calculatedHeight = $(window).width() / Game.getRatio();
+
+    if (calculatedWidth > winWidth) {
+      width = winWidth;
+      height = calculatedHeight;
+    }
+    else if (calculatedHeight > winHeight) {
+      width = calculatedWidth;
+      height = winHeight;
+    }
+    this.boxSize = width / Game.getNumOfCols();
+
     this.terrainCanvas.width = width;
     this.terrainCanvas.height = height;
     this.unitCanvas.width = width;
@@ -76,11 +93,14 @@ class Drawer {
     this.fogCanvas.height = height;
     this.selectionCanvas.width = width;
     this.selectionCanvas.height = height;
-
+    
     this.canvasHeight = height;
     this.canvasWidth = width;
 
-    this.boxSize = this.canvasWidth / Game.getBoxesPerRow();
+    this.boxSize = this.canvasWidth / Game.getNumOfCols();
+    if (typeof(Game.getTerrainLoc(0)) != 'undefined') { //don't want to draw it before it exists
+      this.drawTerrain();
+    }
   }
 
   public getBoxWidth() {
@@ -125,7 +145,7 @@ class Drawer {
   }
 
   public drawTerrain() {
-    var gridSize = Game.getBoxesPerCol() * Game.getBoxesPerRow();
+    var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
     for (var i = 0; i < gridSize; i++) {
       var tile = Game.getTerrainLoc(i);
       if (tile.getImage()) {
@@ -148,8 +168,8 @@ class Drawer {
 
   //returns the upper left corner of the box given its index 
   public boxToCoords(i) {
-    var y = Math.floor(i / Game.getBoxesPerRow()) * this.boxSize;
-    var x = i % Game.getBoxesPerRow() * this.boxSize;
+    var y = Math.floor(i / Game.getNumOfCols()) * this.boxSize;
+    var x = i % Game.getNumOfCols() * this.boxSize;
       return { x: x, y: y }
   }
 
@@ -157,7 +177,7 @@ class Drawer {
   public coordsToBox(x, y) {
     var newX = Math.floor((x % this.canvasWidth) / this.boxSize);
     var newY = Math.floor((y % this.canvasHeight) / this.boxSize);
-    var boxNumber = newX + Game.getBoxesPerRow() * newY;
+    var boxNumber = newX + Game.getNumOfCols() * newY;
     return boxNumber;
   }
 
@@ -200,12 +220,12 @@ class Drawer {
 
   public drawGrid() {
     this.terrainContext.strokeStyle = this.GREEN;
-    for (var i = 0; i <= Game.getBoxesPerRow(); i++) {
+    for (var i = 0; i <= Game.getNumOfCols(); i++) {
       this.terrainContext.moveTo(i * this.boxSize, 0);
       this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
       this.terrainContext.stroke();
     }
-    for (var i = 0; i <= Game.getBoxesPerCol(); i++) {
+    for (var i = 0; i <= Game.getNumOfRows(); i++) {
       this.terrainContext.moveTo(0, i * this.boxSize);
       this.terrainContext.lineTo(this.canvasWidth, i * this.boxSize);
       this.terrainContext.stroke();

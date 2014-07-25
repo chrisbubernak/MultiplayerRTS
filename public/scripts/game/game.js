@@ -25,7 +25,7 @@ var Game = (function () {
             return false;
         };
 
-        Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+        Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
         for (var g in Game.grid) {
             Game.grid[g] = null;
         }
@@ -43,10 +43,10 @@ var Game = (function () {
                 p2 = this.id;
             }
 
-            var p1unit = new Knight(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p1);
+            var p1unit = new Knight(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p1);
             Game.markOccupiedGridLocs(p1unit);
             Game.units.push(p1unit);
-            var p2unit = new Orc(Math.round(utilities.random() * Game.boxesPerRow * Game.boxesPerCol), p2);
+            var p2unit = new Orc(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p2);
             Game.markOccupiedGridLocs(p2unit);
             Game.units.push(p2unit);
         }
@@ -72,12 +72,16 @@ var Game = (function () {
         return Game.terrain[index];
     };
 
-    Game.getBoxesPerRow = function () {
-        return Game.boxesPerRow;
+    Game.getNumOfCols = function () {
+        return Game.NUM_OF_COL;
     };
 
-    Game.getBoxesPerCol = function () {
-        return Game.boxesPerCol;
+    Game.getNumOfRows = function () {
+        return Game.NUM_OF_ROW;
+    };
+
+    Game.getRatio = function () {
+        return Game.RATIO;
     };
 
     Game.prototype.getId = function () {
@@ -175,13 +179,13 @@ var Game = (function () {
 
     //Private Methods:
     Game.prototype.generateTerrain = function () {
-        for (var i = 0; i < (length = Game.boxesPerRow * Game.boxesPerCol); i++) {
+        for (var i = 0; i < (length = Game.NUM_OF_COL * Game.NUM_OF_ROW); i++) {
             var type = utilities.random();
             var grass = .5;
             if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
                 grass -= .2;
             }
-            if (Game.terrain[i - Game.boxesPerRow] && Game.terrain[i - Game.boxesPerRow].type == 'grass') {
+            if (Game.terrain[i - Game.NUM_OF_COL] && Game.terrain[i - Game.NUM_OF_COL].type == 'grass') {
                 grass -= .2;
             }
             if (type >= grass) {
@@ -196,7 +200,7 @@ var Game = (function () {
     };
 
     Game.prototype.generateLake = function () {
-        var first = Math.round(utilities.random() * Game.boxesPerCol * Game.boxesPerRow);
+        var first = Math.round(utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
         var lake = new Array();
         var old = new Array();
         lake.push(first);
@@ -216,11 +220,14 @@ var Game = (function () {
             Game.terrain[lake[i]] = new WaterTile();
         }
     };
-    Game.boxesPerRow = 90;
-    Game.boxesPerCol = 45;
-    Game.terrain = new Array(Game.boxesPerRow * Game.boxesPerCol);
+    Game.RATIO = 1.6;
+    Game.NUM_OF_COL = 40;
+    Game.NUM_OF_ROW = (Game.NUM_OF_COL / Game.RATIO);
+
+    Game.terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
     Game.NUMBER_OF_UNITS = 3;
-    Game.grid = new Array(Game.boxesPerRow * Game.boxesPerCol);
+    Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map
