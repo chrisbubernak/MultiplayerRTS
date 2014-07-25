@@ -35,7 +35,7 @@ var Pathing = (function () {
                 var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
                 var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows());
                 if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-                    //Drawer.drawSquare(neighbors[i], "blue");
+                    Drawer.drawSquare(neighbors[i], "blue");
                     if (neighbors[i] == goal) {
                         //if the goal was unreachable path to the thing we think is closest to it
                         var final = distanceToGoal.dequeue();
@@ -81,7 +81,7 @@ var Pathing = (function () {
                     fScore[neighbors[i]] = t_fScore;
                     if (openSet.indexOf(neighbors[i]) == -1) {
                         openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
-                        //Drawer.drawSquare(neighbors[i], "yellow");
+                        Drawer.drawSquare(neighbors[i], "yellow");
                     } else {
                         openSet.update(neighbors[i], fScore[neighbors[i]]);
                     }
@@ -99,7 +99,7 @@ var Pathing = (function () {
         while (cur != start) {
             returnArray.splice(0, 0, cur);
             cur = cameFrom[cur];
-            //Drawer.drawSquare(cur, "green");
+            Drawer.drawSquare(cur, "green");
         }
         return returnArray;
     };
@@ -109,3 +109,4 @@ var Pathing = (function () {
     };
     return Pathing;
 })();
+//# sourceMappingURL=Pathing.js.map

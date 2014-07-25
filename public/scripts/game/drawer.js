@@ -196,12 +196,13 @@ var Drawer = (function () {
         x = unit.x;
         y = unit.y;
         var coords = unit.getDrawCoordinates();
-        this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x - unit.w / 2, y - unit.h, unit.w * 2, unit.h * 2);
+        console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
+        this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
 
         if (unit.selected) {
             this.unitContext.beginPath();
             this.unitContext.strokeStyle = this.GREEN;
-            this.unitContext.arc(x + unit.w / 2, y + unit.h / 2, Math.max(unit.w, unit.h) * .75, 0, 2 * Math.PI);
+            this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
             this.unitContext.stroke();
 
             //for all selected units with targets, indicate their targets with a red square on map (todo: change this to some sort of other marker)
@@ -218,9 +219,16 @@ var Drawer = (function () {
         } else if (percent > .4) {
             this.unitContext.fillStyle = "yellow";
         }
-        this.unitContext.fillRect(x, y - this.HEALTH_BAR_OFFSET, unit.w * percent, this.HEALTH_BAR_HEIGHT);
+        this.unitContext.fillRect(x, y - this.HEALTH_BAR_OFFSET, this.unitWidth() * percent, this.HEALTH_BAR_HEIGHT);
         this.unitContext.fillStyle = "black";
-        this.unitContext.fillRect(x + unit.w * percent, y - this.HEALTH_BAR_OFFSET, unit.w * (1 - percent), this.HEALTH_BAR_HEIGHT);
+        this.unitContext.fillRect(x + this.unitWidth() * percent, y - this.HEALTH_BAR_OFFSET, this.unitWidth() * (1 - percent), this.HEALTH_BAR_HEIGHT);
+    };
+
+    Drawer.prototype.unitWidth = function () {
+        return this.boxSize * 2;
+    };
+    Drawer.prototype.unitHeight = function () {
+        return this.boxSize * 2;
     };
     return Drawer;
 })();

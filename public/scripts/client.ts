@@ -77,7 +77,7 @@ class Client {
     $(document).bind('keyup keydown', function (e) {
       var code = e.keyCode || e.which;
       if (code == 71) {
-        this.drawer.drawGrid();
+        that.drawer.drawGrid();
       }
       that.shifted = e.shiftKey;
       return true;
