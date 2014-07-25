@@ -1,26 +1,21 @@
-/// <reference path="coords.ts" />
+﻿/// <reference path="coords.ts" />
 /// <reference path="unit.ts" />
 var Drawer = (function () {
     function Drawer(width, height, player, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
         //consts
-        this.CANVAS_WIDTH = 1440;
-        this.CANVAS_HEIGHT = 720;
-        this.BOX_SIZE = this.CANVAS_WIDTH / Game.getBoxesPerRow();
         this.UPDATE_FPS = 10;
         this.FPS = 60;
         this.GREEN = "#39FF14";
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
-        terrainCanvas.width = width;
-        terrainCanvas.height = height;
         this.playerId = player;
-        unitCanvas.width = width;
-        unitCanvas.height = height;
-        fogCanvas.width = width;
-        fogCanvas.height = height;
-        selectionCanvas.width = width;
-        selectionCanvas.height = height;
+
+        this.terrainCanvas = terrainCanvas;
+        this.unitCanvas = unitCanvas;
+        this.fogCanvas = fogCanvas;
+        this.selectionCanvas = selectionCanvas;
+        this.updateDimensions(width, height);
 
         this.terrainContext = terrainCanvas.getContext("2d");
         this.unitContext = unitCanvas.getContext("2d");
@@ -51,20 +46,36 @@ var Drawer = (function () {
         }
     };
 
+    Drawer.prototype.updateDimensions = function (width, height) {
+        this.terrainCanvas.width = width;
+        this.terrainCanvas.height = height;
+        this.unitCanvas.width = width;
+        this.unitCanvas.height = height;
+        this.fogCanvas.width = width;
+        this.fogCanvas.height = height;
+        this.selectionCanvas.width = width;
+        this.selectionCanvas.height = height;
+
+        this.canvasHeight = height;
+        this.canvasWidth = width;
+
+        this.boxSize = this.canvasWidth / Game.getBoxesPerRow();
+    };
+
     Drawer.prototype.getBoxWidth = function () {
-        return this.BOX_SIZE;
+        return this.boxSize;
     };
 
     Drawer.prototype.getBoxHeight = function () {
-        return this.BOX_SIZE;
+        return this.boxSize;
     };
 
     Drawer.prototype.drawUnits = function (units) {
         this.fogContext.globalCompositeOperation = 'source-over';
-        this.fogContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+        this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.fogContext.fillStyle = this.FOG;
-        this.fogContext.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-        this.unitContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+        this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         for (var i = 0; i < units.length; i++) {
             if (units[i].player == this.playerId) {
                 var coords = this.boxToCoords(units[i].loc);
@@ -72,7 +83,7 @@ var Drawer = (function () {
                 var y = coords.y;
 
                 //this stuff does the "sight" circles in the fog
-                var r1 = units[i].sightRange * this.BOX_SIZE * 2;
+                var r1 = units[i].sightRange * this.boxSize * 2;
                 var r2 = r1 + 50;
                 var density = .4;
 
@@ -86,7 +97,7 @@ var Drawer = (function () {
             }
             this.drawUnit(units[i]);
         }
-        this.selectionContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+        this.selectionContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     };
 
     Drawer.prototype.drawTerrain = function () {
@@ -94,7 +105,7 @@ var Drawer = (function () {
         for (var i = 0; i < gridSize; i++) {
             var tile = Game.getTerrainLoc(i);
             if (tile.getImage()) {
-                this.terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, this.boxToCoords(i).x, this.boxToCoords(i).y, this.BOX_SIZE, this.BOX_SIZE);
+                this.terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, this.boxToCoords(i).x, this.boxToCoords(i).y, this.boxSize, this.boxSize);
             } else {
                 //console.log("failed to load image");
             }
@@ -103,15 +114,15 @@ var Drawer = (function () {
 
     //returns the upper left corner of the box given its index
     Drawer.prototype.boxToCoords = function (i) {
-        var y = Math.floor(i / Game.getBoxesPerRow()) * this.BOX_SIZE;
-        var x = i % Game.getBoxesPerRow() * this.BOX_SIZE;
+        var y = Math.floor(i / Game.getBoxesPerRow()) * this.boxSize;
+        var x = i % Game.getBoxesPerRow() * this.boxSize;
         return { x: x, y: y };
     };
 
     //given the row and col of a box this returns the box index
     Drawer.prototype.coordsToBox = function (x, y) {
-        var newX = Math.floor((x % this.CANVAS_WIDTH) / this.BOX_SIZE);
-        var newY = Math.floor((y % this.CANVAS_HEIGHT) / this.BOX_SIZE);
+        var newX = Math.floor((x % this.canvasWidth) / this.boxSize);
+        var newY = Math.floor((y % this.canvasHeight) / this.boxSize);
         var boxNumber = newX + Game.getBoxesPerRow() * newY;
         return boxNumber;
     };
@@ -120,18 +131,18 @@ var Drawer = (function () {
     Drawer.prototype.drawSquare = function (loc, color) {
         var coords = this.boxToCoords(loc);
         this.fogContext.fillStyle = color;
-        this.fogContext.fillRect(coords.x, coords.y, this.BOX_SIZE, this.BOX_SIZE);
+        this.fogContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
         this.unitContext.fillStyle = color;
-        this.unitContext.fillRect(coords.x, coords.y, this.BOX_SIZE, this.BOX_SIZE);
+        this.unitContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
     };
 
     //used for debugging a* pathing
     Drawer.prototype.drawPathing = function (loc, color, val) {
         var coords = this.boxToCoords(loc);
         this.selectionContext.fillStyle = color;
-        this.selectionContext.fillRect(coords.x, coords.y, this.BOX_SIZE, this.BOX_SIZE);
+        this.selectionContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
         this.selectionContext.fillStyle = "black";
-        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.BOX_SIZE / 2);
+        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.boxSize / 2);
     };
 
     Drawer.prototype.drawSelect = function (selection) {
@@ -144,13 +155,13 @@ var Drawer = (function () {
     Drawer.prototype.drawGrid = function () {
         this.terrainContext.strokeStyle = this.GREEN;
         for (var i = 0; i <= Game.getBoxesPerRow(); i++) {
-            this.terrainContext.moveTo(i * this.BOX_SIZE, 0);
-            this.terrainContext.lineTo(i * this.BOX_SIZE, this.CANVAS_HEIGHT);
+            this.terrainContext.moveTo(i * this.boxSize, 0);
+            this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
             this.terrainContext.stroke();
         }
         for (var i = 0; i <= Game.getBoxesPerCol(); i++) {
-            this.terrainContext.moveTo(0, i * this.BOX_SIZE);
-            this.terrainContext.lineTo(this.CANVAS_WIDTH, i * this.BOX_SIZE);
+            this.terrainContext.moveTo(0, i * this.boxSize);
+            this.terrainContext.lineTo(this.canvasWidth, i * this.boxSize);
             this.terrainContext.stroke();
         }
     };
@@ -163,6 +174,7 @@ var Drawer = (function () {
             var unitCoords = this.boxToCoords(unit.loc);
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
+            console.log(unit.loc);
         }
         x = unit.x;
         y = unit.y;
@@ -195,3 +207,4 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
+//# sourceMappingURL=drawer.js.map

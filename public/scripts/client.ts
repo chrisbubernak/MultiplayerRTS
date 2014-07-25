@@ -57,6 +57,10 @@ class Client {
       }
     });
 
+    $(window).resize(function() {
+      console.log('window was resized');
+    });
+
     $(document).mouseup(function (e) {
       $(this).data('mousedown', false);
     });

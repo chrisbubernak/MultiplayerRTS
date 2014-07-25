@@ -5,9 +5,6 @@ class Drawer {
   private static context: Drawer;
 
   //consts
-  private CANVAS_WIDTH: number = 1440;
-  private CANVAS_HEIGHT: number = 720;
-  private BOX_SIZE: number = this.CANVAS_WIDTH / Game.getBoxesPerRow();
   private UPDATE_FPS: number = 10;
   private FPS: number = 60;
   private GREEN: string = "#39FF14";
@@ -16,6 +13,13 @@ class Drawer {
   private FOG: string = "black";
 
   //globals
+  private boxSize: number;
+  private canvasWidth: number;
+  private canvasHeight: number;
+  private terrainCanvas;
+  private unitCanvas;
+  private fogCanvas;
+  private selectionCanvas;
   private terrainContext;
   private unitContext;
   private fogContext;
@@ -25,15 +29,13 @@ class Drawer {
   constructor(width, height, player,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
 
-    terrainCanvas.width = width;
-    terrainCanvas.height = height;
     this.playerId = player;
-    unitCanvas.width = width;
-    unitCanvas.height = height;
-    fogCanvas.width = width;
-    fogCanvas.height = height;
-    selectionCanvas.width = width;
-    selectionCanvas.height = height;
+
+    this.terrainCanvas = terrainCanvas;
+    this.unitCanvas = unitCanvas;
+    this.fogCanvas = fogCanvas;
+    this.selectionCanvas = selectionCanvas;
+    this.updateDimensions(width, height);
 
     this.terrainContext = terrainCanvas.getContext("2d");
     this.unitContext = unitCanvas.getContext("2d");
@@ -65,27 +67,43 @@ class Drawer {
     }
   }
 
+  public updateDimensions(width: number, height: number) {
+    this.terrainCanvas.width = width;
+    this.terrainCanvas.height = height;
+    this.unitCanvas.width = width;
+    this.unitCanvas.height = height;
+    this.fogCanvas.width = width;
+    this.fogCanvas.height = height;
+    this.selectionCanvas.width = width;
+    this.selectionCanvas.height = height;
+
+    this.canvasHeight = height;
+    this.canvasWidth = width;
+
+    this.boxSize = this.canvasWidth / Game.getBoxesPerRow();
+  }
+
   public getBoxWidth() {
-    return this.BOX_SIZE;
+    return this.boxSize;
   }
 
   public getBoxHeight() {
-    return this.BOX_SIZE;
+    return this.boxSize;
   }
 
   public drawUnits(units) {
     this.fogContext.globalCompositeOperation = 'source-over';
-    this.fogContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.fogContext.fillStyle = this.FOG;
-    this.fogContext.fillRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
-    this.unitContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT);
+    this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     for (var i = 0; i < units.length; i++) {
       if (units[i].player == this.playerId) {
         var coords = this.boxToCoords(units[i].loc);
         var x = coords.x;
         var y = coords.y;
         //this stuff does the "sight" circles in the fog
-        var r1 = units[i].sightRange*this.BOX_SIZE*2;
+        var r1 = units[i].sightRange * this.boxSize * 2;
         var r2 = r1 + 50;
         var density = .4;
 
@@ -103,7 +121,7 @@ class Drawer {
       }
       this.drawUnit(units[i]);
     }
-    this.selectionContext.clearRect(0, 0, this.CANVAS_WIDTH, this.CANVAS_HEIGHT)
+    this.selectionContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight)
   }
 
   public drawTerrain() {
@@ -119,8 +137,8 @@ class Drawer {
           tile.imageH,
           this.boxToCoords(i).x,
           this.boxToCoords(i).y,
-          this.BOX_SIZE,
-          this.BOX_SIZE);
+          this.boxSize,
+          this.boxSize);
       }
       else {
         //console.log("failed to load image");
@@ -130,15 +148,15 @@ class Drawer {
 
   //returns the upper left corner of the box given its index 
   public boxToCoords(i) {
-    var y = Math.floor(i / Game.getBoxesPerRow()) * this.BOX_SIZE;
-    var x = i % Game.getBoxesPerRow() * this.BOX_SIZE;
+    var y = Math.floor(i / Game.getBoxesPerRow()) * this.boxSize;
+    var x = i % Game.getBoxesPerRow() * this.boxSize;
       return { x: x, y: y }
   }
 
   //given the row and col of a box this returns the box index
   public coordsToBox(x, y) {
-    var newX = Math.floor((x % this.CANVAS_WIDTH) / this.BOX_SIZE);
-    var newY = Math.floor((y % this.CANVAS_HEIGHT) / this.BOX_SIZE);
+    var newX = Math.floor((x % this.canvasWidth) / this.boxSize);
+    var newY = Math.floor((y % this.canvasHeight) / this.boxSize);
     var boxNumber = newX + Game.getBoxesPerRow() * newY;
     return boxNumber;
   }
@@ -149,13 +167,13 @@ class Drawer {
     this.fogContext.fillStyle = color;
     this.fogContext.fillRect(coords.x,
       coords.y,
-      this.BOX_SIZE,
-      this.BOX_SIZE);
+      this.boxSize,
+      this.boxSize);
     this.unitContext.fillStyle = color;
     this.unitContext.fillRect(coords.x,
       coords.y,
-      this.BOX_SIZE,
-      this.BOX_SIZE);
+      this.boxSize,
+      this.boxSize);
   }
 
   //used for debugging a* pathing
@@ -164,10 +182,10 @@ class Drawer {
     this.selectionContext.fillStyle = color;
     this.selectionContext.fillRect(coords.x,
       coords.y,
-      this.BOX_SIZE,
-      this.BOX_SIZE);
+      this.boxSize,
+      this.boxSize);
     this.selectionContext.fillStyle = "black";
-    this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.BOX_SIZE / 2)
+    this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.boxSize / 2)
   }
 
   public drawSelect(selection) {
@@ -183,13 +201,13 @@ class Drawer {
   public drawGrid() {
     this.terrainContext.strokeStyle = this.GREEN;
     for (var i = 0; i <= Game.getBoxesPerRow(); i++) {
-      this.terrainContext.moveTo(i * this.BOX_SIZE, 0);
-      this.terrainContext.lineTo(i * this.BOX_SIZE, this.CANVAS_HEIGHT);
+      this.terrainContext.moveTo(i * this.boxSize, 0);
+      this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
       this.terrainContext.stroke();
     }
     for (var i = 0; i <= Game.getBoxesPerCol(); i++) {
-      this.terrainContext.moveTo(0, i * this.BOX_SIZE);
-      this.terrainContext.lineTo(this.CANVAS_WIDTH, i * this.BOX_SIZE);
+      this.terrainContext.moveTo(0, i * this.boxSize);
+      this.terrainContext.lineTo(this.canvasWidth, i * this.boxSize);
       this.terrainContext.stroke();
     }
   }
@@ -202,6 +220,7 @@ class Drawer {
       var unitCoords = this.boxToCoords(unit.loc);
       unit.x = unitCoords.x;
       unit.y = unitCoords.y;
+      console.log(unit.loc);
     }
     x = unit.x;
     y = unit.y;
