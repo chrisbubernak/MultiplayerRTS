@@ -100,11 +100,16 @@ var Drawer = (function () {
                 var y = coords.y;
 
                 //this stuff does the "sight" circles in the fog
-                var r1 = units[i].sightRange * this.boxSize * 2;
-                var r2 = r1 + 50;
+                var r1 = units[i].sightRange * this.boxSize;
+                var r2 = r1 + 40;
                 var density = .4;
 
-                var radGrd = this.fogContext.createRadialGradient(x + units[i].w / 2, y + units[i].h / 2, r1, x + units[i].w / 2, y + units[i].h / 2, r2);
+                if (Client.DEBUG) {
+                    this.drawUnitSightRange(units[i]);
+                    this.drawUnitAquireTargetRange(units[i]);
+                }
+
+                var radGrd = this.fogContext.createRadialGradient(x + this.unitWidth() / 2, y + this.unitHeight() / 2, r1, x + this.unitWidth() / 2, y + this.unitHeight() / 2, r2);
                 radGrd.addColorStop(0, 'rgba( 0, 0, 0,  1 )');
                 radGrd.addColorStop(density, 'rgba( 0, 0, 0, .1 )');
                 radGrd.addColorStop(1, 'rgba( 0, 0, 0,  0 )');
@@ -196,7 +201,8 @@ var Drawer = (function () {
         x = unit.x;
         y = unit.y;
         var coords = unit.getDrawCoordinates();
-        console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
+
+        //console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
         this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
 
         if (unit.selected) {
@@ -229,6 +235,26 @@ var Drawer = (function () {
     };
     Drawer.prototype.unitHeight = function () {
         return this.boxSize * 2;
+    };
+
+    Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
+        var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
+        var width = unit.targetAquireRange * 2 + unit.gridWidth;
+        var height = unit.targetAquireRange * 2 + unit.gridHeight;
+        var locs = utilities.getOccupiedSquares(topLeft, width, height);
+        for (var l in locs) {
+            this.drawSquare(locs[l], "purple");
+        }
+    };
+
+    Drawer.prototype.drawUnitSightRange = function (unit) {
+        var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
+        var width = unit.sightRange * 2 + unit.gridWidth;
+        var height = unit.sightRange * 2 + unit.gridHeight;
+        var locs = utilities.getOccupiedSquares(topLeft, width, height);
+        for (var l in locs) {
+            this.drawSquare(locs[l], "orange");
+        }
     };
     return Drawer;
 })();

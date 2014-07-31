@@ -43,10 +43,18 @@ var Game = (function () {
                 p2 = this.id;
             }
 
-            var p1unit = new Knight(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p1);
+            var loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            while (!Game.getTerrainLoc(loc1).walkable) {
+                loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            }
+            var p1unit = new Knight(loc1, p1);
             Game.markOccupiedGridLocs(p1unit);
             Game.units.push(p1unit);
-            var p2unit = new Orc(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p2);
+            var loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            while (!Game.getTerrainLoc(loc2).walkable) {
+                loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            }
+            var p2unit = new Orc(loc2, p2);
             Game.markOccupiedGridLocs(p2unit);
             Game.units.push(p2unit);
         }
@@ -220,8 +228,8 @@ var Game = (function () {
             Game.terrain[lake[i]] = new WaterTile();
         }
     };
-    Game.RATIO = 1.6;
-    Game.NUM_OF_COL = 40;
+    Game.RATIO = 2;
+    Game.NUM_OF_COL = 60;
     Game.NUM_OF_ROW = (Game.NUM_OF_COL / Game.RATIO);
 
     Game.terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);

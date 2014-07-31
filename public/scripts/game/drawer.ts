@@ -1,5 +1,6 @@
 /// <reference path="coords.ts" />
 /// <reference path="unit.ts" />
+/// <reference path="../client.ts" />
 
 class Drawer {
   private static context: Drawer;
@@ -26,7 +27,6 @@ class Drawer {
   private fogContext;
   private selectionContext;
   private playerId;
-
 
   constructor(width, height, player,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
@@ -93,12 +93,12 @@ class Drawer {
     this.fogCanvas.height = height;
     this.selectionCanvas.width = width;
     this.selectionCanvas.height = height;
-    
+
     this.canvasHeight = height;
     this.canvasWidth = width;
 
     this.boxSize = this.canvasWidth / Game.getNumOfCols();
-    if (typeof(Game.getTerrainLoc(0)) != 'undefined') { //don't want to draw it before it exists
+    if (typeof (Game.getTerrainLoc(0)) != 'undefined') { //don't want to draw it before it exists
       this.drawTerrain();
     }
   }
@@ -111,7 +111,7 @@ class Drawer {
     return this.boxSize;
   }
 
-  public drawUnits(units) {
+  public drawUnits(units: Unit[]) {
     this.fogContext.globalCompositeOperation = 'source-over';
     this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.fogContext.fillStyle = this.FOG;
@@ -123,15 +123,20 @@ class Drawer {
         var x = coords.x;
         var y = coords.y;
         //this stuff does the "sight" circles in the fog
-        var r1 = units[i].sightRange * this.boxSize * 2;
-        var r2 = r1 + 50;
+        var r1 = units[i].sightRange * this.boxSize;
+        var r2 = r1 + 40;
         var density = .4;
 
+        if (Client.DEBUG) {
+          this.drawUnitSightRange(units[i]);
+          this.drawUnitAquireTargetRange(units[i]);
+        }
+
         var radGrd = this.fogContext.createRadialGradient(
-          x + units[i].w / 2,
-          y + units[i].h / 2, r1,
-          x + units[i].w / 2,
-          y + units[i].h / 2, r2);
+          x + this.unitWidth() / 2,
+          y + this.unitHeight() / 2, r1,
+          x + this.unitWidth() / 2,
+          y + this.unitHeight() / 2, r2);
         radGrd.addColorStop(0, 'rgba( 0, 0, 0,  1 )');
         radGrd.addColorStop(density, 'rgba( 0, 0, 0, .1 )');
         radGrd.addColorStop(1, 'rgba( 0, 0, 0,  0 )');
@@ -245,13 +250,13 @@ class Drawer {
     x = unit.x;
     y = unit.y;
     var coords = unit.getDrawCoordinates();
-    console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
-    this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x  , y , this.unitWidth(), this.unitHeight());
+    //console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
+    this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
 
     if (unit.selected) {
       this.unitContext.beginPath();
       this.unitContext.strokeStyle = this.GREEN;
-      this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight()/ 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+      this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
       this.unitContext.stroke();
       //for all selected units with targets, indicate their targets with a red square on map (todo: change this to some sort of other marker)
       if (typeof (unit.target) !== 'undefined' && unit.target !== null) {
@@ -267,7 +272,7 @@ class Drawer {
     else if (percent > .4) {
       this.unitContext.fillStyle = "yellow";
     }
-    this.unitContext.fillRect(x, y - this.HEALTH_BAR_OFFSET, this.unitWidth()* percent, this.HEALTH_BAR_HEIGHT);
+    this.unitContext.fillRect(x, y - this.HEALTH_BAR_OFFSET, this.unitWidth() * percent, this.HEALTH_BAR_HEIGHT);
     this.unitContext.fillStyle = "black";
     this.unitContext.fillRect(x + this.unitWidth() * percent, y - this.HEALTH_BAR_OFFSET, this.unitWidth() * (1 - percent), this.HEALTH_BAR_HEIGHT);
   }
@@ -277,5 +282,25 @@ class Drawer {
   }
   private unitHeight() {
     return this.boxSize * 2;
+  }
+
+  private drawUnitAquireTargetRange(unit: Unit) {
+    var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
+    var width = unit.targetAquireRange * 2 + unit.gridWidth;
+    var height = unit.targetAquireRange * 2 + unit.gridHeight;
+    var locs = utilities.getOccupiedSquares(topLeft, width, height);
+    for (var l in locs) {
+      this.drawSquare(locs[l], "purple");
+    }
+  }
+
+  private drawUnitSightRange(unit: Unit) {
+    var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
+    var width = unit.sightRange * 2 + unit.gridWidth;
+    var height = unit.sightRange * 2 + unit.gridHeight;
+    var locs = utilities.getOccupiedSquares(topLeft, width, height);
+    for (var l in locs) {
+      this.drawSquare(locs[l], "orange");
+    }
   }
 }

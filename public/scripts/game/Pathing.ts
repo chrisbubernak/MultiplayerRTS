@@ -35,7 +35,9 @@ class Pathing {
         var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
         var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows())
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-          Drawer.drawSquare(neighbors[i], "blue");
+          if (Client.DEBUG) {
+            Drawer.drawSquare(neighbors[i], "blue");
+          }
           if (neighbors[i] == goal) {
             //if the goal was unreachable path to the thing we think is closest to it
             var final = distanceToGoal.dequeue();
@@ -52,7 +54,9 @@ class Pathing {
           var terrainLoc = Game.getTerrainLoc(locs[l]);
 
           if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
-            //Drawer.drawSquare(neighbors[i], "blue");
+            if (Client.DEBUG) {
+              Drawer.drawSquare(neighbors[i], "blue");
+            }
             if (neighbors[i] == goal) {
               //if the goal was unreachable path to the thing we think is closest to it
               //pq could be null though at this point if our current location is good enough
@@ -81,7 +85,9 @@ class Pathing {
           fScore[neighbors[i]] = t_fScore;
           if (openSet.indexOf(neighbors[i]) == -1) {
             openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
-            Drawer.drawSquare(neighbors[i], "yellow");
+            if (Client.DEBUG) {
+              Drawer.drawSquare(neighbors[i], "yellow");
+            }
           }
           //if the neighbor was already in the openset we need to update it in the priority queue
           else {
@@ -100,7 +106,9 @@ class Pathing {
     while (cur != start) {
       returnArray.splice(0, 0, cur);
       cur = cameFrom[cur];
-      Drawer.drawSquare(cur, "green");
+      if (Client.DEBUG) {
+        Drawer.drawSquare(cur, "green");
+      }
     }
     return returnArray;
   }

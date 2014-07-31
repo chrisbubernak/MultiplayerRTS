@@ -26,6 +26,16 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Execute = function (unit) {
+        //if we have an enemey targeted and one of our units can see them start pursuing
+        /*if (!(unit.target && unit.unitTarget && WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
+        if (unit.unitTarget) {
+        console.log(unit.target + " " + unit.unitTarget + " " + WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget));
+        }
+        }
+        if (unit.target && unit.unitTarget && WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
+        console.log('PURSUING');
+        unit.ChangeState(PursuingState.Instance());
+        }*/
         //make sure is path is empty and make sure we've finished interpolating (i.e that the move timer = movespeed)
         if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
             unit.target = null;
@@ -37,6 +47,27 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Exit = function (unit) {
+    };
+
+    WalkingState.prototype.canAnyUnitSeeEnemy = function (unit, enemy) {
+        //for each of my units check if they can see enemy
+        var units = Game.getUnitsForPlayer(unit.player);
+        for (var u in units) {
+            var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
+            var width = unit.sightRange * 2 + unit.gridWidth;
+            var height = unit.sightRange * 2 + unit.gridHeight;
+            var locs = utilities.getOccupiedSquares(topLeft, width, height);
+            for (var l in locs) {
+                var neighbors = utilities.neighbors(locs[l]);
+                for (var n in neighbors) {
+                    var id = Game.getGridLoc(neighbors[n]);
+                    if (id === enemy.id) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     };
 
     WalkingState.move = function (unit) {

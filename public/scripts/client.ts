@@ -4,6 +4,8 @@
 /// <reference path="definitions/Peer.d.ts" />
 
 class Client {
+  public static DEBUG: boolean = false;
+
   private myGame: Game;
   private host: Boolean;
   private peer;

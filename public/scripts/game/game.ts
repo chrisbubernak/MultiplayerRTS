@@ -12,8 +12,8 @@ class Game {
   //static variables
   /*private static boxesPerRow : number = 90;//30//60;
   private static boxesPerCol: number = 45;*/
-  private static RATIO: number = 1.6;
-  private static NUM_OF_COL: number = 40;
+  private static RATIO: number = 2;
+  private static NUM_OF_COL: number = 60;
   private static NUM_OF_ROW: number = (Game.NUM_OF_COL / Game.RATIO);
 
   private static terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
@@ -63,10 +63,18 @@ class Game {
         p2 = this.id;
       }
 
-      var p1unit = new Knight(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p1);
+      var loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+      while (!Game.getTerrainLoc(loc1).walkable) {
+        loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+      }
+      var p1unit = new Knight(loc1, p1);
       Game.markOccupiedGridLocs(p1unit);
       Game.units.push(p1unit);
-      var p2unit = new Orc(Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW), p2);
+      var loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+      while (!Game.getTerrainLoc(loc2).walkable) {
+        loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+      }
+      var p2unit = new Orc(loc2, p2);
       Game.markOccupiedGridLocs(p2unit);
       Game.units.push(p2unit);
     }

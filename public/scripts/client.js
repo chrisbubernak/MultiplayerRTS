@@ -214,6 +214,8 @@ var Client = (function () {
             }
         }
     };
+    Client.DEBUG = false;
+
     Client.updateFPS = 10;
     return Client;
 })();
