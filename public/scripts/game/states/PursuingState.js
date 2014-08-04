@@ -30,7 +30,7 @@ var PursuingState = (function (_super) {
     PursuingState.prototype.Execute = function (unit) {
         //if we don't have a unit to target, or we are no longer able to see that unit with any of our units
         //TODO: What if the unit we are pursuing dies???
-        if ((!unit.unitTarget) || (!PursuingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
+        if ((!unit.unitTarget) || (!utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
             unit.ChangeState(WaitingState.Instance()); //stop pursing
         } else if (PursuingState.Instance().enemyInRange(unit)) {
             unit.ChangeState(AttackingState.Instance()); //start fighting
@@ -56,27 +56,6 @@ var PursuingState = (function (_super) {
             }
         }
         return false;
-    };
-
-    PursuingState.prototype.canAnyUnitSeeEnemy = function (unit, enemy) {
-        //for each of my units check if they can see enemy
-        var units = Game.getUnitsForPlayer(unit.player);
-        for (var u in units) {
-            var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-            var width = unit.sightRange * 2 + unit.gridWidth;
-            var height = unit.sightRange * 2 + unit.gridHeight;
-            var locs = utilities.getOccupiedSquares(topLeft, width, height);
-            for (var l in locs) {
-                var neighbors = utilities.neighbors(locs[l]);
-                for (var n in neighbors) {
-                    var id = Game.getGridLoc(neighbors[n]);
-                    if (id === enemy.id) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
     };
 
     PursuingState.move = function (unit) {
