@@ -49,27 +49,6 @@ var WalkingState = (function (_super) {
     WalkingState.prototype.Exit = function (unit) {
     };
 
-    WalkingState.prototype.canAnyUnitSeeEnemy = function (unit, enemy) {
-        //for each of my units check if they can see enemy
-        var units = Game.getUnitsForPlayer(unit.player);
-        for (var u in units) {
-            var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-            var width = unit.sightRange * 2 + unit.gridWidth;
-            var height = unit.sightRange * 2 + unit.gridHeight;
-            var locs = utilities.getOccupiedSquares(topLeft, width, height);
-            for (var l in locs) {
-                var neighbors = utilities.neighbors(locs[l]);
-                for (var n in neighbors) {
-                    var id = Game.getGridLoc(neighbors[n]);
-                    if (id === enemy.id) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-    };
-
     WalkingState.move = function (unit) {
         //update our walking art
         unit.animateTimer = (unit.animateTimer + 1) % unit.numberOfAnimations;

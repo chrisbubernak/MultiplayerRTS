@@ -285,20 +285,14 @@ class Drawer {
   }
 
   private drawUnitAquireTargetRange(unit: Unit) {
-    var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
-    var width = unit.targetAquireRange * 2 + unit.gridWidth;
-    var height = unit.targetAquireRange * 2 + unit.gridHeight;
-    var locs = utilities.getOccupiedSquares(topLeft, width, height);
+    var locs = utilities.getGridLocsInTargetAquireRange(unit);
     for (var l in locs) {
       this.drawSquare(locs[l], "purple");
     }
   }
 
   private drawUnitSightRange(unit: Unit) {
-    var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-    var width = unit.sightRange * 2 + unit.gridWidth;
-    var height = unit.sightRange * 2 + unit.gridHeight;
-    var locs = utilities.getOccupiedSquares(topLeft, width, height);
+    var locs = utilities.getGridLocsInSightRange(unit);
     for (var l in locs) {
       this.drawSquare(locs[l], "orange");
     }

@@ -108,7 +108,7 @@ class Client {
         });
         that.conn.on('close', function () {
           console.log('connection closed!');
-          that.myGame.end('Enemy Quit');
+          that.end('Enemy Quit');
         });
         that.conn.on('data', function (data) {
           if (!(typeof (data.simTick) === 'undefined')) {
@@ -132,7 +132,7 @@ class Client {
           });
           that.conn.on('close', function () {
             console.log('connection closed!');
-            that.myGame.end('Enemy Quit');
+            that.end('Enemy Quit');
           });
           that.conn.on('data', function (data) {
             if (!(typeof (data.simTick) === 'undefined')) {
@@ -175,6 +175,11 @@ class Client {
     var fpsOut = document.getElementById("fps");
     //var conn = Game.conn;
     setInterval(function () {
+      if (that.myGame.isOver()) {
+        that.end("Game is over!");
+        return;
+      }
+
       var currentSimTick = that.myGame.getSimTick();
       that.myGame.update();
       that.getSelection();
@@ -216,6 +221,11 @@ class Client {
     selection.w = Math.abs(selection.sX - eX);
     selection.h = Math.abs(selection.sY - eY);
     return selection;
+  }
+
+  public end(message: string) {
+    alert(message);
+    window.location.href = "/lobby";
   }
 
   public getSelection() {

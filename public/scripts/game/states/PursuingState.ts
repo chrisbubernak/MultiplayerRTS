@@ -23,7 +23,7 @@ class PursuingState extends State {
   public Execute(unit: Unit) {
     //if we don't have a unit to target, or we are no longer able to see that unit with any of our units
     //TODO: What if the unit we are pursuing dies???
-    if ((!unit.unitTarget) || (!PursuingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget))) { //if we have a target location transition...
+    if ((!unit.unitTarget) || (!utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) { //if we have a target location transition...
       unit.ChangeState(WaitingState.Instance()); //stop pursing
     }
     else if (PursuingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy to attack...
@@ -51,27 +51,6 @@ class PursuingState extends State {
       }
     }
     return false;
-  }
-
-  private canAnyUnitSeeEnemy(unit: Unit, enemy: Unit) {
-    //for each of my units check if they can see enemy
-    var units = Game.getUnitsForPlayer(unit.player);
-    for (var u in units) {
-      var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-      var width = unit.sightRange * 2 + unit.gridWidth;
-      var height = unit.sightRange * 2 + unit.gridHeight;
-      var locs = utilities.getOccupiedSquares(topLeft, width, height);
-      for (var l in locs) {
-        var neighbors = utilities.neighbors(locs[l]);
-        for (var n in neighbors) {
-          var id = Game.getGridLoc(neighbors[n]);
-          if (id === enemy.id) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
   }
 
   private static move(unit) {

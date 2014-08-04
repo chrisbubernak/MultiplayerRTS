@@ -65,6 +65,41 @@ var utilities = (function () {
             }
             console.log('ERROR: utilities.getDirection() did not set a direction');
         },
+        getGridLocsInSightRange: function (unit) {
+            var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
+            var width = unit.sightRange * 2 + unit.gridWidth;
+            if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
+                width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+            }
+            var height = unit.sightRange * 2 + unit.gridHeight;
+            return utilities.getOccupiedSquares(topLeft, width, height);
+        },
+        getGridLocsInTargetAquireRange: function (unit) {
+            var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
+            var width = unit.targetAquireRange * 2 + unit.gridWidth;
+            if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
+                width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+            }
+            var height = unit.targetAquireRange * 2 + unit.gridHeight;
+            return utilities.getOccupiedSquares(topLeft, width, height);
+        },
+        canAnyUnitSeeEnemy: function (unit, enemy) {
+            //for each of my units check if they can see enemy
+            var units = Game.getUnitsForPlayer(unit.player);
+            for (var u in units) {
+                var locs = utilities.getGridLocsInSightRange(units[u]);
+                for (var l in locs) {
+                    var neighbors = utilities.neighbors(locs[l]);
+                    for (var n in neighbors) {
+                        var id = Game.getGridLoc(neighbors[n]);
+                        if (id === enemy.id) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+        },
         neighbors: function (boxNumber) {
             var neighbors = new Array();
 

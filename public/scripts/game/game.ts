@@ -81,12 +81,14 @@ class Game {
   }
   public isOver() {
     //check if either player is out of units & return based on that
+    if (Game.getUnitsForPlayer(this.enemyId).length === 0) {
+      return true;
+    }
+    else if (Game.getUnitsForPlayer(this.id).length === 0) {
+      return true;
+    }
 
     return false; //for now always return false
-  }
-
-  public end(message: string) {
-    alert(message);
   }
 
   public static getGridLoc(index : number) {
@@ -127,6 +129,17 @@ class Game {
       if (Game.units[i].id == id) {
         Game.units.splice(i, 1);
         Game.unmarkGridLocs(unit);
+        return;
+      }
+    }
+  }
+
+  public static removeUnitById(unitId: number) {
+    var id = unitId;
+    for (var i = 0; i < (length = Game.units.length); i++) {
+      if (Game.units[i].id == id) {
+        Game.unmarkGridLocs(Game.units[i]);
+        Game.units.splice(i, 1);
         return;
       }
     }

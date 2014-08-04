@@ -61,11 +61,13 @@ var Game = (function () {
     };
     Game.prototype.isOver = function () {
         //check if either player is out of units & return based on that
-        return false;
-    };
+        if (Game.getUnitsForPlayer(this.enemyId).length === 0) {
+            return true;
+        } else if (Game.getUnitsForPlayer(this.id).length === 0) {
+            return true;
+        }
 
-    Game.prototype.end = function (message) {
-        alert(message);
+        return false;
     };
 
     Game.getGridLoc = function (index) {
@@ -106,6 +108,17 @@ var Game = (function () {
             if (Game.units[i].id == id) {
                 Game.units.splice(i, 1);
                 Game.unmarkGridLocs(unit);
+                return;
+            }
+        }
+    };
+
+    Game.removeUnitById = function (unitId) {
+        var id = unitId;
+        for (var i = 0; i < (length = Game.units.length); i++) {
+            if (Game.units[i].id == id) {
+                Game.unmarkGridLocs(Game.units[i]);
+                Game.units.splice(i, 1);
                 return;
             }
         }
