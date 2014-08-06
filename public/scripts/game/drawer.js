@@ -7,6 +7,7 @@ var Drawer = (function () {
         this.UPDATE_FPS = 10;
         this.FPS = 60;
         this.GREEN = "#39FF14";
+        this.RED = "#FF0000";
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
@@ -176,6 +177,7 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawGrid = function () {
+        this.drawTerrain();
         this.terrainContext.strokeStyle = this.GREEN;
         for (var i = 0; i <= Game.getNumOfCols(); i++) {
             this.terrainContext.moveTo(i * this.boxSize, 0);
@@ -215,6 +217,15 @@ var Drawer = (function () {
             //for all selected units with targets, indicate their targets with a red square on map (todo: change this to some sort of other marker)
             if (typeof (unit.target) !== 'undefined' && unit.target !== null) {
                 this.drawSquare(unit.target, 'red');
+            }
+
+            //for all selected units with a unit targed indicate their targets with a red circle
+            if (typeof (unit.unitTarget) !== 'undefined' && unit.unitTarget !== null) {
+                var targetUnit = unit.unitTarget;
+                this.unitContext.beginPath();
+                this.unitContext.strokeStyle = this.RED;
+                this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+                this.unitContext.stroke();
             }
         }
 

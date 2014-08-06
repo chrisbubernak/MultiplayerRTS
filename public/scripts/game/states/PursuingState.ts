@@ -63,6 +63,7 @@ class PursuingState extends State {
 
       //if the unit has a new target change our path
       if (unit.prevTar != unit.target) {
+        console.log('TARGET MOVED!');
         unit.path = Pathing.aStar(unit.loc, unit.target, unit);
         unit.prevTar = unit.target;
       }

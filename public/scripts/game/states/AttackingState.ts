@@ -28,12 +28,13 @@ class AttackingState extends State {
     else if (enemy != null) { //if we have an enemy...
       AttackingState.Instance().attack(unit, enemy); //attack them
     }
-    else if (enemy == null){ //if we no longer have a target enemy...
+    else if (enemy == null) { //if we no longer have a target enemy...
       unit.ChangeState(WaitingState.Instance()); //transition back to waiting
     }
   }
 
   public Exit(unit: Unit) {
+    unit.unitTarget = null;
     unit.inCombatWith = null;
     unit.attackTimer = 0;
   }

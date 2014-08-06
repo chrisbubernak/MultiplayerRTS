@@ -39,6 +39,7 @@ var AttackingState = (function (_super) {
     };
 
     AttackingState.prototype.Exit = function (unit) {
+        unit.unitTarget = null;
         unit.inCombatWith = null;
         unit.attackTimer = 0;
     };

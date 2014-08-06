@@ -57,10 +57,22 @@ var Client = (function () {
 
         //keep track of when shift is held down so we can queue up unit movements
         //for debugging also listen for g clicked ...this signifies to draw the grid
-        $(document).bind('keyup keydown', function (e) {
+        $(document).bind('keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code == 71) {
-                that.drawer.drawGrid();
+                if (Client.DRAWGRID) {
+                    Client.DRAWGRID = false;
+                    that.drawer.drawTerrain();
+                } else {
+                    Client.DRAWGRID = true;
+                    that.drawer.drawGrid();
+                }
+            } else if (code === 68) {
+                if (Client.DEBUG) {
+                    Client.DEBUG = false;
+                } else {
+                    Client.DEBUG = true;
+                }
             }
             that.shifted = e.shiftKey;
             return true;
@@ -142,8 +154,6 @@ var Client = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
-
-            //debugging stuff...
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -225,6 +235,7 @@ var Client = (function () {
         }
     };
     Client.DEBUG = false;
+    Client.DRAWGRID = false;
 
     Client.updateFPS = 10;
     return Client;
