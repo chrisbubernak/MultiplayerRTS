@@ -222,11 +222,11 @@ var Client = (function () {
         if ($(document).data('mousedown')) {
             //create the selection
             var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
             for (var o in occupied) {
                 var id = Game.getGridLoc(occupied[o]);
                 if (id != null) {
-                    var unit = utilities.findUnit(id, Game.getUnits());
+                    var unit = Utilities.findUnit(id, Game.getUnits());
                     if (unit.player == that.myGame.getId()) {
                         unit.selected = true;
                     }

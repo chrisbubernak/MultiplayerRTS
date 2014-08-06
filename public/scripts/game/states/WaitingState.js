@@ -28,7 +28,7 @@ var WaitingState = (function (_super) {
     WaitingState.prototype.Execute = function (unit) {
         if (unit.target && (unit.unitTarget === null)) {
             unit.ChangeState(WalkingState.Instance()); //start walking there
-        } else if (unit.target && !utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
+        } else if (unit.target && !Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
             unit.unitTarget = null;
             unit.ChangeState(WalkingState.Instance()); //start walking there
         } else if (unit.target && unit.unitTarget) {
@@ -47,12 +47,12 @@ var WaitingState = (function (_super) {
     };
 
     WaitingState.prototype.enemyInRange = function (unit) {
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
-            var neighbors = utilities.neighbors(locs[l]);
+            var neighbors = Utilities.neighbors(locs[l]);
             for (var n in neighbors) {
                 var id = Game.getGridLoc(neighbors[n]);
-                var enemy = utilities.findUnit(id, Game.getUnits());
+                var enemy = Utilities.findUnit(id, Game.getUnits());
                 if (enemy != null && enemy.player != unit.player) {
                     return true;
                 }
@@ -62,12 +62,12 @@ var WaitingState = (function (_super) {
     };
 
     WaitingState.prototype.enemyInSight = function (unit) {
-        var locs = utilities.getGridLocsInTargetAquireRange(unit);
+        var locs = Utilities.getGridLocsInTargetAquireRange(unit);
         for (var l in locs) {
-            var neighbors = utilities.neighbors(locs[l]);
+            var neighbors = Utilities.neighbors(locs[l]);
             for (var n in neighbors) {
                 var id = Game.getGridLoc(neighbors[n]);
-                var enemy = utilities.findUnit(id, Game.getUnits());
+                var enemy = Utilities.findUnit(id, Game.getUnits());
                 if (enemy != null && enemy.player != unit.player) {
                     return enemy;
                 }
@@ -77,4 +77,3 @@ var WaitingState = (function (_super) {
     };
     return WaitingState;
 })(State);
-//# sourceMappingURL=WaitingState.js.map

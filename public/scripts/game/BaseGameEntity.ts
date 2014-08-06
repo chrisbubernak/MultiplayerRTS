@@ -1,4 +1,4 @@
-﻿/// <reference path="utilities.ts" />
+﻿/// <reference path="Utilities.ts" />
 /// <reference path="game.ts" />
 
 class BaseGameEntity {

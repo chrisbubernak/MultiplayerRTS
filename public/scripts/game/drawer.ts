@@ -296,14 +296,14 @@ class Drawer {
   }
 
   private drawUnitAquireTargetRange(unit: Unit) {
-    var locs = utilities.getGridLocsInTargetAquireRange(unit);
+    var locs = Utilities.getGridLocsInTargetAquireRange(unit);
     for (var l in locs) {
       this.drawSquare(locs[l], "purple");
     }
   }
 
   private drawUnitSightRange(unit: Unit) {
-    var locs = utilities.getGridLocsInSightRange(unit);
+    var locs = Utilities.getGridLocsInSightRange(unit);
     for (var l in locs) {
       this.drawSquare(locs[l], "orange");
     }

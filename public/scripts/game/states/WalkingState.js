@@ -66,7 +66,7 @@ var WalkingState = (function (_super) {
             unit.prevLoc = unit.loc;
 
             //if something now stands in the units path re-path around it
-            var locs = utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
+            var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
             for (var l in locs) {
                 var gridLoc = Game.getGridLoc(locs[l]);
                 if (gridLoc != unit.id && gridLoc != null) {
@@ -76,7 +76,7 @@ var WalkingState = (function (_super) {
             }
 
             //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-            var direction = utilities.getDirection(unit.loc, unit.path[0]);
+            var direction = Utilities.getDirection(unit.loc, unit.path[0]);
             if (direction) {
                 unit.setDirection(direction);
             }
@@ -92,4 +92,3 @@ var WalkingState = (function (_super) {
     };
     return WalkingState;
 })(State);
-//# sourceMappingURL=WalkingState.js.map

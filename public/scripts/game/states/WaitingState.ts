@@ -23,7 +23,7 @@ class WaitingState extends State{
       unit.ChangeState(WalkingState.Instance()); //start walking there
     }
     //if you try and target a unit you can't actually see we still want to walk there just don't go into pursuing state
-    else if (unit.target && !utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
+    else if (unit.target && !Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
       unit.unitTarget = null;
       unit.ChangeState(WalkingState.Instance()); //start walking there
     }
@@ -45,12 +45,12 @@ class WaitingState extends State{
   }
 
   private enemyInRange(unit: Unit) {
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
-      var neighbors = utilities.neighbors(locs[l]);
+      var neighbors = Utilities.neighbors(locs[l]);
       for (var n in neighbors) {
         var id = Game.getGridLoc(neighbors[n]);
-        var enemy = utilities.findUnit(id, Game.getUnits());
+        var enemy = Utilities.findUnit(id, Game.getUnits());
         if (enemy != null && enemy.player != unit.player) {
           return true;
         }
@@ -60,12 +60,12 @@ class WaitingState extends State{
   }
 
   private enemyInSight(unit: Unit) {
-    var locs = utilities.getGridLocsInTargetAquireRange(unit);
+    var locs = Utilities.getGridLocsInTargetAquireRange(unit);
     for (var l in locs) {
-      var neighbors = utilities.neighbors(locs[l]);
+      var neighbors = Utilities.neighbors(locs[l]);
       for (var n in neighbors) {
         var id = Game.getGridLoc(neighbors[n]);
-        var enemy = utilities.findUnit(id, Game.getUnits());
+        var enemy = Utilities.findUnit(id, Game.getUnits());
         if (enemy != null && enemy.player != unit.player) {
           return enemy;
         }

@@ -1,10 +1,10 @@
-﻿/// <reference path="terrainTile.ts" />
+/// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="unit.ts" />
-/// <reference path="utilities.ts" />
+/// <reference path="Utilities.ts" />
 /// <reference path="selectionObject.ts" />
 /// <reference path="action.ts" />
 var Game = (function () {
@@ -43,16 +43,16 @@ var Game = (function () {
                 p2 = this.id;
             }
 
-            var loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            var loc1 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
             while (!Game.getTerrainLoc(loc1).walkable) {
-                loc1 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+                loc1 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
             }
             var p1unit = new Knight(loc1, p1);
             Game.markOccupiedGridLocs(p1unit);
             Game.units.push(p1unit);
-            var loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+            var loc2 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
             while (!Game.getTerrainLoc(loc2).walkable) {
-                loc2 = Math.round(utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
+                loc2 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
             }
             var p2unit = new Orc(loc2, p2);
             Game.markOccupiedGridLocs(p2unit);
@@ -130,7 +130,7 @@ var Game = (function () {
 
     Game.markOccupiedGridLocs = function (unit) {
         //mark the locs occupied by this unit
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             Game.setGridLoc(locs[l], unit.id);
         }
@@ -138,7 +138,7 @@ var Game = (function () {
 
     Game.unmarkGridLocs = function (unit) {
         //unmark the locs occupied by this unit
-        var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             Game.setGridLoc(locs[l], null);
         }
@@ -160,12 +160,12 @@ var Game = (function () {
             //this is a little silly at the moment to convert the data into an object but I'd like to
             //be able to just pass around this object in the future without modifying the following code
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
-            var unit = utilities.findUnit(action.getUnit(), Game.units);
+            var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
                 var targetLoc = action.getTarget();
                 unit.target = targetLoc;
                 if (Game.grid[targetLoc] != null) {
-                    var unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+                    var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
                     if (this.areEnemies(unit, unitTarget)) {
                         unit.unitTarget = unitTarget;
                     }
@@ -204,7 +204,7 @@ var Game = (function () {
     //Private Methods:
     Game.prototype.generateTerrain = function () {
         for (var i = 0; i < (length = Game.NUM_OF_COL * Game.NUM_OF_ROW); i++) {
-            var type = utilities.random();
+            var type = Utilities.random();
             var grass = .5;
             if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
                 grass -= .2;
@@ -230,16 +230,16 @@ var Game = (function () {
     };
 
     Game.prototype.generateLake = function () {
-        var first = Math.round(utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
+        var first = Math.round(Utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
         var lake = new Array();
         var old = new Array();
         lake.push(first);
         var counter = 0;
         while (lake.length > 0 && counter < 23) {
             Game.terrain[lake[0]] = new WaterTile();
-            var neighbors = utilities.neighbors(lake[0]);
+            var neighbors = Utilities.neighbors(lake[0]);
             for (var i = 0; i < neighbors.length; i++) {
-                if (utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
+                if (Utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
                     lake.push(neighbors[i]);
                 }
             }
@@ -260,4 +260,3 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
-//# sourceMappingURL=game.js.map

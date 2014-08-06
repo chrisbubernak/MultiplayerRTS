@@ -41,14 +41,14 @@ class AttackingState extends State {
 
   private attack(attacker: Unit, defender: Unit) {
     //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-    var direction = utilities.getDirection(attacker.loc, defender.loc)
+    var direction = Utilities.getDirection(attacker.loc, defender.loc)
     if (direction) {
       attacker.setDirection(direction);
     }
 
     if (attacker.attackTimer >= attacker.attackSpeed) {
       var attackRange = attacker.attackMax - attacker.attackMin;
-      var damage = utilities.random() * attackRange + attacker.attackMin;
+      var damage = Utilities.random() * attackRange + attacker.attackMin;
       defender.health -= damage;
       if (defender.health <= 0) {
         Game.removeUnit(defender);
@@ -65,12 +65,12 @@ class AttackingState extends State {
   private getEnemy(unit: Unit, prefTarget: Unit) {
     var enemies = new Array();
 
-    var locs = utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
-      var neighbors = utilities.neighbors(locs[l]);
+      var neighbors = Utilities.neighbors(locs[l]);
       for (var n in neighbors) {
         var id = Game.getGridLoc(neighbors[n]);
-        var enemy = utilities.findUnit(id, Game.getUnits());
+        var enemy = Utilities.findUnit(id, Game.getUnits());
         if (enemy != null && enemy.player != unit.player) {
           if (prefTarget == null || id == prefTarget.id) { //if we didn't have a preference or this was our preference return it
             unit.inCombatWith = enemy;

@@ -250,14 +250,14 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
-        var locs = utilities.getGridLocsInTargetAquireRange(unit);
+        var locs = Utilities.getGridLocsInTargetAquireRange(unit);
         for (var l in locs) {
             this.drawSquare(locs[l], "purple");
         }
     };
 
     Drawer.prototype.drawUnitSightRange = function (unit) {
-        var locs = utilities.getGridLocsInSightRange(unit);
+        var locs = Utilities.getGridLocsInSightRange(unit);
         for (var l in locs) {
             this.drawSquare(locs[l], "orange");
         }

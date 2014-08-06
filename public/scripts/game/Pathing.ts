@@ -27,11 +27,11 @@ class Pathing {
       }
 
       closedSet.push(cur);
-      var neighbors = utilities.neighbors(cur);
+      var neighbors = Utilities.neighbors(cur);
 
       //check all of the neighbor moves for collisions
       for (var i = neighbors.length - 1; i >= 0; i--) {
-        //var coords = utilities.boxToCoords(neighbors[i]);
+        //var coords = Utilities.boxToCoords(neighbors[i]);
         var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
         var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows())
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
@@ -48,7 +48,7 @@ class Pathing {
         }
 
         //for each move make sure this unit could move there without colliding with any thing
-        var locs = locs = utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
+        var locs = locs = Utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
           var gridLoc = Game.getGridLoc(locs[l]);
           var terrainLoc = Game.getTerrainLoc(locs[l]);
@@ -71,7 +71,7 @@ class Pathing {
       }
 
       for (var i = 0; i < neighbors.length; i++) {
-        var t_gScore = gScore[cur] + utilities.distance(cur, neighbors[i]);
+        var t_gScore = gScore[cur] + Utilities.distance(cur, neighbors[i]);
         var heuristic = this.heuristic(neighbors[i], goal);
         var t_fScore = t_gScore + heuristic;
         distanceToGoal.enqueue(neighbors[i], heuristic);
@@ -114,6 +114,6 @@ class Pathing {
   }
 
   private static heuristic(a: number, b: number) {
-    return utilities.distance(a, b);
+    return Utilities.distance(a, b);
   }
 }
