@@ -88,7 +88,14 @@ var utilities = (function () {
 
     getGridLocsInTargetAquireRange(unit: Unit) {
       var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
+      
+      if (Math.floor(topLeft / Game.getNumOfCols()) < Math.floor(unit.loc / Game.getNumOfCols())) {
+        console.log('ERR');
+      }
+
       var width = unit.targetAquireRange * 2 + unit.gridWidth;
+      //if the value we calculate for the top right (width + topleft) is not going to be on the same row as top left)
+      //aka it wraps around the grid then just choose the largest value we can on the same line
       if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
         width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
       }

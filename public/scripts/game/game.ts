@@ -186,7 +186,10 @@ class Game {
         var targetLoc = action.getTarget();
         unit.target = targetLoc;
         if (Game.grid[targetLoc] != null) {
-          unit.unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+          var unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+          if (this.areEnemies(unit, unitTarget)) {
+            unit.unitTarget = unitTarget;
+          }
         }
         else {
           unit.unitTarget = null;
@@ -247,6 +250,12 @@ class Game {
     }
     for (var i = 0; i < 6; i++) {
       this.generateLake();
+    }
+  }
+
+  private areEnemies(unit1, unit2) {
+    if (unit1.player !== unit2.player) {
+      return true;
     }
   }
 

@@ -1,4 +1,4 @@
-/// <reference path="terrainTile.ts" />
+﻿/// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
@@ -165,7 +165,10 @@ var Game = (function () {
                 var targetLoc = action.getTarget();
                 unit.target = targetLoc;
                 if (Game.grid[targetLoc] != null) {
-                    unit.unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+                    var unitTarget = utilities.findUnit(Game.grid[targetLoc], Game.units);
+                    if (this.areEnemies(unit, unitTarget)) {
+                        unit.unitTarget = unitTarget;
+                    }
                 } else {
                     unit.unitTarget = null;
                 }
@@ -220,6 +223,12 @@ var Game = (function () {
         }
     };
 
+    Game.prototype.areEnemies = function (unit1, unit2) {
+        if (unit1.player !== unit2.player) {
+            return true;
+        }
+    };
+
     Game.prototype.generateLake = function () {
         var first = Math.round(utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
         var lake = new Array();
@@ -251,3 +260,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map
