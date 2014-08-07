@@ -10,19 +10,8 @@ var TerrainTile = (function () {
         this.imageH = 224;
         this.imageY = 0;
         this.walkable = true;
-        this.src = '/images/terrain.jpg';
     }
-    TerrainTile.prototype.getImage = function () {
-        if (TerrainTile.image) {
-            return TerrainTile.image;
-        } else {
-            TerrainTile.image = new Image();
-            TerrainTile.image.onload = function () {
-                return TerrainTile.image;
-            };
-            TerrainTile.image.src = this.src;
-        }
-    };
+    TerrainTile.src = '/images/terrain.jpg';
     return TerrainTile;
 })();
 
@@ -56,3 +45,4 @@ var DirtTile = (function (_super) {
     }
     return DirtTile;
 })(TerrainTile);
+//# sourceMappingURL=terrainTile.js.map

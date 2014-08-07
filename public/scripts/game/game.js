@@ -1,4 +1,4 @@
-﻿/// <reference path="terrainTile.ts" />
+/// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
@@ -260,4 +260,3 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
-//# sourceMappingURL=game.js.map

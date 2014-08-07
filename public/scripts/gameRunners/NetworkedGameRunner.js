@@ -1,17 +1,16 @@
-/// <reference path="game/game.ts" />
-/// <reference path="game/drawer.ts" />
-/// <reference path="definitions/jquery.d.ts" />
-/// <reference path="definitions/Peer.d.ts" />
-var Client = (function () {
-    function Client(id, enemyId, host) {
+/// <reference path="../game/game.ts" />
+/// <reference path="../game/drawer.ts" />
+/// <reference path="../definitions/jquery.d.ts" />
+/// <reference path="../definitions/Peer.d.ts" />
+var NetworkedGameRunner = (function () {
+    function NetworkedGameRunner(id, enemyId, host) {
+        this.DEBUG = false;
+        this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
         this.RealFPS = this.FPS;
         this.updateFPS = 10;
         this.actionList = new Array();
-        //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
-        var t = new TerrainTile();
-        t.getImage();
         var gameId = 123;
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame;
@@ -55,23 +54,25 @@ var Client = (function () {
             }
         });
 
+        var that = this;
+
         //keep track of when shift is held down so we can queue up unit movements
         //for debugging also listen for g clicked ...this signifies to draw the grid
         $(document).bind('keydown', function (e) {
             var code = e.keyCode || e.which;
             if (code == 71) {
-                if (Client.DRAWGRID) {
-                    Client.DRAWGRID = false;
+                if (that.DRAWGRID) {
+                    that.DRAWGRID = false;
                     that.drawer.drawTerrain();
                 } else {
-                    Client.DRAWGRID = true;
+                    that.DRAWGRID = true;
                     that.drawer.drawGrid();
                 }
             } else if (code === 68) {
-                if (Client.DEBUG) {
-                    Client.DEBUG = false;
+                if (that.DEBUG) {
+                    that.DEBUG = false;
                 } else {
-                    Client.DEBUG = true;
+                    that.DEBUG = true;
                 }
             }
             that.shifted = e.shiftKey;
@@ -136,7 +137,7 @@ var Client = (function () {
             }
         });
     }
-    Client.prototype.run = function () {
+    NetworkedGameRunner.prototype.run = function () {
         this.myGame.setup();
         this.drawer.drawTerrain();
 
@@ -193,18 +194,18 @@ var Client = (function () {
         }, 1000 / (that.updateFPS));
     };
 
-    Client.prototype.drawSelect = function () {
+    NetworkedGameRunner.prototype.drawSelect = function () {
         var that = this;
         if ($(document).data('mousedown')) {
             this.drawer.drawSelect(this.selection);
         }
     };
 
-    Client.prototype.setSelection = function (coords) {
+    NetworkedGameRunner.prototype.setSelection = function (coords) {
         this.selection = new SelectionObject(coords.x, coords.y);
     };
 
-    Client.prototype.updateSelection = function (selection, eX, eY) {
+    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
         selection.x = Math.min(selection.sX, eX);
         selection.y = Math.min(selection.sY, eY);
         selection.w = Math.abs(selection.sX - eX);
@@ -212,12 +213,12 @@ var Client = (function () {
         return selection;
     };
 
-    Client.prototype.end = function (message) {
+    NetworkedGameRunner.prototype.end = function (message) {
         alert(message);
         window.location.href = "/lobby";
     };
 
-    Client.prototype.getSelection = function () {
+    NetworkedGameRunner.prototype.getSelection = function () {
         var that = this;
         if ($(document).data('mousedown')) {
             //create the selection
@@ -234,10 +235,7 @@ var Client = (function () {
             }
         }
     };
-    Client.DEBUG = false;
-    Client.DRAWGRID = false;
-
-    Client.updateFPS = 10;
-    return Client;
+    NetworkedGameRunner.updateFPS = 10;
+    return NetworkedGameRunner;
 })();
-//# sourceMappingURL=client.js.map
+//# sourceMappingURL=NetworkedGameRunner.js.map

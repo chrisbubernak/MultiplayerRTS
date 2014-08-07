@@ -2,8 +2,8 @@
 
 class LocalGameRunner implements GameRunner {
 
-  public static DEBUG: boolean = false;
-  public static DRAWGRID: boolean = false;
+  public DEBUG: boolean = false;
+  public DRAWGRID: boolean = false;
 
   private myGame: Game;
   private interval;
@@ -18,10 +18,7 @@ class LocalGameRunner implements GameRunner {
   private drawer: Drawer;
 
   constructor() {
-    //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
-    var t = new TerrainTile();
     var id = "test";
-    t.getImage()
     this.myGame;
     this.drawer = new Drawer(1440, 720, id,
       document.getElementById("terrainCanvas"),
@@ -67,27 +64,27 @@ class LocalGameRunner implements GameRunner {
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
-
+    var that = this;
     //keep track of when shift is held down so we can queue up unit movements
     //for debugging also listen for g clicked ...this signifies to draw the grid
     $(document).bind('keydown', function (e) {
       var code = e.keyCode || e.which;
       if (code == 71) {
-        if (Client.DRAWGRID) {
-          Client.DRAWGRID = false;
+        if (that.DRAWGRID) {
+          that.DRAWGRID = false;
           that.drawer.drawTerrain();
         }
         else {
-          Client.DRAWGRID = true;
+          that.DRAWGRID = true;
           that.drawer.drawGrid();
         }
       }
       else if (code === 68) {
-        if (Client.DEBUG) {
-          Client.DEBUG = false;
+        if (that.DEBUG) {
+          that.DEBUG = false;
         }
         else {
-          Client.DEBUG = true;
+          that.DEBUG = true;
         }
       }
       that.shifted = e.shiftKey;
@@ -95,7 +92,7 @@ class LocalGameRunner implements GameRunner {
     });
     //mouse move stuff END
 
-    this.myGame = new Game(true, id, "enemyId", "gameId"); 
+    this.myGame = new Game(true, id, "enemyId", "gameId");
     this.run();
   }
 

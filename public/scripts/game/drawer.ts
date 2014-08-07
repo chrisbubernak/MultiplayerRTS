@@ -1,6 +1,6 @@
 /// <reference path="coords.ts" />
 /// <reference path="unit.ts" />
-/// <reference path="../client.ts" />
+/// <reference path="../gameRunners/NetworkedGameRunner.ts" />
 
 class Drawer {
   private static context: Drawer;
@@ -153,28 +153,29 @@ class Drawer {
   }
 
   public drawTerrain() {
-    var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
-    for (var i = 0; i < gridSize; i++) {
-      var tile = Game.getTerrainLoc(i);
-      if (tile.getImage()) {
-        this.terrainContext.drawImage(
-          tile.getImage(),
+    var src = TerrainTile.src;
+    var image = new Image();
+    var that = this;
+    image.onload = function () {
+      var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
+      for (var i = 0; i < gridSize; i++) {
+        var tile = Game.getTerrainLoc(i);
+        that.terrainContext.drawImage(
+          image,
           tile.imageX,
           tile.imageY,
           tile.imageW,
           tile.imageH,
-          this.boxToCoords(i).x,
-          this.boxToCoords(i).y,
-          this.boxSize,
-          this.boxSize);
+          that.boxToCoords(i).x,
+          that.boxToCoords(i).y,
+          that.boxSize,
+          that.boxSize);
       }
-      else {
-        console.log("failed to load image");
-      }
-    }
+    };
+    image.src = src;
   }
 
-  //returns the upper left corner of the box given its index 
+  //returns the upper left corner of the box given its index
   public boxToCoords(i) {
     var y = Math.floor(i / Game.getNumOfCols()) * this.boxSize;
     var x = i % Game.getNumOfCols() * this.boxSize;
@@ -255,8 +256,9 @@ class Drawer {
     y = unit.y;
     var coords = unit.getDrawCoordinates();
     //console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
-    this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
-
+    if (typeof unit.getImage() !== "undefined") {
+      this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
+    }
     if (unit.selected) {
       this.unitContext.beginPath();
       this.unitContext.strokeStyle = this.GREEN;

@@ -1,11 +1,11 @@
-/// <reference path="game/game.ts" />
-/// <reference path="game/drawer.ts" />
-/// <reference path="definitions/jquery.d.ts" />
-/// <reference path="definitions/Peer.d.ts" />
+/// <reference path="../game/game.ts" />
+/// <reference path="../game/drawer.ts" />
+/// <reference path="../definitions/jquery.d.ts" />
+/// <reference path="../definitions/Peer.d.ts" />
 
-class Client {
-  public static DEBUG: boolean = false;
-  public static DRAWGRID: boolean = false;
+class NetworkedGameRunner {
+  public DEBUG: boolean = false;
+  public DRAWGRID: boolean = false;
 
   private myGame: Game;
   private host: Boolean;
@@ -24,9 +24,6 @@ class Client {
   private drawer: Drawer;
 
   constructor(id, enemyId, host) {
-    //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
-    var t = new TerrainTile()
-    t.getImage()
     var gameId = 123;
     this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
     this.myGame;
@@ -76,26 +73,28 @@ class Client {
       }
     });
 
+    var that = this;
+
     //keep track of when shift is held down so we can queue up unit movements
     //for debugging also listen for g clicked ...this signifies to draw the grid
     $(document).bind('keydown', function (e) {
       var code = e.keyCode || e.which;
       if (code == 71) {
-        if (Client.DRAWGRID) {
-          Client.DRAWGRID = false;
+        if (that.DRAWGRID) {
+          that.DRAWGRID = false;
           that.drawer.drawTerrain();
         }
         else {
-          Client.DRAWGRID = true;
+          that.DRAWGRID = true;
           that.drawer.drawGrid();
         }
       }
       else if (code === 68) {
-        if (Client.DEBUG) {
-          Client.DEBUG = false;
+        if (that.DEBUG) {
+          that.DEBUG = false;
         }
         else {
-          Client.DEBUG = true;
+          that.DEBUG = true;
         }
       }
       that.shifted = e.shiftKey;

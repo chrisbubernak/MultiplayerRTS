@@ -35,11 +35,11 @@ block scripts
   script(src='/scripts/game/selectionObject.js')
   script(src='/scripts/game/action.js')
   script(src='http://cdn.peerjs.com/0.3/peer.js')
-  script(src='/scripts/client.js')
+  script(src='/scripts/gameRunners/networkedGameRunner.js')
   script.
     $(document).ready(function () {
       var id = '#{id.split('_').join('').split(' - ').join('')}';
       var enemyId = '#{enemyId.split('_').join('').split(' - ').join('')}';
       var host = #{host };
-      var c = new Client(id, enemyId, host);
+      var c = new NetworkedGameRunner(id, enemyId, host);
     });

@@ -20,12 +20,16 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="public\scripts\GameRunner.js" />
+    <Compile Include="public\scripts\gameRunners\LocalGameRunner.js" />
+    <Compile Include="public\scripts\gameRunners\replayGameRunner.js" />
     <Compile Include="public\scripts\game\action.js" />
     <Compile Include="public\scripts\game\coords.js" />
     <Compile Include="public\scripts\game\selectionObject.js" />
     <Compile Include="public\scripts\game\states\PursuingState.js" />
     <Compile Include="public\scripts\game\units\orc.js" />
     <Compile Include="public\scripts\lobby.js" />
+    <Compile Include="public\scripts\gameRunners\NetworkedGameRunner.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.min.js" />
     <Compile Include="public\vendor\jquery\jquery.forms.js" />
@@ -82,8 +86,7 @@
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Compile Include="public\scripts\game\BaseGameEntity.js" />
-    <Compile Include="public\scripts\client.js" />
-    <Compile Include="public\scripts\client.ts" />
+    <Compile Include="public\scripts\gameRunners\NetworkedGameRunner.ts" />
     <Compile Include="public\scripts\login.js" />
     <Compile Include="public\scripts\game\drawer.js" />
     <Compile Include="public\scripts\game\drawer.ts" />
