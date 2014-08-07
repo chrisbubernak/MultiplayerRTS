@@ -33,6 +33,7 @@ app.get('/signup', routes.signup);
 app.post('/', routes.post);
 app.post('/signup', routes.signUpPost);
 app.get('/game', routes.game);
+app.get('/localGame', routes.localGame);
 
 var server = http.createServer(app).listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));

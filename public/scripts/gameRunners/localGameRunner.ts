@@ -1,18 +1,12 @@
-/// <reference path="game/game.ts" />
-/// <reference path="game/drawer.ts" />
-/// <reference path="definitions/jquery.d.ts" />
-/// <reference path="definitions/Peer.d.ts" />
+﻿/// <reference path="../GameRunner.ts" />
 
-class Client {
+class LocalGameRunner implements GameRunner {
+
   public static DEBUG: boolean = false;
   public static DRAWGRID: boolean = false;
 
   private myGame: Game;
-  private host: Boolean;
-  private peer;
-  private conn;
   private interval;
-  private actionsFromClient;
   private actions = new Array();
   private static updateFPS: number = 10;
   private FPS: number = 60;
@@ -23,14 +17,12 @@ class Client {
   private selection: SelectionObject;
   private drawer: Drawer;
 
-  constructor(id, enemyId, host) {
+  constructor() {
     //TODO: Refactor....we should load all our resources somewhere else but for now this makes the game not break
-    var t = new TerrainTile()
+    var t = new TerrainTile();
+    var id = "test";
     t.getImage()
-    var gameId = 123;
-    this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
     this.myGame;
-    this.host = host;
     this.drawer = new Drawer(1440, 720, id,
       document.getElementById("terrainCanvas"),
       document.getElementById("unitCanvas"),
@@ -61,7 +53,7 @@ class Client {
       }
     });
 
-    $(window).resize(function() {
+    $(window).resize(function () {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
@@ -103,63 +95,8 @@ class Client {
     });
     //mouse move stuff END
 
-
-    this.peer.on('error', function (err) {
-      console.log('error connecting!');
-      console.log(err);
-    });
-
-    var that = this;
-    this.peer.on('open', function () {
-      console.log('peer is open!');
-
-      //IF HOST
-      if (host) {
-        console.log('im initiating a connection')
-        //connect to peer
-        that.conn = that.peer.connect(enemyId, { reliable: true });
-        that.conn.on('open', function () {
-          that.conn.send('Hey from player: ' + id);
-          that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
-          that.run();
-        });
-        that.conn.on('close', function () {
-          console.log('connection closed!');
-          that.end('Enemy Quit');
-        });
-        that.conn.on('data', function (data) {
-          if (!(typeof (data.simTick) === 'undefined')) {
-            //if we are the host it means the client sent us their actions
-            //store these so we can send back an authoritatve action list 
-            that.actionList[data.simTick] = data.actions;
-          }
-        });
-      }
-      //ELSE IF CLIENT
-      else {
-        console.log('im waiting for a connection')
-        //wait for connection
-        that.peer.on('connection', function (conn) {
-          that.conn = conn;
-          console.log('client ' + conn)
-          that.conn.on('open', function () {
-            that.conn.send('Hey from player: ' + id);
-            that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
-            that.run();
-          });
-          that.conn.on('close', function () {
-            console.log('connection closed!');
-            that.end('Enemy Quit');
-          });
-          that.conn.on('data', function (data) {
-            if (!(typeof (data.simTick) === 'undefined')) {
-              //if we are the client it means the host sent us an update and we should apply it
-              that.myGame.applyActions(data.actions, data.simTick);
-            }
-          });
-        });
-      }
-    });
+    this.myGame = new Game(true, id, "enemyId", "gameId"); 
+    this.run();
   }
 
   public run() {
@@ -198,18 +135,9 @@ class Client {
       var currentSimTick = that.myGame.getSimTick();
       that.myGame.update();
       that.getSelection();
-      //if we arean't the host just send our actions to the host
-      if (!that.host) {
-        that.conn.send({ actions: that.actions, simTick: currentSimTick });
-        that.actions = new Array();
-      }
-      //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
-      else if (that.host && that.actionList[currentSimTick]) {
-        that.actions = that.actions.concat(that.actionList[currentSimTick]);
-        that.conn.send({ actions: that.actions, simTick: currentSimTick});
-        that.myGame.applyActions(that.actions, currentSimTick);
-        that.actions = new Array();
-      }
+
+      that.myGame.applyActions(that.actions, currentSimTick);
+      that.actions = new Array();
 
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
@@ -248,7 +176,7 @@ class Client {
     if ($(document).data('mousedown')) {
       //create the selection
       var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w/that.drawer.getBoxWidth(), that.selection.h/that.drawer.getBoxHeight());
+      var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
       for (var o in occupied) {
         var id = Game.getGridLoc(occupied[o]);
         if (id != null) {

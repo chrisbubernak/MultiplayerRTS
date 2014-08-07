@@ -1,8 +1,8 @@
-/// <reference path="coords.ts" />
+﻿/// <reference path="coords.ts" />
 /// <reference path="unit.ts" />
 /// <reference path="../client.ts" />
 var Drawer = (function () {
-    function Drawer(width, height, player, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
+    function Drawer(width, height, player, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         //consts
         this.UPDATE_FPS = 10;
         this.FPS = 60;
@@ -12,7 +12,7 @@ var Drawer = (function () {
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
         this.playerId = player;
-
+        this.gameRunner = gameRunner;
         this.terrainCanvas = terrainCanvas;
         this.unitCanvas = unitCanvas;
         this.fogCanvas = fogCanvas;
@@ -106,7 +106,7 @@ var Drawer = (function () {
                 var r2 = r1 + 40;
                 var density = .4;
 
-                if (Client.DEBUG) {
+                if (this.gameRunner.DEBUG) {
                     this.drawUnitSightRange(units[i]);
                     this.drawUnitAquireTargetRange(units[i]);
                 }
@@ -131,7 +131,7 @@ var Drawer = (function () {
             if (tile.getImage()) {
                 this.terrainContext.drawImage(tile.getImage(), tile.imageX, tile.imageY, tile.imageW, tile.imageH, this.boxToCoords(i).x, this.boxToCoords(i).y, this.boxSize, this.boxSize);
             } else {
-                //console.log("failed to load image");
+                console.log("failed to load image");
             }
         }
     };
@@ -264,3 +264,4 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
+//# sourceMappingURL=drawer.js.map

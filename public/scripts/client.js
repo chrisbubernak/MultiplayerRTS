@@ -16,7 +16,7 @@ var Client = (function () {
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame;
         this.host = host;
-        this.drawer = new Drawer(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"));
+        this.drawer = new Drawer(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
         var that = this;
 
@@ -96,7 +96,7 @@ var Client = (function () {
                 that.conn = that.peer.connect(enemyId, { reliable: true });
                 that.conn.on('open', function () {
                     that.conn.send('Hey from player: ' + id);
-                    that.myGame = new Game(that.conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+                    that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
                     that.run();
                 });
                 that.conn.on('close', function () {
@@ -119,7 +119,7 @@ var Client = (function () {
                     console.log('client ' + conn);
                     that.conn.on('open', function () {
                         that.conn.send('Hey from player: ' + id);
-                        that.myGame = new Game(conn, host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+                        that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
                         that.run();
                     });
                     that.conn.on('close', function () {
@@ -240,3 +240,4 @@ var Client = (function () {
     Client.updateFPS = 10;
     return Client;
 })();
+//# sourceMappingURL=client.js.map

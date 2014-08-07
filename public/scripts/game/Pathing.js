@@ -35,9 +35,9 @@ var Pathing = (function () {
                 var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
                 var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows());
                 if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-                    if (Client.DEBUG) {
-                        Drawer.drawSquare(neighbors[i], "blue");
-                    }
+                    /*if (Client && Client.DEBUG) {
+                    Drawer.drawSquare(neighbors[i], "blue");
+                    }*/
                     if (neighbors[i] == goal) {
                         //if the goal was unreachable path to the thing we think is closest to it
                         var final = distanceToGoal.dequeue();
@@ -54,9 +54,9 @@ var Pathing = (function () {
                     var terrainLoc = Game.getTerrainLoc(locs[l]);
 
                     if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
-                        if (Client.DEBUG) {
-                            Drawer.drawSquare(neighbors[i], "blue");
-                        }
+                        /*if (Client && Client.DEBUG) {
+                        Drawer.drawSquare(neighbors[i], "blue");
+                        }*/
                         if (neighbors[i] == goal) {
                             //if the goal was unreachable path to the thing we think is closest to it
                             //pq could be null though at this point if our current location is good enough
@@ -85,9 +85,9 @@ var Pathing = (function () {
                     fScore[neighbors[i]] = t_fScore;
                     if (openSet.indexOf(neighbors[i]) == -1) {
                         openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
-                        if (Client.DEBUG) {
-                            Drawer.drawSquare(neighbors[i], "yellow");
-                        }
+                        /*if (Client && Client.DEBUG) {
+                        Drawer.drawSquare(neighbors[i], "yellow");
+                        }*/
                     } else {
                         openSet.update(neighbors[i], fScore[neighbors[i]]);
                     }
@@ -105,9 +105,9 @@ var Pathing = (function () {
         while (cur != start) {
             returnArray.splice(0, 0, cur);
             cur = cameFrom[cur];
-            if (Client.DEBUG) {
-                Drawer.drawSquare(cur, "green");
-            }
+            /*if (Client && Client.DEBUG) {
+            Drawer.drawSquare(cur, "green");
+            }*/
         }
         return returnArray;
     };
@@ -117,3 +117,4 @@ var Pathing = (function () {
     };
     return Pathing;
 })();
+//# sourceMappingURL=Pathing.js.map

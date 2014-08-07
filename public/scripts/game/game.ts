@@ -31,7 +31,7 @@ class Game {
 
 
   //Public Methods:
-  constructor(conn, host, id, enemyId, gameId) {
+  constructor(host, id, enemyId, gameId) {
     this.gameId = gameId;
     this.id = id; //this players id
     this.enemyId = enemyId;

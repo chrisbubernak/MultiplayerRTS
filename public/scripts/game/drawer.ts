@@ -15,6 +15,7 @@ class Drawer {
   private FOG: string = "black";
 
 
+
   //globals
   private boxSize: number;
   private canvasWidth: number;
@@ -28,12 +29,13 @@ class Drawer {
   private fogContext;
   private selectionContext;
   private playerId;
+  private gameRunner;
 
   constructor(width, height, player,
-    terrainCanvas, unitCanvas, fogCanvas, selectionCanvas) {
+    terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
 
     this.playerId = player;
-
+    this.gameRunner = gameRunner;
     this.terrainCanvas = terrainCanvas;
     this.unitCanvas = unitCanvas;
     this.fogCanvas = fogCanvas;
@@ -128,7 +130,7 @@ class Drawer {
         var r2 = r1 + 40;
         var density = .4;
 
-        if (Client.DEBUG) {
+        if (this.gameRunner.DEBUG) {
           this.drawUnitSightRange(units[i]);
           this.drawUnitAquireTargetRange(units[i]);
         }
@@ -167,7 +169,7 @@ class Drawer {
           this.boxSize);
       }
       else {
-        //console.log("failed to load image");
+        console.log("failed to load image");
       }
     }
   }

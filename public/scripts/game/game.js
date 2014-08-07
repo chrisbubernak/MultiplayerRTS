@@ -1,4 +1,4 @@
-/// <reference path="terrainTile.ts" />
+﻿/// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
 /// <reference path="units/orc.ts" />
@@ -9,7 +9,7 @@
 /// <reference path="action.ts" />
 var Game = (function () {
     //Public Methods:
-    function Game(conn, host, id, enemyId, gameId) {
+    function Game(host, id, enemyId, gameId) {
         //"private" variables
         this.simTick = 0;
         this.gameId = gameId;
@@ -260,3 +260,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map
