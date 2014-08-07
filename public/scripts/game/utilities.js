@@ -85,7 +85,7 @@ var Utilities = (function () {
         var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
 
         /*if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
-        console.log((topLeft % Game.getNumOfCols() + " " + (unit.loc % Game.getNumOfCols()));
+        console.log((topLeft % Game.getNumOfCols() + " " + (unit.loc % Game.getNumOfCols())));
         topLeft = Math.ceil(topLeft / Game.getNumOfRows()) * Game.getNumOfCols();
         }*/
         var width = unit.targetAquireRange * 2 + unit.gridWidth;
@@ -95,6 +95,7 @@ var Utilities = (function () {
         if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
             width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
         }
+
         var height = unit.targetAquireRange * 2 + unit.gridHeight;
         return Utilities.getOccupiedSquares(topLeft, width, height);
     };
@@ -165,4 +166,4 @@ var Utilities = (function () {
     Utilities.SEED = 3;
     return Utilities;
 })();
-//# sourceMappingURL=utilities.js.map
+//# sourceMappingURL=Utilities.js.map
