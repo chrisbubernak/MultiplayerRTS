@@ -45,4 +45,3 @@ var DirtTile = (function (_super) {
     }
     return DirtTile;
 })(TerrainTile);
-//# sourceMappingURL=terrainTile.js.map

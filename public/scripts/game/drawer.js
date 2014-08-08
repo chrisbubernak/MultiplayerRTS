@@ -267,4 +267,3 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
-//# sourceMappingURL=drawer.js.map

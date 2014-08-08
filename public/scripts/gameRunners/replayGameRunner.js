@@ -4,4 +4,3 @@ var ReplayGameRunner = (function () {
     }
     return ReplayGameRunner;
 })();
-//# sourceMappingURL=ReplayGameRunner.js.map

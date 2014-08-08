@@ -1,4 +1,4 @@
-/// <reference path="game.ts" />
+﻿/// <reference path="game.ts" />
 var Utilities = (function () {
     function Utilities() {
     }
@@ -73,9 +73,15 @@ var Utilities = (function () {
 
     Utilities.getGridLocsInSightRange = function (unit) {
         var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-        var width = unit.sightRange * 2 + unit.gridWidth;
-        if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
-            width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+        if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
+            var adjustment = Game.getNumOfCols() - topLeft % Game.getNumOfCols();
+            var width = unit.sightRange * 2 + unit.gridWidth - adjustment;
+            topLeft = Math.ceil(topLeft / Game.getNumOfCols()) * Game.getNumOfCols();
+        } else {
+            var width = unit.sightRange * 2 + unit.gridWidth;
+            if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
+                width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+            }
         }
         var height = unit.sightRange * 2 + unit.gridHeight;
         return Utilities.getOccupiedSquares(topLeft, width, height);
@@ -83,19 +89,19 @@ var Utilities = (function () {
 
     Utilities.getGridLocsInTargetAquireRange = function (unit) {
         var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
+        if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
+            var adjustment = Game.getNumOfCols() - topLeft % Game.getNumOfCols();
+            var width = unit.targetAquireRange * 2 + unit.gridWidth - adjustment;
+            topLeft = Math.ceil(topLeft / Game.getNumOfCols()) * Game.getNumOfCols();
+        } else {
+            var width = unit.targetAquireRange * 2 + unit.gridWidth;
 
-        /*if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
-        console.log((topLeft % Game.getNumOfCols() + " " + (unit.loc % Game.getNumOfCols())));
-        topLeft = Math.ceil(topLeft / Game.getNumOfRows()) * Game.getNumOfCols();
-        }*/
-        var width = unit.targetAquireRange * 2 + unit.gridWidth;
-
-        //if the value we calculate for the top right (width + topleft) is not going to be on the same row as top left)
-        //aka it wraps around the grid then just choose the largest value we can on the same line
-        if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
-            width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+            //if the value we calculate for the top right (width + topleft) is not going to be on the same row as top left)
+            //aka it wraps around the grid then just choose the largest value we can on the same line
+            if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
+                width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
+            }
         }
-
         var height = unit.targetAquireRange * 2 + unit.gridHeight;
         return Utilities.getOccupiedSquares(topLeft, width, height);
     };
@@ -166,3 +172,4 @@ var Utilities = (function () {
     Utilities.SEED = 3;
     return Utilities;
 })();
+//# sourceMappingURL=Utilities.js.map
