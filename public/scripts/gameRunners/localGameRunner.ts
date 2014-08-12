@@ -92,7 +92,7 @@ class LocalGameRunner implements GameRunner {
     });
     //mouse move stuff END
 
-    this.myGame = new Game(true, id, "enemyId", "gameId");
+    this.myGame = new Game(false, id, "enemyId", "gameId");
     this.run();
   }
 

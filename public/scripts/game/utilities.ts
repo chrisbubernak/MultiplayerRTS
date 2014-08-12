@@ -73,38 +73,66 @@ class Utilities {
   }
 
   public static getGridLocsInSightRange(unit: Unit) {
-    var topLeft = unit.loc - unit.sightRange - Game.getNumOfCols() * unit.sightRange;
-    if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
-      var adjustment = Game.getNumOfCols() - topLeft % Game.getNumOfCols();
-      var width = unit.sightRange * 2 + unit.gridWidth - adjustment;
-      topLeft = Math.ceil(topLeft / Game.getNumOfCols()) * Game.getNumOfCols();
+    //figure out where we are going off the screen...and apply corrections
+
+    var topRow = Math.floor((unit.loc - unit.sightRange*Game.getNumOfCols())/Game.getNumOfCols());
+    var bottomRow = Math.floor((unit.loc + unit.gridHeight/2 + unit.sightRange*Game.getNumOfCols())/Game.getNumOfCols());
+    var leftCol = (unit.loc - unit.sightRange)%Game.getNumOfCols();
+    var unitLeftCol = (unit.loc%Game.getNumOfCols());
+    var rightCol = (unit.loc + unit.gridWidth/2+unit.sightRange)%Game.getNumOfCols();
+    var unitRightCol = (unit.loc%Game.getNumOfCols());
+
+    if (topRow < 0) {
+      console.log("we are above the grid");
+      topRow = 0;
     }
-    else {
-      var width = unit.sightRange * 2 + unit.gridWidth;
-      if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
-        width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
-      }
+    if (bottomRow > Game.getNumOfRows()) {
+      console.log("we are below the grid");
+      bottomRow = Game.getNumOfRows() - 1;
     }
-    var height = unit.sightRange * 2 + unit.gridHeight;
+    if (leftCol > unitLeftCol) {
+      console.log("we are to the left of the grid");
+      leftCol = 0;
+    }
+    if (rightCol < unitRightCol) {
+      console.log("we are to the right of the grid");
+      rightCol = Game.getNumOfCols() - 1;
+    }
+
+    var topLeft = topRow*Game.getNumOfCols() + leftCol;
+    var width = rightCol - leftCol+1;
+    var height = bottomRow - topRow+1;
+
     return Utilities.getOccupiedSquares(topLeft, width, height);
   }
 
   public static getGridLocsInTargetAquireRange(unit: Unit) {
-    var topLeft = unit.loc - unit.targetAquireRange - Game.getNumOfCols() * unit.targetAquireRange;
-    if ((topLeft % Game.getNumOfCols()) > (unit.loc % Game.getNumOfCols())) {
-      var adjustment = Game.getNumOfCols() - topLeft % Game.getNumOfCols();
-      var width = unit.targetAquireRange * 2 + unit.gridWidth - adjustment;
-      topLeft = Math.ceil(topLeft / Game.getNumOfCols()) * Game.getNumOfCols();
+    //figure out where we are going off the screen...and apply corrections
+
+    var topRow = Math.floor((unit.loc - unit.targetAquireRange*Game.getNumOfCols())/Game.getNumOfCols());
+    var bottomRow = Math.floor((unit.loc + unit.gridHeight/2 + unit.targetAquireRange*Game.getNumOfCols())/Game.getNumOfCols());
+    var leftCol = (unit.loc - unit.targetAquireRange)%Game.getNumOfCols();
+    var unitLeftCol = (unit.loc%Game.getNumOfCols());
+    var rightCol = (unit.loc + unit.gridWidth/2+unit.targetAquireRange)%Game.getNumOfCols();
+    var unitRightCol = (unit.loc%Game.getNumOfCols());
+
+    if (topRow < 0) {
+      topRow = 0;
     }
-    else {
-      var width = unit.targetAquireRange * 2 + unit.gridWidth;
-      //if the value we calculate for the top right (width + topleft) is not going to be on the same row as top left)
-      //aka it wraps around the grid then just choose the largest value we can on the same line
-      if (Math.floor((topLeft + width) / Game.getNumOfCols()) !== Math.floor(topLeft / Game.getNumOfCols())) {
-        width = (Game.getNumOfCols() - (topLeft % Game.getNumOfCols())) % Game.getNumOfCols();
-      }
+    if (bottomRow > Game.getNumOfRows()) {
+      bottomRow = Game.getNumOfRows() - 1;
     }
-    var height = unit.targetAquireRange * 2 + unit.gridHeight;
+    if (leftCol > unitLeftCol) {
+      leftCol = 0;
+    }
+    if (rightCol < unitRightCol) {
+      rightCol = Game.getNumOfCols() - 1;
+    }
+
+    var topLeft = topRow*Game.getNumOfCols() + leftCol;
+    var width = rightCol - leftCol + 1;
+    var height = bottomRow - topRow + 1;
+
     return Utilities.getOccupiedSquares(topLeft, width, height);
   }
 

@@ -74,7 +74,7 @@ var LocalGameRunner = (function () {
         });
 
         //mouse move stuff END
-        this.myGame = new Game(true, id, "enemyId", "gameId");
+        this.myGame = new Game(false, id, "enemyId", "gameId");
         this.run();
     }
     LocalGameRunner.prototype.run = function () {
@@ -170,3 +170,4 @@ var LocalGameRunner = (function () {
     LocalGameRunner.updateFPS = 10;
     return LocalGameRunner;
 })();
+//# sourceMappingURL=LocalGameRunner.js.map
