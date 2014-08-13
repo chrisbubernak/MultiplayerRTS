@@ -31,9 +31,8 @@ class Pathing {
 
       //check all of the neighbor moves for collisions
       for (var i = neighbors.length - 1; i >= 0; i--) {
-        //var coords = Utilities.boxToCoords(neighbors[i]);
-        var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) > Game.getNumOfCols());
-        var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) > Game.getNumOfRows())
+        var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) != Math.floor((neighbors[i] + unit.gridWidth-1) / Game.getNumOfCols());
+        var offGridBottom = neighbors[i] + (unit.gridHeight - 1)* Game.getNumOfCols() > Game.getNumOfCols() * Game.getNumOfRows();
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
           /*if (Client && Client.DEBUG) {
             Drawer.drawSquare(neighbors[i], "blue");

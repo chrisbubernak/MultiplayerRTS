@@ -81,19 +81,15 @@ var Utilities = (function () {
         var unitRightCol = (unit.loc % Game.getNumOfCols());
 
         if (topRow < 0) {
-            console.log("we are above the grid");
             topRow = 0;
         }
         if (bottomRow > Game.getNumOfRows()) {
-            console.log("we are below the grid");
             bottomRow = Game.getNumOfRows() - 1;
         }
         if (leftCol > unitLeftCol) {
-            console.log("we are to the left of the grid");
             leftCol = 0;
         }
         if (rightCol < unitRightCol) {
-            console.log("we are to the right of the grid");
             rightCol = Game.getNumOfCols() - 1;
         }
 
@@ -199,3 +195,4 @@ var Utilities = (function () {
     Utilities.SEED = 3;
     return Utilities;
 })();
+//# sourceMappingURL=Utilities.js.map
