@@ -29,7 +29,7 @@ class Drawer {
   private fogContext;
   private selectionContext;
   private playerId;
-  private gameRunner;
+  private gameRunner: GameRunner;
 
   constructor(width, height, player,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
@@ -121,6 +121,12 @@ class Drawer {
     this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
     this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
     for (var i = 0; i < units.length; i++) {
+
+      if (this.gameRunner.STATEDEBUG) {
+        this.drawStateText(units[i]);
+      }
+
+
       if (units[i].player == this.playerId) {
         var coords = this.boxToCoords(units[i].loc);
         var x = coords.x;
@@ -311,5 +317,11 @@ class Drawer {
     for (var l in locs) {
       this.drawSquare(locs[l], "orange");
     }
+  }
+
+  private drawStateText(unit: Unit) {
+    var text = unit.currentState.ToString();
+    this.unitContext.fillStyle = "red";
+    this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
   }
 }

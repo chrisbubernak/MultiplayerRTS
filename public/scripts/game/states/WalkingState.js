@@ -18,7 +18,9 @@ var WalkingState = (function (_super) {
         }
         return WalkingState.instance;
     };
-
+    WalkingState.prototype.ToString = function () {
+        return "WalkingState";
+    };
     WalkingState.prototype.Enter = function (unit) {
         unit.path = Pathing.aStar(unit.loc, unit.target, unit);
         unit.prevTar = unit.target;

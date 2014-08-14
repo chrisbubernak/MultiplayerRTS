@@ -1,8 +1,8 @@
 ﻿/// <reference path="../GameRunner.ts" />
 
 class LocalGameRunner implements GameRunner {
-
   public DEBUG: boolean = false;
+  public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
 
   private myGame: Game;
@@ -85,6 +85,14 @@ class LocalGameRunner implements GameRunner {
         }
         else {
           that.DEBUG = true;
+        }
+      }
+      else if (code === 83) {
+        if (that.STATEDEBUG) {
+          that.STATEDEBUG = false;
+        }
+        else {
+          that.STATEDEBUG = true;
         }
       }
       that.shifted = e.shiftKey;

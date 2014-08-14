@@ -5,6 +5,7 @@
 
 class NetworkedGameRunner {
   public DEBUG: boolean = false;
+  public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
 
   private myGame: Game;

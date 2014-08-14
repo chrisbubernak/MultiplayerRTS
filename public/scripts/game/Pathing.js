@@ -31,21 +31,13 @@ var Pathing = (function () {
             var neighbors = Utilities.neighbors(cur);
 
             for (var i = neighbors.length - 1; i >= 0; i--) {
-                //var coords = Utilities.boxToCoords(neighbors[i]);
-                //var offGridRight = (((unit.loc % Game.getNumOfCols()) + unit.gridWidth) >= Game.getNumOfCols());
-                //var offGridBottom = ((Math.floor(unit.loc / Game.getNumOfCols()) + unit.gridHeight) >= Game.getNumOfRows())
                 var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) != Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
-                if (offGridRight) {
-                    console.log('OFF GRID RIGHT');
-                }
                 var offGridBottom = neighbors[i] + (unit.gridHeight - 1) * Game.getNumOfCols() > Game.getNumOfCols() * Game.getNumOfRows();
                 if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
                     /*if (Client && Client.DEBUG) {
                     Drawer.drawSquare(neighbors[i], "blue");
                     }*/
                     if (neighbors[i] == goal) {
-                        console.log('GOAL UNREACHABLE');
-
                         //if the goal was unreachable path to the thing we think is closest to it
                         var final = distanceToGoal.dequeue();
                         return this.getPath(cameFrom, final, start);
@@ -60,7 +52,7 @@ var Pathing = (function () {
                     var gridLoc = Game.getGridLoc(locs[l]);
                     var terrainLoc = Game.getTerrainLoc(locs[l]);
 
-                    if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable || offGridRight || offGridBottom) {
+                    if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
                         /*if (Client && Client.DEBUG) {
                         Drawer.drawSquare(neighbors[i], "blue");
                         }*/
@@ -103,7 +95,6 @@ var Pathing = (function () {
         }
 
         //if the goal was unreachable path to the thing we think is closest to it
-        console.log('TEST');
         return this.getPath(cameFrom, distanceToGoal.dequeue(), start);
     };
 
@@ -125,4 +116,3 @@ var Pathing = (function () {
     };
     return Pathing;
 })();
-//# sourceMappingURL=Pathing.js.map

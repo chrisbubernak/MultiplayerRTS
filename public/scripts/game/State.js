@@ -2,6 +2,9 @@
 var State = (function () {
     function State() {
     }
+    State.prototype.ToString = function () {
+        return "State";
+    };
     State.prototype.Enter = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };

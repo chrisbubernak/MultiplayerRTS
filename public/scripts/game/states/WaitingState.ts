@@ -15,6 +15,10 @@ class WaitingState extends State{
     return WaitingState.instance;
   }
 
+  public ToString(): string {
+    return "WaitingState";
+  }
+
   public Enter(unit: Unit) {
   } 
 

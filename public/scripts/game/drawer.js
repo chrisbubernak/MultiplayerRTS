@@ -96,6 +96,10 @@ var Drawer = (function () {
         this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         for (var i = 0; i < units.length; i++) {
+            if (this.gameRunner.STATEDEBUG) {
+                this.drawStateText(units[i]);
+            }
+
             if (units[i].player == this.playerId) {
                 var coords = this.boxToCoords(units[i].loc);
                 var x = coords.x;
@@ -265,5 +269,12 @@ var Drawer = (function () {
             this.drawSquare(locs[l], "orange");
         }
     };
+
+    Drawer.prototype.drawStateText = function (unit) {
+        var text = unit.currentState.ToString();
+        this.unitContext.fillStyle = "red";
+        this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
+    };
     return Drawer;
 })();
+//# sourceMappingURL=drawer.js.map

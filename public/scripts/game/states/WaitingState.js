@@ -22,6 +22,10 @@ var WaitingState = (function (_super) {
         return WaitingState.instance;
     };
 
+    WaitingState.prototype.ToString = function () {
+        return "WaitingState";
+    };
+
     WaitingState.prototype.Enter = function (unit) {
     };
 

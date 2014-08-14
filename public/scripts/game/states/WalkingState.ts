@@ -12,7 +12,9 @@ class WalkingState extends State {
     }
     return WalkingState.instance;
   }
-
+  public ToString(): string {
+    return "WalkingState";
+  }
   public Enter(unit: Unit) {
     unit.path = Pathing.aStar(unit.loc, unit.target, unit);
     unit.prevTar = unit.target;

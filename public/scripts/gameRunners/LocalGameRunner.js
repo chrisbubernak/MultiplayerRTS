@@ -2,6 +2,7 @@
 var LocalGameRunner = (function () {
     function LocalGameRunner() {
         this.DEBUG = false;
+        this.STATEDEBUG = false;
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
@@ -67,6 +68,12 @@ var LocalGameRunner = (function () {
                     that.DEBUG = false;
                 } else {
                     that.DEBUG = true;
+                }
+            } else if (code === 83) {
+                if (that.STATEDEBUG) {
+                    that.STATEDEBUG = false;
+                } else {
+                    that.STATEDEBUG = true;
                 }
             }
             that.shifted = e.shiftKey;

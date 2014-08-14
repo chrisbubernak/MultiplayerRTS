@@ -21,6 +21,10 @@ var PursuingState = (function (_super) {
         return PursuingState.instance;
     };
 
+    PursuingState.prototype.ToString = function () {
+        return "PursuingState";
+    };
+
     PursuingState.prototype.Enter = function (unit) {
         unit.path = Pathing.aStar(unit.loc, unit.target, unit);
         unit.prevTar = unit.target;

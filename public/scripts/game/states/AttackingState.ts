@@ -13,6 +13,10 @@ class AttackingState extends State {
     return AttackingState.instance;
   }
 
+  public ToString(): string {
+    return "AttackingState";
+  }
+
   public Enter(unit: Unit) {
     unit.attackTimer = 0;
   }

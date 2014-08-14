@@ -20,6 +20,10 @@ var AttackingState = (function (_super) {
         return AttackingState.instance;
     };
 
+    AttackingState.prototype.ToString = function () {
+        return "AttackingState";
+    };
+
     AttackingState.prototype.Enter = function (unit) {
         unit.attackTimer = 0;
     };

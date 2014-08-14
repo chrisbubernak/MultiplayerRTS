@@ -5,6 +5,7 @@
 var NetworkedGameRunner = (function () {
     function NetworkedGameRunner(id, enemyId, host) {
         this.DEBUG = false;
+        this.STATEDEBUG = false;
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;

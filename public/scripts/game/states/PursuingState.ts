@@ -14,6 +14,10 @@ class PursuingState extends State {
     return PursuingState.instance;
   }
 
+  public ToString(): string {
+    return "PursuingState";
+  }
+
   public Enter(unit: Unit) {
     unit.path = Pathing.aStar(unit.loc, unit.target, unit);
     unit.prevTar = unit.target;
