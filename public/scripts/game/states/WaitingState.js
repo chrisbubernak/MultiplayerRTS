@@ -36,6 +36,7 @@ var WaitingState = (function (_super) {
             unit.unitTarget = null;
             unit.ChangeState(WalkingState.Instance()); //start walking there
         } else if (unit.target && unit.unitTarget) {
+            alert('DOES THIS STATE EVER HAPPEN!!');
             unit.ChangeState(PursuingState.Instance());
         } else if (WaitingState.Instance().enemyInRange(unit)) {
             unit.ChangeState(AttackingState.Instance()); //start fighting
@@ -43,6 +44,7 @@ var WaitingState = (function (_super) {
             var unitTarget = WaitingState.Instance().enemyInSight(unit);
             unit.unitTarget = unitTarget;
             unit.target = unitTarget.loc;
+            console.log('WAITING to pursuing2');
             unit.ChangeState(PursuingState.Instance());
         }
     };
@@ -81,3 +83,4 @@ var WaitingState = (function (_super) {
     };
     return WaitingState;
 })(State);
+//# sourceMappingURL=WaitingState.js.map

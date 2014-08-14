@@ -1,6 +1,5 @@
 ﻿/// <reference path="../unit.ts" />
 /// <reference path="../State.ts" />
-/// <reference path="WalkingState.ts" />
 /// <reference path="AttackingState.ts" />
 /// <reference path="../Pathing.ts" />
 
@@ -29,6 +28,7 @@ class PursuingState extends State {
     //TODO: What if the unit we are pursuing dies???
     if ((!unit.unitTarget) || (!Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) { //if we have a target location transition...
       unit.ChangeState(WaitingState.Instance()); //stop pursing
+      console.log('pusuing -> waiting ' + unit.unitTarget);
     }
     else if (PursuingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy to attack...
       unit.ChangeState(AttackingState.Instance()); //start fighting

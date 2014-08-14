@@ -32,6 +32,7 @@ class WaitingState extends State{
       unit.ChangeState(WalkingState.Instance()); //start walking there
     }
     else if (unit.target && unit.unitTarget) {
+      alert('DOES THIS STATE EVER HAPPEN!!');
       unit.ChangeState(PursuingState.Instance());
     }
     else if (WaitingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy...
@@ -41,6 +42,7 @@ class WaitingState extends State{
       var unitTarget = WaitingState.Instance().enemyInSight(unit)
       unit.unitTarget = unitTarget;
       unit.target = unitTarget.loc;
+      console.log('WAITING to pursuing2');
       unit.ChangeState(PursuingState.Instance());
     }
   }

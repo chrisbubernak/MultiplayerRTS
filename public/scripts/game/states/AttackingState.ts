@@ -26,8 +26,13 @@ class AttackingState extends State {
     unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
 
     var enemy = AttackingState.Instance().getEnemy(unit, unit.inCombatWith);
-    if (unit.target) { //if we have a target location transition...
+    if (unit.target && !unit.unitTarget) { //if we have a target unit and location
+      unit.ChangeState(PursuingState.Instance()); //start pursuing
+      console.log('ATTACKING - > PURSUING');
+    }
+    else if (unit.target) { //if we have a target location transition...
       unit.ChangeState(WalkingState.Instance()); //start walking there
+      console.log('ATTACKING - > WALKING');
     }
     else if (enemy != null) { //if we have an enemy...
       AttackingState.Instance().attack(unit, enemy); //attack them

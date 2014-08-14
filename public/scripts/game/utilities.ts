@@ -75,12 +75,12 @@ class Utilities {
   public static getGridLocsInSightRange(unit: Unit) {
     //figure out where we are going off the screen...and apply corrections
 
-    var topRow = Math.floor((unit.loc - unit.sightRange*Game.getNumOfCols())/Game.getNumOfCols());
-    var bottomRow = Math.floor((unit.loc + unit.gridHeight/2 + unit.sightRange*Game.getNumOfCols())/Game.getNumOfCols());
-    var leftCol = (unit.loc - unit.sightRange)%Game.getNumOfCols();
-    var unitLeftCol = (unit.loc%Game.getNumOfCols());
-    var rightCol = (unit.loc + unit.gridWidth/2+unit.sightRange)%Game.getNumOfCols();
-    var unitRightCol = (unit.loc%Game.getNumOfCols());
+    var topRow = Math.floor((unit.loc - unit.sightRange * Game.getNumOfCols()) / Game.getNumOfCols());
+    var bottomRow = Math.floor((unit.loc + unit.gridHeight / 2 + unit.sightRange * Game.getNumOfCols()) / Game.getNumOfCols());
+    var leftCol = (unit.loc - unit.sightRange) % Game.getNumOfCols();
+    var unitLeftCol = (unit.loc % Game.getNumOfCols());
+    var rightCol = (unit.loc + unit.gridWidth / 2 + unit.sightRange) % Game.getNumOfCols();
+    var unitRightCol = (unit.loc % Game.getNumOfCols());
 
     if (topRow < 0) {
       topRow = 0;
@@ -95,9 +95,9 @@ class Utilities {
       rightCol = Game.getNumOfCols() - 1;
     }
 
-    var topLeft = topRow*Game.getNumOfCols() + leftCol;
-    var width = rightCol - leftCol+1;
-    var height = bottomRow - topRow+1;
+    var topLeft = topRow * Game.getNumOfCols() + leftCol;
+    var width = rightCol - leftCol + 1;
+    var height = bottomRow - topRow + 1;
 
     return Utilities.getOccupiedSquares(topLeft, width, height);
   }
@@ -105,12 +105,12 @@ class Utilities {
   public static getGridLocsInTargetAquireRange(unit: Unit) {
     //figure out where we are going off the screen...and apply corrections
 
-    var topRow = Math.floor((unit.loc - unit.targetAquireRange*Game.getNumOfCols())/Game.getNumOfCols());
-    var bottomRow = Math.floor((unit.loc + unit.gridHeight/2 + unit.targetAquireRange*Game.getNumOfCols())/Game.getNumOfCols());
-    var leftCol = (unit.loc - unit.targetAquireRange)%Game.getNumOfCols();
-    var unitLeftCol = (unit.loc%Game.getNumOfCols());
-    var rightCol = (unit.loc + unit.gridWidth/2+unit.targetAquireRange)%Game.getNumOfCols();
-    var unitRightCol = (unit.loc%Game.getNumOfCols());
+    var topRow = Math.floor((unit.loc - unit.targetAquireRange * Game.getNumOfCols()) / Game.getNumOfCols());
+    var bottomRow = Math.floor((unit.loc + unit.gridHeight / 2 + unit.targetAquireRange * Game.getNumOfCols()) / Game.getNumOfCols());
+    var leftCol = (unit.loc - unit.targetAquireRange) % Game.getNumOfCols();
+    var unitLeftCol = (unit.loc % Game.getNumOfCols());
+    var rightCol = (unit.loc + unit.gridWidth / 2 + unit.targetAquireRange) % Game.getNumOfCols();
+    var unitRightCol = (unit.loc % Game.getNumOfCols());
 
     if (topRow < 0) {
       topRow = 0;
@@ -125,7 +125,7 @@ class Utilities {
       rightCol = Game.getNumOfCols() - 1;
     }
 
-    var topLeft = topRow*Game.getNumOfCols() + leftCol;
+    var topLeft = topRow * Game.getNumOfCols() + leftCol;
     var width = rightCol - leftCol + 1;
     var height = bottomRow - topRow + 1;
 
@@ -138,16 +138,14 @@ class Utilities {
     for (var u in units) {
       var locs = Utilities.getGridLocsInSightRange(units[u]);
       for (var l in locs) {
-        var neighbors = Utilities.neighbors(locs[l]);
-        for (var n in neighbors) {
-          var id = Game.getGridLoc(neighbors[n]);
-          if (id === enemy.id) {
-            return true;
-          }
+        var id = Game.getGridLoc(locs[l]);
+        if (id === enemy.id) {
+          console.log('a unit can see the enemy!');
+          return true;
         }
       }
-      return false;
     }
+    return false;
   }
 
   public static neighbors(boxNumber: number) {

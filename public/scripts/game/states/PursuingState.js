@@ -1,6 +1,5 @@
 ﻿/// <reference path="../unit.ts" />
 /// <reference path="../State.ts" />
-/// <reference path="WalkingState.ts" />
 /// <reference path="AttackingState.ts" />
 /// <reference path="../Pathing.ts" />
 var __extends = this.__extends || function (d, b) {
@@ -36,6 +35,7 @@ var PursuingState = (function (_super) {
         //TODO: What if the unit we are pursuing dies???
         if ((!unit.unitTarget) || (!Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
             unit.ChangeState(WaitingState.Instance()); //stop pursing
+            console.log('pusuing -> waiting ' + unit.unitTarget);
         } else if (PursuingState.Instance().enemyInRange(unit)) {
             unit.ChangeState(AttackingState.Instance()); //start fighting
         } else {

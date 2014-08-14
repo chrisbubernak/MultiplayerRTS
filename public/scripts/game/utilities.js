@@ -132,19 +132,18 @@ var Utilities = (function () {
     Utilities.canAnyUnitSeeEnemy = function (unit, enemy) {
         //for each of my units check if they can see enemy
         var units = Game.getUnitsForPlayer(unit.player);
+        console.log(units.length);
         for (var u in units) {
             var locs = Utilities.getGridLocsInSightRange(units[u]);
             for (var l in locs) {
-                var neighbors = Utilities.neighbors(locs[l]);
-                for (var n in neighbors) {
-                    var id = Game.getGridLoc(neighbors[n]);
-                    if (id === enemy.id) {
-                        return true;
-                    }
+                var id = Game.getGridLoc(locs[l]);
+                if (id === enemy.id) {
+                    console.log('a unit can see the enemy!');
+                    return true;
                 }
             }
-            return false;
         }
+        return false;
     };
 
     Utilities.neighbors = function (boxNumber) {
@@ -195,3 +194,4 @@ var Utilities = (function () {
     Utilities.SEED = 3;
     return Utilities;
 })();
+//# sourceMappingURL=Utilities.js.map
