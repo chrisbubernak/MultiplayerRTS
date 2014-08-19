@@ -140,10 +140,25 @@ class Utilities {
       for (var l in locs) {
         var id = Game.getGridLoc(locs[l]);
         if (id === enemy.id) {
-          console.log('a unit can see the enemy!');
           return true;
         }
       }
+    }
+    return false;
+  }
+
+  public static areLocsOccupiedBySameUnit(loc1: number, loc2: number) {
+    var id1 = Game.getGridLoc(loc1);
+    if (typeof id1 === "undefined" || id1 == null) {
+      return false;
+    }
+    var id2 = Game.getGridLoc(loc2);
+    if (typeof id2 === "undefined" || id2 === null) {
+      return false;
+    }
+    if (id1 === id2) {
+      console.log('it worked? ' + id1 + " " + id2);
+      return true;
     }
     return false;
   }

@@ -132,16 +132,30 @@ var Utilities = (function () {
     Utilities.canAnyUnitSeeEnemy = function (unit, enemy) {
         //for each of my units check if they can see enemy
         var units = Game.getUnitsForPlayer(unit.player);
-        console.log(units.length);
         for (var u in units) {
             var locs = Utilities.getGridLocsInSightRange(units[u]);
             for (var l in locs) {
                 var id = Game.getGridLoc(locs[l]);
                 if (id === enemy.id) {
-                    console.log('a unit can see the enemy!');
                     return true;
                 }
             }
+        }
+        return false;
+    };
+
+    Utilities.areLocsOccupiedBySameUnit = function (loc1, loc2) {
+        var id1 = Game.getGridLoc(loc1);
+        if (typeof id1 === "undefined" || id1 == null) {
+            return false;
+        }
+        var id2 = Game.getGridLoc(loc2);
+        if (typeof id2 === "undefined" || id2 === null) {
+            return false;
+        }
+        if (id1 === id2) {
+            console.log('it worked? ' + id1 + " " + id2);
+            return true;
         }
         return false;
     };

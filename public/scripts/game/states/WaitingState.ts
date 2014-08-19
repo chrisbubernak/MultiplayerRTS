@@ -20,34 +20,31 @@ class WaitingState extends State{
   }
 
   public Enter(unit: Unit) {
+
   } 
 
   public Execute(unit: Unit) {
-    if (unit.target && (unit.unitTarget === null)) { //if we have a target location transition...
-      unit.ChangeState(WalkingState.Instance()); //start walking there
+    //see if there is an enemy in sight
+    var enemy = WaitingState.Instance().enemyInSight(unit);
+    
+      //if we recieve have a walk command, transition to walking
+    if (unit.command && unit.command.ToString() === "walk") {
+      unit.ChangeState(WalkingState.Instance());
     }
-    //if you try and target a unit you can't actually see we still want to walk there just don't go into pursuing state
-    else if (unit.target && !Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
-      unit.unitTarget = null;
-      unit.ChangeState(WalkingState.Instance()); //start walking there
-    }
-    else if (unit.target && unit.unitTarget) {
-      alert('DOES THIS STATE EVER HAPPEN!!');
+
+    //if we have an attack command, transition to pursuing
+    else if (unit.command && unit.command.ToString() === "attack") {
       unit.ChangeState(PursuingState.Instance());
     }
-    else if (WaitingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy...
-      unit.ChangeState(AttackingState.Instance()); //start fighting
-    }
-    else if (WaitingState.Instance().enemyInSight(unit) !== null) {
-      var unitTarget = WaitingState.Instance().enemyInSight(unit)
-      unit.unitTarget = unitTarget;
-      unit.target = unitTarget.loc;
-      console.log('WAITING to pursuing2');
-      unit.ChangeState(PursuingState.Instance());
+
+    else if (enemy !== null) {
+      //artificially issue an attack command to the unit
+      unit.command = new AttackCommand(enemy);
     }
   }
 
   public Exit(unit: Unit) {
+    unit.newCommand = false;
   }
 
   private enemyInRange(unit: Unit) {

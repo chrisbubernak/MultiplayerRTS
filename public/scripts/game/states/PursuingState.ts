@@ -18,38 +18,62 @@ class PursuingState extends State {
   }
 
   public Enter(unit: Unit) {
-    unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-    unit.prevTar = unit.target;
-    unit.moveTimer = unit.moveSpeed;
+    if (unit.command && unit.command.ToString() === "attack") {
+      unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+      unit.moveTimer = unit.moveSpeed;
+      unit.prevTar = unit.target;
+    }
   }
 
   public Execute(unit: Unit) {
-    //if we don't have a unit to target, or we are no longer able to see that unit with any of our units
-    //TODO: What if the unit we are pursuing dies???
-    if ((!unit.unitTarget) || (!Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) { //if we have a target location transition...
-      unit.ChangeState(WaitingState.Instance()); //stop pursing
-      console.log('pusuing -> waiting ' + unit.unitTarget);
+    //TODO: If we start pursuing a unit and get an artificial attack command but then they run away and another unit is closer we should target that
+    //just make sure we don't disregard an actual attack command
+
+    if (unit.newCommand && !(unit.moveTimer >= unit.moveSpeed)) {
+      PursuingState.move(unit);
+      return;
     }
-    else if (PursuingState.Instance().enemyInRange(unit)) { //if we are close enough to an enemy to attack...
-      unit.ChangeState(AttackingState.Instance()); //start fighting
+
+    if (unit.newCommand) {
+      unit.ChangeState(WaitingState.Instance());
+      return;
+    }
+
+    var enemy = (<AttackCommand>unit.command).GetTarget();
+
+    var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
+
+    var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInRange(unit, enemy);
+
+    var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
+
+    if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) { //the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid)
+      unit.ChangeState(WaitingState.Instance());
+    }
+    else if (!canWeStillSeeEnemy && unit.moveTimer >= unit.moveSpeed) {
+      unit.command = null;
+      unit.ChangeState(WaitingState.Instance());
+    }
+    else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
+      unit.ChangeState(AttackingState.Instance());
     }
     else {
-      unit.target = unit.unitTarget.loc;
       PursuingState.move(unit);
     }
   }
 
   public Exit(unit: Unit) {
+    unit.prevLoc = unit.loc;
   }
 
-  private enemyInRange(unit: Unit) {
+  //TODO: refactor, this is duplicated in attackingstate
+  private specificEnemyInRange(unit: Unit, enemy: Unit) {
     var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       var neighbors = Utilities.neighbors(locs[l]);
       for (var n in neighbors) {
         var id = Game.getGridLoc(neighbors[n]);
-        var enemy = Utilities.findUnit(id, Game.getUnits());
-        if (enemy != null && enemy.player != unit.player) {
+        if (id === enemy.id) {
           return true;
         }
       }
@@ -57,7 +81,7 @@ class PursuingState extends State {
     return false;
   }
 
-  private static move(unit) {
+  private static move(unit: Unit) {
     //update our walking art
     unit.animateTimer = (unit.animateTimer + 1) % unit.numberOfAnimations;
 
@@ -66,9 +90,9 @@ class PursuingState extends State {
       Game.unmarkGridLocs(unit);
 
       //if the unit has a new target change our path
-      if (unit.prevTar != unit.target) {
-        console.log('TARGET MOVED!');
-        unit.path = Pathing.aStar(unit.loc, unit.target, unit);
+      var enemy = (<AttackCommand>unit.command).GetTarget();
+      if (enemy.prevTar != enemy.loc) {
+        unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
         unit.prevTar = unit.target;
       }
 
@@ -79,13 +103,13 @@ class PursuingState extends State {
       for (var l in locs) {
         var gridLoc = Game.getGridLoc(locs[l]);
         if (gridLoc != unit.id && gridLoc != null) {
-          unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
+          unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
           break;
         }
       }
       //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
       var direction = Utilities.getDirection(unit.loc, unit.path[0])
-    if (direction) {
+      if (direction) {
         unit.setDirection(direction);
       }
       unit.loc = unit.path[0] || unit.loc;

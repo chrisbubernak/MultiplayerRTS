@@ -3,6 +3,7 @@
 /// <reference path="states/WaitingState.ts" />
 /// <reference path="states/WalkingState.ts" />
 /// <reference path="coords.ts" />
+/// <reference path="commands/ICommand.ts" />
 
 class Unit extends BaseGameEntity {
   currentState: State;
@@ -28,8 +29,8 @@ class Unit extends BaseGameEntity {
   attackMax: number;
   attackMin: number;
   selected: boolean;
-  sightRange: number = 5; //# of grid locs away unit can see (aka if it is 4 then unit has vision of a 16 unit square  
-  targetAquireRange: number = 3; //# of grid locs away a unit will engage another unit from
+  sightRange: number = 8; //# of grid locs away unit can see (aka if it is 4 then unit has vision of a 16 unit square  
+  targetAquireRange: number = 4; //# of grid locs away a unit will engage another unit from
   totalHealth: number;
   health: number;
   attackSpeed: number;
@@ -41,7 +42,8 @@ class Unit extends BaseGameEntity {
   attackArtTimer: number;
   numberOfAnimations: number = 9;
   numberOfAttackAnimations: number = 6;
-
+  command: ICommand = null;
+  newCommand: boolean = false; //do we have a new command that we need to process?
   static animationIncrememt: number = .1;
   static attackAnimationIncrememt: number = .2;
 
@@ -52,9 +54,6 @@ class Unit extends BaseGameEntity {
     this.currentState = WaitingState.Instance();
     this.loc = loc;
     this.prevLoc = loc;
-    /*var coords = drawer.boxToCoords(loc); //THIS NEEDS TO BE REMOVED!!!
-    this.x = coords.x;
-    this.y = coords.y;*/
     this.player = player;
     this.attackTimer = 0;
     this.animateTimer = 0;

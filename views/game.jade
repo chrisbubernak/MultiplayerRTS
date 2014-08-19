@@ -36,6 +36,9 @@ block scripts
   script(src='/scripts/game/action.js')
   script(src='http://cdn.peerjs.com/0.3/peer.js')
   script(src='/scripts/gameRunners/networkedGameRunner.js')
+  script(src='/scripts/game/commands/ICommand.js')
+  script(src='/scripts/game/commands/AttackCommand.js')
+  script(src='/scripts/game/commands/WalkCommand.js')
   script.
     $(document).ready(function () {
       var id = '#{id.split('_').join('').split(' - ').join('')}';

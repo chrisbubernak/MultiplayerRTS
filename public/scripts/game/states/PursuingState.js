@@ -25,36 +25,58 @@ var PursuingState = (function (_super) {
     };
 
     PursuingState.prototype.Enter = function (unit) {
-        unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-        unit.prevTar = unit.target;
-        unit.moveTimer = unit.moveSpeed;
+        if (unit.command && unit.command.ToString() === "attack") {
+            unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+            unit.moveTimer = unit.moveSpeed;
+            unit.prevTar = unit.target;
+        }
     };
 
     PursuingState.prototype.Execute = function (unit) {
-        //if we don't have a unit to target, or we are no longer able to see that unit with any of our units
-        //TODO: What if the unit we are pursuing dies???
-        if ((!unit.unitTarget) || (!Utilities.canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
-            unit.ChangeState(WaitingState.Instance()); //stop pursing
-            console.log('pusuing -> waiting ' + unit.unitTarget);
-        } else if (PursuingState.Instance().enemyInRange(unit)) {
-            unit.ChangeState(AttackingState.Instance()); //start fighting
+        //TODO: If we start pursuing a unit and get an artificial attack command but then they run away and another unit is closer we should target that
+        //just make sure we don't disregard an actual attack command
+        if (unit.newCommand && !(unit.moveTimer >= unit.moveSpeed)) {
+            PursuingState.move(unit);
+            return;
+        }
+
+        if (unit.newCommand) {
+            unit.ChangeState(WaitingState.Instance());
+            return;
+        }
+
+        var enemy = unit.command.GetTarget();
+
+        var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
+
+        var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInRange(unit, enemy);
+
+        var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
+
+        if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
+            unit.ChangeState(WaitingState.Instance());
+        } else if (!canWeStillSeeEnemy && unit.moveTimer >= unit.moveSpeed) {
+            unit.command = null;
+            unit.ChangeState(WaitingState.Instance());
+        } else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
+            unit.ChangeState(AttackingState.Instance());
         } else {
-            unit.target = unit.unitTarget.loc;
             PursuingState.move(unit);
         }
     };
 
     PursuingState.prototype.Exit = function (unit) {
+        unit.prevLoc = unit.loc;
     };
 
-    PursuingState.prototype.enemyInRange = function (unit) {
+    //TODO: refactor, this is duplicated in attackingstate
+    PursuingState.prototype.specificEnemyInRange = function (unit, enemy) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             var neighbors = Utilities.neighbors(locs[l]);
             for (var n in neighbors) {
                 var id = Game.getGridLoc(neighbors[n]);
-                var enemy = Utilities.findUnit(id, Game.getUnits());
-                if (enemy != null && enemy.player != unit.player) {
+                if (id === enemy.id) {
                     return true;
                 }
             }
@@ -71,9 +93,9 @@ var PursuingState = (function (_super) {
             Game.unmarkGridLocs(unit);
 
             //if the unit has a new target change our path
-            if (unit.prevTar != unit.target) {
-                console.log('TARGET MOVED!');
-                unit.path = Pathing.aStar(unit.loc, unit.target, unit);
+            var enemy = unit.command.GetTarget();
+            if (enemy.prevTar != enemy.loc) {
+                unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
                 unit.prevTar = unit.target;
             }
 
@@ -84,7 +106,7 @@ var PursuingState = (function (_super) {
             for (var l in locs) {
                 var gridLoc = Game.getGridLoc(locs[l]);
                 if (gridLoc != unit.id && gridLoc != null) {
-                    unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
+                    unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
             }
@@ -106,3 +128,4 @@ var PursuingState = (function (_super) {
     };
     return PursuingState;
 })(State);
+//# sourceMappingURL=PursuingState.js.map

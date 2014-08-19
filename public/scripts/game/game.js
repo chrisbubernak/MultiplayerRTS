@@ -7,6 +7,9 @@
 /// <reference path="Utilities.ts" />
 /// <reference path="selectionObject.ts" />
 /// <reference path="action.ts" />
+/// <reference path="commands/ICommand.ts" />
+/// <reference path="commands/WalkCommand.ts" />
+/// <reference path="commands/AttackCommand.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(host, id, enemyId, gameId) {
@@ -162,16 +165,37 @@ var Game = (function () {
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
             var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
-                var targetLoc = action.getTarget();
+                //old logic for taking user input and translating it to behavior
+                /*var targetLoc = action.getTarget();
                 unit.target = targetLoc;
                 if (Game.grid[targetLoc] != null) {
+                var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
+                if (this.areEnemies(unit, unitTarget)) {
+                unit.unitTarget = unitTarget;
+                }
+                }
+                else {
+                unit.unitTarget = null;
+                }*/
+                //new logic!
+                var targetLoc = action.getTarget();
+                if (Game.grid[targetLoc] != null) {
                     var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
-                    if (this.areEnemies(unit, unitTarget)) {
-                        unit.unitTarget = unitTarget;
+                    var isEnemy = this.areEnemies(unit, unitTarget);
+                    var isVisible = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
+                    if (isEnemy && isVisible) {
+                        unit.command = new AttackCommand(unitTarget);
+                    } else if (isEnemy && !isVisible) {
+                        unit.command = new WalkCommand(unitTarget.loc);
+                    } else if (!isEnemy && isVisible) {
+                        //issue a follow command
+                    } else {
+                        alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
                     }
                 } else {
-                    unit.unitTarget = null;
+                    unit.command = new WalkCommand(targetLoc);
                 }
+                unit.newCommand = true; //set this so the unit knows to transition to waiting state
             }
         }
         this.simTick++;
@@ -260,3 +284,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map

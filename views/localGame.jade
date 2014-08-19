@@ -33,6 +33,10 @@ block scripts
   script(src='/scripts/game/selectionObject.js')
   script(src='/scripts/game/action.js')
   script(src='/scripts/gameRunners/LocalGameRunner.js')
+  script(src='/scripts/game/commands/ICommand.js')
+  script(src='/scripts/game/commands/AttackCommand.js')
+  script(src='/scripts/game/commands/WalkCommand.js')
+
   script.
     $(document).ready(function () {
       var gameRunner = new LocalGameRunner();

@@ -29,26 +29,31 @@ var AttackingState = (function (_super) {
     };
 
     AttackingState.prototype.Execute = function (unit) {
-        //update our art given where we are in carrying out an attack
-        unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
+        if (unit.newCommand) {
+            unit.ChangeState(WaitingState.Instance());
+            return;
+        }
 
-        var enemy = AttackingState.Instance().getEnemy(unit, unit.inCombatWith);
-        if (unit.target && !unit.unitTarget) {
-            unit.ChangeState(PursuingState.Instance()); //start pursuing
-            console.log('ATTACKING - > PURSUING');
-        } else if (unit.target) {
-            unit.ChangeState(WalkingState.Instance()); //start walking there
-            console.log('ATTACKING - > WALKING');
-        } else if (enemy != null) {
+        unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
+        var enemy = unit.command.GetTarget();
+
+        var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
+
+        var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInRange(unit, enemy);
+
+        var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
+
+        if (!canWeStillSeeEnemy && unit.attackTimer === 0) {
+            unit.command = null;
+            unit.ChangeState(WaitingState.Instance());
+        } else if (!closeEnoughToAttack && unit.attackTimer === 0) {
+            unit.ChangeState(PursuingState.Instance());
+        } else {
             AttackingState.Instance().attack(unit, enemy); //attack them
-        } else if (enemy == null) {
-            unit.ChangeState(WaitingState.Instance()); //transition back to waiting
         }
     };
 
     AttackingState.prototype.Exit = function (unit) {
-        unit.unitTarget = null;
-        unit.inCombatWith = null;
         unit.attackTimer = 0;
     };
 
@@ -60,17 +65,34 @@ var AttackingState = (function (_super) {
         }
 
         if (attacker.attackTimer >= attacker.attackSpeed) {
-            var attackRange = attacker.attackMax - attacker.attackMin;
-            var damage = Utilities.random() * attackRange + attacker.attackMin;
-            defender.health -= damage;
-            if (defender.health <= 0) {
-                Game.removeUnit(defender);
-                attacker.inCombatWith = null;
+            if (AttackingState.Instance().specificEnemyInRange(attacker, defender)) {
+                var attackRange = attacker.attackMax - attacker.attackMin;
+                var damage = Utilities.random() * attackRange + attacker.attackMin;
+                defender.health -= damage;
+                if (defender.health <= 0) {
+                    Game.removeUnit(defender);
+                    attacker.inCombatWith = null;
+                }
             }
             attacker.attackTimer = 0;
         } else {
             attacker.attackTimer++;
         }
+    };
+
+    //THIS IS DUPLICATED IN PURSUING STATE
+    AttackingState.prototype.specificEnemyInRange = function (unit, enemy) {
+        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+        for (var l in locs) {
+            var neighbors = Utilities.neighbors(locs[l]);
+            for (var n in neighbors) {
+                var id = Game.getGridLoc(neighbors[n]);
+                if (id === enemy.id) {
+                    return true;
+                }
+            }
+        }
+        return false;
     };
 
     //returns an enemy to attack, will try and keep attacking same unit if a prefTarget is supplied
@@ -100,3 +122,4 @@ var AttackingState = (function (_super) {
     };
     return AttackingState;
 })(State);
+//# sourceMappingURL=AttackingState.js.map

@@ -3,7 +3,8 @@
 /// <reference path="Game.ts" />
 
 class Pathing {
-  public static aStar(start, goal, unit) {
+  //runs a star to a specific grid location
+  public static aStarToLoc(start, goal, unit) {
     var closedSet = new Array();
     var openSet = new PriorityQueue();
     var distanceToGoal = new PriorityQueue(); //use this to choose a fallback goal state if we can't reach the goal

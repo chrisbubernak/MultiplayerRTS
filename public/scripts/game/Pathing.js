@@ -4,7 +4,8 @@
 var Pathing = (function () {
     function Pathing() {
     }
-    Pathing.aStar = function (start, goal, unit) {
+    //runs a star to a specific grid location
+    Pathing.aStarToLoc = function (start, goal, unit) {
         var closedSet = new Array();
         var openSet = new PriorityQueue();
         var distanceToGoal = new PriorityQueue();

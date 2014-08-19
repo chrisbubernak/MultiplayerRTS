@@ -22,9 +22,16 @@ var WalkingState = (function (_super) {
         return "WalkingState";
     };
     WalkingState.prototype.Enter = function (unit) {
-        unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-        unit.prevTar = unit.target;
-        unit.moveTimer = unit.moveSpeed;
+        if (unit.command && unit.command.ToString() === "walk") {
+            unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+            unit.moveTimer = unit.moveSpeed;
+            unit.prevTar = unit.target;
+        }
+        /*if (unit.id === 5) {
+        console.log('enter walk ' + unit.id);
+        console.log(unit);
+        console.log(unit.currentState.ToString());
+        }*/
     };
 
     WalkingState.prototype.Execute = function (unit) {
@@ -39,9 +46,20 @@ var WalkingState = (function (_super) {
         unit.ChangeState(PursuingState.Instance());
         }*/
         //make sure is path is empty and make sure we've finished interpolating (i.e that the move timer = movespeed)
-        if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
-            unit.target = null;
-            unit.prevLoc = unit.loc;
+        /*if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
+        unit.target = null;
+        unit.prevLoc = unit.loc;
+        unit.ChangeState(WaitingState.Instance());
+        }
+        else {
+        WalkingState.move(unit);
+        }*/
+        //if we have reached our location/our path length is 0
+        var doneWalking = (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed);
+        if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
+            unit.ChangeState(WaitingState.Instance());
+        } else if (doneWalking) {
+            unit.command = null;
             unit.ChangeState(WaitingState.Instance());
         } else {
             WalkingState.move(unit);
@@ -49,6 +67,7 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Exit = function (unit) {
+        unit.prevLoc = unit.loc;
     };
 
     WalkingState.move = function (unit) {
@@ -59,12 +78,6 @@ var WalkingState = (function (_super) {
             //mark this units occuppied locs as unoccupied
             Game.unmarkGridLocs(unit);
 
-            //if the unit has a new target change our path
-            if (unit.prevTar != unit.target) {
-                unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-                unit.prevTar = unit.target;
-            }
-
             unit.prevLoc = unit.loc;
 
             //if something now stands in the units path re-path around it
@@ -72,7 +85,7 @@ var WalkingState = (function (_super) {
             for (var l in locs) {
                 var gridLoc = Game.getGridLoc(locs[l]);
                 if (gridLoc != unit.id && gridLoc != null) {
-                    unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
+                    unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
             }
@@ -94,3 +107,4 @@ var WalkingState = (function (_super) {
     };
     return WalkingState;
 })(State);
+//# sourceMappingURL=WalkingState.js.map

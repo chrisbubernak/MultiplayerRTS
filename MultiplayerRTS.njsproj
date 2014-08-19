@@ -118,6 +118,7 @@
     <Folder Include="public\scripts\game\" />
     <Folder Include="public\scripts\definitions\" />
     <Folder Include="public\scripts\gameRunners\" />
+    <Folder Include="public\scripts\game\commands\" />
     <Folder Include="public\vendor\" />
     <Folder Include="public\vendor\bootstrap\" />
     <Folder Include="public\vendor\bootstrap\css\" />
@@ -140,6 +141,9 @@
     <TypeScriptCompile Include="public\scripts\gameRunners\LocalGameRunner.ts" />
     <TypeScriptCompile Include="public\scripts\gameRunners\ReplayGameRunner.ts" />
     <TypeScriptCompile Include="public\scripts\game\action.ts" />
+    <TypeScriptCompile Include="public\scripts\game\commands\AttackCommand.ts" />
+    <TypeScriptCompile Include="public\scripts\game\commands\ICommand.ts" />
+    <TypeScriptCompile Include="public\scripts\game\commands\WalkCommand.ts" />
     <TypeScriptCompile Include="public\scripts\game\states\PursuingState.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />

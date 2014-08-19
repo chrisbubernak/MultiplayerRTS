@@ -22,29 +22,34 @@ class AttackingState extends State {
   }
 
   public Execute(unit: Unit) {
-    //update our art given where we are in carrying out an attack
-    unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
 
-    var enemy = AttackingState.Instance().getEnemy(unit, unit.inCombatWith);
-    if (unit.target && !unit.unitTarget) { //if we have a target unit and location
-      unit.ChangeState(PursuingState.Instance()); //start pursuing
-      console.log('ATTACKING - > PURSUING');
+    if (unit.newCommand) {
+      unit.ChangeState(WaitingState.Instance());
+      return;
     }
-    else if (unit.target) { //if we have a target location transition...
-      unit.ChangeState(WalkingState.Instance()); //start walking there
-      console.log('ATTACKING - > WALKING');
+
+    unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
+    var enemy = (<AttackCommand>unit.command).GetTarget();
+
+    var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
+
+    var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInRange(unit, enemy);
+
+    var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
+
+    if (!canWeStillSeeEnemy && unit.attackTimer === 0) { //only allow state change after finishing an attack
+      unit.command = null;
+      unit.ChangeState(WaitingState.Instance()); 
     }
-    else if (enemy != null) { //if we have an enemy...
+    else if (!closeEnoughToAttack && unit.attackTimer === 0) { //only allow state change after finishing an attack
+      unit.ChangeState(PursuingState.Instance()); 
+    }
+    else {
       AttackingState.Instance().attack(unit, enemy); //attack them
-    }
-    else if (enemy == null) { //if we no longer have a target enemy...
-      unit.ChangeState(WaitingState.Instance()); //transition back to waiting
     }
   }
 
   public Exit(unit: Unit) {
-    unit.unitTarget = null;
-    unit.inCombatWith = null;
     unit.attackTimer = 0;
   }
 
@@ -56,18 +61,35 @@ class AttackingState extends State {
     }
 
     if (attacker.attackTimer >= attacker.attackSpeed) {
-      var attackRange = attacker.attackMax - attacker.attackMin;
-      var damage = Utilities.random() * attackRange + attacker.attackMin;
-      defender.health -= damage;
-      if (defender.health <= 0) {
-        Game.removeUnit(defender);
-        attacker.inCombatWith = null;
+      if (AttackingState.Instance().specificEnemyInRange(attacker, defender)) {
+        var attackRange = attacker.attackMax - attacker.attackMin;
+        var damage = Utilities.random() * attackRange + attacker.attackMin;
+        defender.health -= damage;
+        if (defender.health <= 0) {
+          Game.removeUnit(defender);
+          attacker.inCombatWith = null;
+        }
       }
       attacker.attackTimer = 0;
     }
     else {
       attacker.attackTimer++;
     }
+  }
+
+  //THIS IS DUPLICATED IN PURSUING STATE
+  private specificEnemyInRange(unit: Unit, enemy: Unit) {
+    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    for (var l in locs) {
+      var neighbors = Utilities.neighbors(locs[l]);
+      for (var n in neighbors) {
+        var id = Game.getGridLoc(neighbors[n]);
+        if (id === enemy.id) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   //returns an enemy to attack, will try and keep attacking same unit if a prefTarget is supplied

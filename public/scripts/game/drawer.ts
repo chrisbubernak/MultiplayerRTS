@@ -65,7 +65,7 @@ class Drawer {
       var coords = this.boxToCoords(units[i].loc);
       units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
       units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
-      if (units[i].prevLoc == units[i].loc) {
+      if (units[i].prevLoc === units[i].loc) {
         units[i].x = coords.x;
         units[i].y = coords.y;
       }
@@ -139,6 +139,7 @@ class Drawer {
         if (this.gameRunner.DEBUG) {
           this.drawUnitSightRange(units[i]);
           this.drawUnitAquireTargetRange(units[i]);
+          this.drawUnitLocsOccupied(units[i]);
         }
 
         var radGrd = this.fogContext.createRadialGradient(
@@ -271,12 +272,12 @@ class Drawer {
       this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
       this.unitContext.stroke();
       //for all selected units with targets, indicate their targets with a red square on map (todo: change this to some sort of other marker)
-      if (typeof (unit.target) !== 'undefined' && unit.target !== null) {
-        this.drawSquare(unit.target, 'red');
+      if (unit.command !== null) {
+        this.drawSquare(unit.command.GetLocation(), 'red');
       }
       //for all selected units with a unit targed indicate their targets with a red circle
-      if (typeof (unit.unitTarget) !== 'undefined' && unit.unitTarget !== null) {
-        var targetUnit = unit.unitTarget;
+      if (unit.command && unit.command.ToString() === "attack") {
+        var targetUnit = (<AttackCommand>unit.command).GetTarget();
         this.unitContext.beginPath();
         this.unitContext.strokeStyle = this.RED;
         this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
@@ -316,6 +317,13 @@ class Drawer {
     var locs = Utilities.getGridLocsInSightRange(unit);
     for (var l in locs) {
       this.drawSquare(locs[l], "orange");
+    }
+  }
+
+  private drawUnitLocsOccupied(unit: Unit) {
+    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    for (var l in locs) {
+      this.drawSquare(locs[l], "red");
     }
   }
 

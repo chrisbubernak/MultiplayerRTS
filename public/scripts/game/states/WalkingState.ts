@@ -16,9 +16,16 @@ class WalkingState extends State {
     return "WalkingState";
   }
   public Enter(unit: Unit) {
-    unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-    unit.prevTar = unit.target;
-    unit.moveTimer = unit.moveSpeed;
+    if (unit.command && unit.command.ToString() === "walk") {
+      unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+      unit.moveTimer = unit.moveSpeed;
+      unit.prevTar = unit.target;
+    }
+    /*if (unit.id === 5) {
+      console.log('enter walk ' + unit.id);
+      console.log(unit);
+      console.log(unit.currentState.ToString());
+    }*/
   }
 
   public Execute(unit: Unit) {
@@ -33,17 +40,32 @@ class WalkingState extends State {
       unit.ChangeState(PursuingState.Instance());
     }*/
     //make sure is path is empty and make sure we've finished interpolating (i.e that the move timer = movespeed)
-    if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
+    /*if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
       unit.target = null;
       unit.prevLoc = unit.loc;
       unit.ChangeState(WaitingState.Instance());
     }
     else {
       WalkingState.move(unit);
+    }*/
+
+    //if we have reached our location/our path length is 0
+    var doneWalking = (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed);
+    if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) { //the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid)
+      unit.ChangeState(WaitingState.Instance());      
+    }
+    else if (doneWalking) {
+      unit.command = null;
+      unit.ChangeState(WaitingState.Instance());
+    }
+
+    else {
+      WalkingState.move(unit);
     }
   }
 
   public Exit(unit: Unit) {
+    unit.prevLoc = unit.loc;
   }
 
   private static move(unit) {
@@ -54,12 +76,6 @@ class WalkingState extends State {
       //mark this units occuppied locs as unoccupied
       Game.unmarkGridLocs(unit);
 
-      //if the unit has a new target change our path
-      if (unit.prevTar != unit.target) {
-        unit.path = Pathing.aStar(unit.loc, unit.target, unit);
-        unit.prevTar = unit.target;
-      }
-
       unit.prevLoc = unit.loc;
 
       //if something now stands in the units path re-path around it
@@ -67,7 +83,7 @@ class WalkingState extends State {
       for (var l in locs) {
         var gridLoc = Game.getGridLoc(locs[l]);
         if (gridLoc != unit.id && gridLoc != null) {
-          unit.path = Pathing.aStar(unit.loc, unit.path[unit.path.length - 1], unit);
+          unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
           break;
         }
       }
