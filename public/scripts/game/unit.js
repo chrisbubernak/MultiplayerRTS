@@ -14,8 +14,6 @@ var Unit = (function (_super) {
     __extends(Unit, _super);
     function Unit(loc, player) {
         _super.call(this);
-        this.unitTarget = null;
-        this.inCombatWith = null;
         this.path = new Array();
         this.sightRange = 8;
         this.targetAquireRange = 4;

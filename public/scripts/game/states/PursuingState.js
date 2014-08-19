@@ -28,7 +28,6 @@ var PursuingState = (function (_super) {
         if (unit.command && unit.command.ToString() === "attack") {
             unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
             unit.moveTimer = unit.moveSpeed;
-            unit.prevTar = unit.target;
         }
     };
 
@@ -94,9 +93,8 @@ var PursuingState = (function (_super) {
 
             //if the unit has a new target change our path
             var enemy = unit.command.GetTarget();
-            if (enemy.prevTar != enemy.loc) {
+            if (enemy.prevLoc != enemy.loc) {
                 unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
-                unit.prevTar = unit.target;
             }
 
             unit.prevLoc = unit.loc;
@@ -128,4 +126,3 @@ var PursuingState = (function (_super) {
     };
     return PursuingState;
 })(State);
-//# sourceMappingURL=PursuingState.js.map

@@ -71,7 +71,6 @@ var AttackingState = (function (_super) {
                 defender.health -= damage;
                 if (defender.health <= 0) {
                     Game.removeUnit(defender);
-                    attacker.inCombatWith = null;
                 }
             }
             attacker.attackTimer = 0;
@@ -107,7 +106,6 @@ var AttackingState = (function (_super) {
                 var enemy = Utilities.findUnit(id, Game.getUnits());
                 if (enemy != null && enemy.player != unit.player) {
                     if (prefTarget == null || id == prefTarget.id) {
-                        unit.inCombatWith = enemy;
                         return enemy;
                     }
                     enemies.push(enemy);
@@ -117,9 +115,7 @@ var AttackingState = (function (_super) {
         if (enemies.length == 0) {
             return null;
         }
-        unit.inCombatWith = enemies[0]; //update your preferred target
         return enemies[0];
     };
     return AttackingState;
 })(State);
-//# sourceMappingURL=AttackingState.js.map

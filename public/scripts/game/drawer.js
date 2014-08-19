@@ -211,8 +211,6 @@ var Drawer = (function () {
         x = unit.x;
         y = unit.y;
         var coords = unit.getDrawCoordinates();
-
-        //console.log(unit.x + " " + unit.y + " " + coords.x + " " + coords.y);
         if (typeof unit.getImage() !== "undefined") {
             this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
         }
@@ -285,4 +283,3 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
-//# sourceMappingURL=drawer.js.map

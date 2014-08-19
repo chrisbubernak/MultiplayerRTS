@@ -67,7 +67,6 @@ class AttackingState extends State {
         defender.health -= damage;
         if (defender.health <= 0) {
           Game.removeUnit(defender);
-          attacker.inCombatWith = null;
         }
       }
       attacker.attackTimer = 0;
@@ -104,7 +103,6 @@ class AttackingState extends State {
         var enemy = Utilities.findUnit(id, Game.getUnits());
         if (enemy != null && enemy.player != unit.player) {
           if (prefTarget == null || id == prefTarget.id) { //if we didn't have a preference or this was our preference return it
-            unit.inCombatWith = enemy;
             return enemy;
           }
           enemies.push(enemy);
@@ -114,7 +112,6 @@ class AttackingState extends State {
     if (enemies.length == 0) {
       return null;
     }
-    unit.inCombatWith = enemies[0]; //update your preferred target
     return enemies[0];
   }
 }

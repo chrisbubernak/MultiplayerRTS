@@ -24,6 +24,9 @@
     <Compile Include="public\scripts\gameRunners\LocalGameRunner.js" />
     <Compile Include="public\scripts\gameRunners\replayGameRunner.js" />
     <Compile Include="public\scripts\game\action.js" />
+    <Compile Include="public\scripts\game\commands\AttackCommand.js" />
+    <Compile Include="public\scripts\game\commands\ICommand.js" />
+    <Compile Include="public\scripts\game\commands\WalkCommand.js" />
     <Compile Include="public\scripts\game\coords.js" />
     <Compile Include="public\scripts\game\selectionObject.js" />
     <Compile Include="public\scripts\game\states\PursuingState.js" />

@@ -25,13 +25,7 @@ var WalkingState = (function (_super) {
         if (unit.command && unit.command.ToString() === "walk") {
             unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
             unit.moveTimer = unit.moveSpeed;
-            unit.prevTar = unit.target;
         }
-        /*if (unit.id === 5) {
-        console.log('enter walk ' + unit.id);
-        console.log(unit);
-        console.log(unit.currentState.ToString());
-        }*/
     };
 
     WalkingState.prototype.Execute = function (unit) {
@@ -107,4 +101,3 @@ var WalkingState = (function (_super) {
     };
     return WalkingState;
 })(State);
-//# sourceMappingURL=WalkingState.js.map

@@ -21,7 +21,6 @@ class PursuingState extends State {
     if (unit.command && unit.command.ToString() === "attack") {
       unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
       unit.moveTimer = unit.moveSpeed;
-      unit.prevTar = unit.target;
     }
   }
 
@@ -91,9 +90,8 @@ class PursuingState extends State {
 
       //if the unit has a new target change our path
       var enemy = (<AttackCommand>unit.command).GetTarget();
-      if (enemy.prevTar != enemy.loc) {
+      if (enemy.prevLoc != enemy.loc) {
         unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
-        unit.prevTar = unit.target;
       }
 
       unit.prevLoc = unit.loc;

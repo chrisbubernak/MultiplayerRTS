@@ -21,10 +21,6 @@ class Unit extends BaseGameEntity {
   imageY: number;
   imageW: number;
   imageH: number;
-  target: number; //the location on the map we are moving toward
-  unitTarget: Unit = null; //the unit we are targeting...if any
-  prevTar: number;
-  inCombatWith: Unit = null;
   path = new Array();
   attackMax: number;
   attackMin: number;
