@@ -39,8 +39,7 @@ var AttackingState = (function (_super) {
 
         var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
 
-        //TODO: change this from specificenemyInrange -> specificenemyinattackrange
-        var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInRange(unit, enemy);
+        var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInAttackRange(unit, enemy);
 
         var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
 
@@ -66,8 +65,7 @@ var AttackingState = (function (_super) {
         }
 
         if (attacker.attackTimer >= attacker.attackSpeed) {
-            //TODO: change this from specificenemyInrange -> specificenemyinattackrange
-            if (AttackingState.Instance().specificEnemyInRange(attacker, defender)) {
+            if (AttackingState.Instance().specificEnemyInAttackRange(attacker, defender)) {
                 var attackRange = attacker.attackMax - attacker.attackMin;
                 var damage = Utilities.random() * attackRange + attacker.attackMin;
                 defender.health -= damage;
@@ -106,3 +104,4 @@ var AttackingState = (function (_super) {
     };
     return AttackingState;
 })(State);
+//# sourceMappingURL=AttackingState.js.map

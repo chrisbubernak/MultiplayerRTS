@@ -17,7 +17,7 @@ class State {
     alert(this + " State Enter Function Not Implemented!");
   }
 
-  public specificEnemyInRange(unit: Unit, enemy: Unit) {
+  public specificEnemyInAttackRange(unit: Unit, enemy: Unit) {
     var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
     for (var l in locs) {
       var neighbors = Utilities.neighbors(locs[l]);
@@ -31,7 +31,7 @@ class State {
     return false;
   }
 
-  //MODIFY THIS TO RETURN THE CLOSEST UNIT
+  //TODO: MODIFY THIS TO RETURN THE CLOSEST UNIT
   public enemyInTargetAqureRange(unit: Unit) {
     var locs = Utilities.getGridLocsInTargetAquireRange(unit);
     for (var l in locs) {

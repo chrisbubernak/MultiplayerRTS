@@ -23,26 +23,6 @@ class WalkingState extends State {
   }
 
   public Execute(unit: Unit) {
-    //if we have an enemey targeted and one of our units can see them start pursuing
-    /*if (!(unit.target && unit.unitTarget && WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget))) {
-      if (unit.unitTarget) {
-        console.log(unit.target + " " + unit.unitTarget + " " + WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget));
-      }
-    }
-    if (unit.target && unit.unitTarget && WalkingState.Instance().canAnyUnitSeeEnemy(unit, unit.unitTarget)) {
-      console.log('PURSUING');
-      unit.ChangeState(PursuingState.Instance());
-    }*/
-    //make sure is path is empty and make sure we've finished interpolating (i.e that the move timer = movespeed)
-    /*if (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed) {
-      unit.target = null;
-      unit.prevLoc = unit.loc;
-      unit.ChangeState(WaitingState.Instance());
-    }
-    else {
-      WalkingState.move(unit);
-    }*/
-
     //if we have reached our location/our path length is 0
     var doneWalking = (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed);
     if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) { //the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid)

@@ -30,8 +30,6 @@ var PursuingState = (function (_super) {
     };
 
     PursuingState.prototype.Execute = function (unit) {
-        //TODO: If we start pursuing a unit and get an artificial attack command (now called engage) but then they run away and another unit is closer we should target that
-        //just make sure we don't disregard an actual attack command
         if (unit.newCommand && !(unit.moveTimer >= unit.moveSpeed)) {
             PursuingState.move(unit);
             return;
@@ -50,8 +48,7 @@ var PursuingState = (function (_super) {
 
         var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
 
-        //TODO: change this from specificenemyInrange -> specificenemyinattackrange
-        var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInRange(unit, enemy);
+        var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInAttackRange(unit, enemy);
 
         var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
 
@@ -121,3 +118,4 @@ var PursuingState = (function (_super) {
     };
     return PursuingState;
 })(State);
+//# sourceMappingURL=PursuingState.js.map

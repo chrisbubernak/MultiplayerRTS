@@ -15,7 +15,7 @@ var State = (function () {
         alert(this + " State Enter Function Not Implemented!");
     };
 
-    State.prototype.specificEnemyInRange = function (unit, enemy) {
+    State.prototype.specificEnemyInAttackRange = function (unit, enemy) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
         for (var l in locs) {
             var neighbors = Utilities.neighbors(locs[l]);
@@ -29,7 +29,7 @@ var State = (function () {
         return false;
     };
 
-    //MODIFY THIS TO RETURN THE CLOSEST UNIT
+    //TODO: MODIFY THIS TO RETURN THE CLOSEST UNIT
     State.prototype.enemyInTargetAqureRange = function (unit) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
         for (var l in locs) {

@@ -33,8 +33,7 @@ class AttackingState extends State {
 
     var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
 
-    //TODO: change this from specificenemyInrange -> specificenemyinattackrange
-    var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInRange(unit, enemy);
+    var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInAttackRange(unit, enemy);
 
     var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
 
@@ -62,8 +61,7 @@ class AttackingState extends State {
     }
 
     if (attacker.attackTimer >= attacker.attackSpeed) {
-      //TODO: change this from specificenemyInrange -> specificenemyinattackrange
-      if (AttackingState.Instance().specificEnemyInRange(attacker, defender)) {
+      if (AttackingState.Instance().specificEnemyInAttackRange(attacker, defender)) {
         var attackRange = attacker.attackMax - attacker.attackMin;
         var damage = Utilities.random() * attackRange + attacker.attackMin;
         defender.health -= damage;
