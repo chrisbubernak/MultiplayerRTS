@@ -29,9 +29,13 @@ var State = (function () {
         return false;
     };
 
-    //TODO: MODIFY THIS TO RETURN THE CLOSEST UNIT
     State.prototype.enemyInTargetAqureRange = function (unit) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+
+        locs.sort(function (a, b) {
+            return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
+        });
+
         for (var l in locs) {
             var id = Game.getGridLoc(locs[l]);
             var enemy = Utilities.findUnit(id, Game.getUnits());

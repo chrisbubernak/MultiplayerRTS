@@ -31,9 +31,13 @@ class State {
     return false;
   }
 
-  //TODO: MODIFY THIS TO RETURN THE CLOSEST UNIT
   public enemyInTargetAqureRange(unit: Unit) {
     var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+    
+    locs.sort(function (a, b) { //sort by min distance to the unit so we find the closest enemy...not 100% this is working
+      return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
+    });
+
     for (var l in locs) {
       var id = Game.getGridLoc(locs[l]);
       var enemy = Utilities.findUnit(id, Game.getUnits());
