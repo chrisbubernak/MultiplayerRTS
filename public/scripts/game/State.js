@@ -28,6 +28,30 @@ var State = (function () {
         }
         return false;
     };
+
+    //MODIFY THIS TO RETURN THE CLOSEST UNIT
+    State.prototype.enemyInTargetAqureRange = function (unit) {
+        var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+        for (var l in locs) {
+            var id = Game.getGridLoc(locs[l]);
+            var enemy = Utilities.findUnit(id, Game.getUnits());
+            if (enemy != null && enemy.player != unit.player) {
+                return enemy;
+            }
+        }
+        return null;
+    };
+
+    State.prototype.specificEnemyInTargetAquireRange = function (unit, enemy) {
+        var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+        for (var l in locs) {
+            var id = Game.getGridLoc(locs[l]);
+            if (id !== null && id === enemy.id) {
+                return true;
+            }
+        }
+        return false;
+    };
     return State;
 })();
 //# sourceMappingURL=State.js.map

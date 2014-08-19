@@ -25,6 +25,7 @@
     <Compile Include="public\scripts\gameRunners\replayGameRunner.js" />
     <Compile Include="public\scripts\game\action.js" />
     <Compile Include="public\scripts\game\commands\AttackCommand.js" />
+    <Compile Include="public\scripts\game\commands\EngageCommand.js" />
     <Compile Include="public\scripts\game\commands\ICommand.js" />
     <Compile Include="public\scripts\game\commands\WalkCommand.js" />
     <Compile Include="public\scripts\game\coords.js" />
@@ -47,6 +48,7 @@
     <Content Include="public\css\gameOLD.styl" />
     <Content Include="public\css\style.css" />
     <Content Include="public\scripts\definitions\peer.d.ts" />
+    <Content Include="public\scripts\game\commands\EngageCommand.ts" />
     <Content Include="public\scripts\game\coords.ts" />
     <Content Include="public\scripts\game\selectionObject.ts" />
     <Content Include="public\vendor\bootstrap\css\bootstrap-theme.css" />

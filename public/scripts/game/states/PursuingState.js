@@ -25,14 +25,12 @@ var PursuingState = (function (_super) {
     };
 
     PursuingState.prototype.Enter = function (unit) {
-        if (unit.command && unit.command.ToString() === "attack") {
-            unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
-            unit.moveTimer = unit.moveSpeed;
-        }
+        unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+        unit.moveTimer = unit.moveSpeed;
     };
 
     PursuingState.prototype.Execute = function (unit) {
-        //TODO: If we start pursuing a unit and get an artificial attack command but then they run away and another unit is closer we should target that
+        //TODO: If we start pursuing a unit and get an artificial attack command (now called engage) but then they run away and another unit is closer we should target that
         //just make sure we don't disregard an actual attack command
         if (unit.newCommand && !(unit.moveTimer >= unit.moveSpeed)) {
             PursuingState.move(unit);
@@ -46,8 +44,13 @@ var PursuingState = (function (_super) {
 
         var enemy = unit.command.GetTarget();
 
+        var engageCommand = unit.command.ToString() === "engage";
+        var currentTargetInPursueRange = PursuingState.Instance().specificEnemyInTargetAquireRange(unit, enemy);
+        var potentialTarget = PursuingState.Instance().enemyInTargetAqureRange(unit);
+
         var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
 
+        //TODO: change this from specificenemyInrange -> specificenemyinattackrange
         var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInRange(unit, enemy);
 
         var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
@@ -59,6 +62,10 @@ var PursuingState = (function (_super) {
             unit.ChangeState(WaitingState.Instance());
         } else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
             unit.ChangeState(AttackingState.Instance());
+        } else if (engageCommand && !currentTargetInPursueRange && potentialTarget) {
+            //modify the engagecommandtohave the new target
+            unit.command.SetTarget(potentialTarget);
+            PursuingState.move(unit);
         } else {
             PursuingState.move(unit);
         }
@@ -68,19 +75,7 @@ var PursuingState = (function (_super) {
         unit.prevLoc = unit.loc;
     };
 
-    //TODO: refactor, this is duplicated in attackingstate
-    PursuingState.prototype.specificEnemyInRange = function (unit, enemy) {
-        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
-            var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
-                var id = Game.getGridLoc(neighbors[n]);
-                if (id === enemy.id) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    PursuingState.prototype.enemeyInTargetRange = function (unit, enemy) {
     };
 
     PursuingState.move = function (unit) {

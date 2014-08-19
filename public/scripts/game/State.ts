@@ -30,4 +30,28 @@ class State {
     }
     return false;
   }
+
+  //MODIFY THIS TO RETURN THE CLOSEST UNIT
+  public enemyInTargetAqureRange(unit: Unit) {
+    var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+    for (var l in locs) {
+      var id = Game.getGridLoc(locs[l]);
+      var enemy = Utilities.findUnit(id, Game.getUnits());
+      if (enemy != null && enemy.player != unit.player) {
+        return enemy;
+      }
+    }
+    return null;
+  }
+
+  public specificEnemyInTargetAquireRange(unit: Unit, enemy: Unit) {
+    var locs = Utilities.getGridLocsInTargetAquireRange(unit);
+    for (var l in locs) {
+      var id = Game.getGridLoc(locs[l]);
+      if (id !== null && id === enemy.id ) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

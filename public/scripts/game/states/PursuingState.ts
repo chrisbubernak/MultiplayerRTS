@@ -18,14 +18,12 @@ class PursuingState extends State {
   }
 
   public Enter(unit: Unit) {
-    if (unit.command && unit.command.ToString() === "attack") {
-      unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
-      unit.moveTimer = unit.moveSpeed;
-    }
+    unit.path = Pathing.aStarToLoc(unit.loc, unit.command.GetLocation(), unit);
+    unit.moveTimer = unit.moveSpeed;
   }
 
   public Execute(unit: Unit) {
-    //TODO: If we start pursuing a unit and get an artificial attack command but then they run away and another unit is closer we should target that
+    //TODO: If we start pursuing a unit and get an artificial attack command (now called engage) but then they run away and another unit is closer we should target that
     //just make sure we don't disregard an actual attack command
 
     if (unit.newCommand && !(unit.moveTimer >= unit.moveSpeed)) {
@@ -38,10 +36,16 @@ class PursuingState extends State {
       return;
     }
 
+
     var enemy = (<AttackCommand>unit.command).GetTarget();
+
+    var engageCommand = unit.command.ToString() === "engage";
+    var currentTargetInPursueRange = PursuingState.Instance().specificEnemyInTargetAquireRange(unit, enemy);
+    var potentialTarget = PursuingState.Instance().enemyInTargetAqureRange(unit);
 
     var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
 
+    //TODO: change this from specificenemyInrange -> specificenemyinattackrange
     var closeEnoughToAttack = enemyIsAlive && PursuingState.Instance().specificEnemyInRange(unit, enemy);
 
     var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
@@ -56,6 +60,11 @@ class PursuingState extends State {
     else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
       unit.ChangeState(AttackingState.Instance());
     }
+    else if (engageCommand && !currentTargetInPursueRange && potentialTarget) {
+      //modify the engagecommandtohave the new target
+      (<EngageCommand>unit.command).SetTarget(potentialTarget);
+      PursuingState.move(unit);
+    }
     else {
       PursuingState.move(unit);
     }
@@ -63,6 +72,10 @@ class PursuingState extends State {
 
   public Exit(unit: Unit) {
     unit.prevLoc = unit.loc;
+  }
+
+  private enemeyInTargetRange(unit: Unit, enemy: Unit) {
+
   }
 
   private static move(unit: Unit) {
@@ -104,6 +117,5 @@ class PursuingState extends State {
     else {
       unit.moveTimer++;
     }
-
   }
 }
