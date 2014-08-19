@@ -79,21 +79,6 @@ var AttackingState = (function (_super) {
         }
     };
 
-    //THIS IS DUPLICATED IN PURSUING STATE
-    AttackingState.prototype.specificEnemyInRange = function (unit, enemy) {
-        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
-            var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
-                var id = Game.getGridLoc(neighbors[n]);
-                if (id === enemy.id) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
     //returns an enemy to attack, will try and keep attacking same unit if a prefTarget is supplied
     AttackingState.prototype.getEnemy = function (unit, prefTarget) {
         var enemies = new Array();
@@ -119,3 +104,4 @@ var AttackingState = (function (_super) {
     };
     return AttackingState;
 })(State);
+//# sourceMappingURL=AttackingState.js.map

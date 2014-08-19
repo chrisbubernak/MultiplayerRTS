@@ -65,21 +65,6 @@ class PursuingState extends State {
     unit.prevLoc = unit.loc;
   }
 
-  //TODO: refactor, this is duplicated in attackingstate
-  private specificEnemyInRange(unit: Unit, enemy: Unit) {
-    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-    for (var l in locs) {
-      var neighbors = Utilities.neighbors(locs[l]);
-      for (var n in neighbors) {
-        var id = Game.getGridLoc(neighbors[n]);
-        if (id === enemy.id) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   private static move(unit: Unit) {
     //update our walking art
     unit.animateTimer = (unit.animateTimer + 1) % unit.numberOfAnimations;
