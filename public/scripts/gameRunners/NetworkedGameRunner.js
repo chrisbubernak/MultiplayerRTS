@@ -2,6 +2,7 @@
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
+/// <reference path="GameRunner.ts" />
 var NetworkedGameRunner = (function () {
     function NetworkedGameRunner(id, enemyId, host) {
         this.DEBUG = false;

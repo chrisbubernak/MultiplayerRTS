@@ -1,4 +1,4 @@
-﻿/// <reference path="../GameRunner.ts" />
+﻿/// <reference path="GameRunner.ts" />
 var ReplayGameRunner = (function () {
     function ReplayGameRunner() {
         this.DEBUG = false;

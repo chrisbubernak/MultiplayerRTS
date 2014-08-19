@@ -2,8 +2,9 @@
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
+/// <reference path="GameRunner.ts" />
 
-class NetworkedGameRunner {
+class NetworkedGameRunner implements GameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;

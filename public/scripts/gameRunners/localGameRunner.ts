@@ -1,4 +1,4 @@
-﻿/// <reference path="../GameRunner.ts" />
+﻿/// <reference path="GameRunner.ts" />
 
 class LocalGameRunner implements GameRunner {
   public DEBUG: boolean = false;

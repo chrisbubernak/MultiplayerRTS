@@ -1,4 +1,4 @@
-﻿/// <reference path="../GameRunner.ts" />
+﻿/// <reference path="GameRunner.ts" />
 var LocalGameRunner = (function () {
     function LocalGameRunner() {
         this.DEBUG = false;

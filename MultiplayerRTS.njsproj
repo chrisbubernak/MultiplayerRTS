@@ -20,7 +20,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="public\scripts\GameRunner.js" />
+    <Compile Include="public\scripts\gameRunners\GameRunner.js" />
     <Compile Include="public\scripts\gameRunners\LocalGameRunner.js" />
     <Compile Include="public\scripts\gameRunners\replayGameRunner.js" />
     <Compile Include="public\scripts\game\action.js" />
@@ -140,7 +140,7 @@
     <Folder Include="public\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="public\scripts\GameRunner.ts" />
+    <TypeScriptCompile Include="public\scripts\gameRunners\GameRunner.ts" />
     <TypeScriptCompile Include="public\scripts\gameRunners\LocalGameRunner.ts" />
     <TypeScriptCompile Include="public\scripts\gameRunners\ReplayGameRunner.ts" />
     <TypeScriptCompile Include="public\scripts\game\action.ts" />
