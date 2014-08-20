@@ -1,4 +1,4 @@
-/// <reference path="../game/game.ts" />
+﻿/// <reference path="../game/game.ts" />
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
@@ -15,7 +15,7 @@ var NetworkedGameRunner = (function () {
         this.actionList = new Array();
         var gameId = 123;
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
-        this.myGame;
+        this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
         this.host = host;
         var playerNumber;
         if (this.host) {
@@ -23,7 +23,7 @@ var NetworkedGameRunner = (function () {
         } else {
             playerNumber = 2;
         }
-        this.drawer = new Drawer(1440, 720, playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
         var that = this;
 
@@ -105,7 +105,6 @@ var NetworkedGameRunner = (function () {
                 that.conn = that.peer.connect(enemyId, { reliable: true });
                 that.conn.on('open', function () {
                     that.conn.send('Hey from player: ' + id);
-                    that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
                     that.run();
                 });
                 that.conn.on('close', function () {
@@ -128,7 +127,6 @@ var NetworkedGameRunner = (function () {
                     console.log('client ' + conn);
                     that.conn.on('open', function () {
                         that.conn.send('Hey from player: ' + id);
-                        that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
                         that.run();
                     });
                     that.conn.on('close', function () {
@@ -246,3 +244,4 @@ var NetworkedGameRunner = (function () {
     NetworkedGameRunner.updateFPS = 10;
     return NetworkedGameRunner;
 })();
+//# sourceMappingURL=NetworkedGameRunner.js.map

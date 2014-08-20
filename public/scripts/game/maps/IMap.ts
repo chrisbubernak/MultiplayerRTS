@@ -4,4 +4,7 @@
 interface IMap {
   GetTerrain(): TerrainTile[];
   GetUnits(): Unit[];
+  GetNumberOfCols(): number;
+  GetNumberOfRows(): number;
+  GetGridSize(): number;
 }

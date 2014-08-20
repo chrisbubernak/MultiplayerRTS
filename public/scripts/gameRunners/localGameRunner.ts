@@ -19,13 +19,18 @@ class LocalGameRunner implements GameRunner {
 
   constructor() {
     var id = "test";
-    this.myGame;
-    this.drawer = new Drawer(1440, 720, 1,
+    
+    this.myGame = new Game(true, id, "enemyId", "gameId");
+
+    this.drawer = new Drawer(1,
       document.getElementById("terrainCanvas"),
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"),
-      this)
+      this);
+
+    this.run();
+
 
     var that = this;
     //mouse move stuff
@@ -100,8 +105,6 @@ class LocalGameRunner implements GameRunner {
     });
     //mouse move stuff END
 
-    this.myGame = new Game(true, id, "enemyId", "gameId");
-    this.run();
   }
 
   public run() {

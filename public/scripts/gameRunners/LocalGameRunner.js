@@ -10,8 +10,12 @@ var LocalGameRunner = (function () {
         this.updateFPS = 10;
         this.actionList = new Array();
         var id = "test";
-        this.myGame;
-        this.drawer = new Drawer(1440, 720, 1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+
+        this.myGame = new Game(true, id, "enemyId", "gameId");
+
+        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+
+        this.run();
 
         var that = this;
 
@@ -79,10 +83,7 @@ var LocalGameRunner = (function () {
             that.shifted = e.shiftKey;
             return true;
         });
-
         //mouse move stuff END
-        this.myGame = new Game(true, id, "enemyId", "gameId");
-        this.run();
     }
     LocalGameRunner.prototype.run = function () {
         this.myGame.setup();
@@ -170,7 +171,6 @@ var LocalGameRunner = (function () {
                     if (unit.player === that.myGame.getPlayerNumber()) {
                         unit.selected = true;
                     }
-                    console.log(unit.player + " " + that.myGame.getPlayerNumber());
                 }
             }
         }

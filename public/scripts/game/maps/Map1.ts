@@ -5,23 +5,16 @@
 /// <reference path="IMap.ts" />
 
 class Map1 implements IMap {
+  /*constructor() {
+    if (this.GetGridSize() !== this.GetTerrain().length) {
+      alert('INVALID MAP DETECTED!');
+    }
+  }*/
+
   public GetTerrain(): TerrainTile[] {
     var terrain = [];
-    for (var i = 0; i < (length = 60 * 30); i++) {
-      var type = Utilities.random();
-      var grass = .5;
-      if (terrain[i - 1] && terrain[i - 1].type == 'grass') {
-        grass -= .2;
-      }
-      if (terrain[i - 30] && terrain[i - 30].type == 'grass') {
-        grass -= .2;
-      }
-      if (type >= grass) {
-        terrain[i] = new GrassTile();
-      }
-      else {
-        terrain[i] = new DirtTile();
-      }
+    for (var i = 0; i < 5000; i++) {
+      terrain.push(new GrassTile());
     }
     return terrain;
   }
@@ -35,6 +28,17 @@ class Map1 implements IMap {
     return [u1, u2, u3, u4];
   }
 
+  public GetGridSize(): number {
+    return this.GetNumberOfCols() * this.GetNumberOfRows();
+  }
+
+  public GetNumberOfCols(): number {
+    return 100;
+  }
+
+  public GetNumberOfRows(): number {
+    return 50;
+  }
 }
 
 

@@ -11,12 +11,13 @@
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
+/// <reference path="maps/Map1.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(host, id, enemyId, gameId) {
         //"private" variables
         this.simTick = 0;
-        this.map = new Map1();
+        Game.map = new Map1();
         this.gameId = gameId;
         this.id = id; //this players id
         this.enemyId = enemyId;
@@ -28,19 +29,19 @@ var Game = (function () {
         }
     }
     Game.prototype.setup = function () {
-        Game.terrain = this.map.GetTerrain();
+        Game.terrain = Game.map.GetTerrain();
 
         //disable the right click so we can use it for other purposes
         document.oncontextmenu = function () {
             return false;
         };
 
-        Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
+        Game.grid = new Array(Game.terrain.length);
         for (var g in Game.grid) {
             Game.grid[g] = null;
         }
 
-        Game.units = this.map.GetUnits();
+        Game.units = Game.map.GetUnits();
         for (var u in Game.units) {
             Game.markOccupiedGridLocs(Game.units[u]);
         }
@@ -69,15 +70,15 @@ var Game = (function () {
     };
 
     Game.getNumOfCols = function () {
-        return Game.NUM_OF_COL;
+        return Game.map.GetNumberOfCols();
     };
 
     Game.getNumOfRows = function () {
-        return Game.NUM_OF_ROW;
+        return Game.map.GetNumberOfRows();
     };
 
     Game.getRatio = function () {
-        return Game.RATIO;
+        return Game.getNumOfCols() / Game.getNumOfRows();
     };
 
     Game.prototype.getPlayerNumber = function () {
@@ -202,13 +203,9 @@ var Game = (function () {
             return true;
         }
     };
-    Game.RATIO = 2;
-    Game.NUM_OF_COL = 60;
-    Game.NUM_OF_ROW = (Game.NUM_OF_COL / Game.RATIO);
+    Game.terrain = [];
 
-    Game.terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
-    Game.NUMBER_OF_UNITS = 3;
-    Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
+    Game.grid = [];
     Game.units = new Array();
     return Game;
 })();

@@ -31,7 +31,7 @@ class Drawer {
   private playerNumber: number;
   private gameRunner: GameRunner;
 
-  constructor(width, height, playerNumber,
+  constructor(playerNumber,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
 
     this.playerNumber = playerNumber;
@@ -40,7 +40,7 @@ class Drawer {
     this.unitCanvas = unitCanvas;
     this.fogCanvas = fogCanvas;
     this.selectionCanvas = selectionCanvas;
-    this.updateDimensions(width, height);
+    this.updateDimensions(1, 1);
 
     this.terrainContext = terrainCanvas.getContext("2d");
     this.unitContext = unitCanvas.getContext("2d");

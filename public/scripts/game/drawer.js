@@ -2,7 +2,7 @@
 /// <reference path="unit.ts" />
 /// <reference path="../gameRunners/NetworkedGameRunner.ts" />
 var Drawer = (function () {
-    function Drawer(width, height, playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
+    function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         //consts
         this.UPDATE_FPS = 10;
         this.FPS = 60;
@@ -17,7 +17,7 @@ var Drawer = (function () {
         this.unitCanvas = unitCanvas;
         this.fogCanvas = fogCanvas;
         this.selectionCanvas = selectionCanvas;
-        this.updateDimensions(width, height);
+        this.updateDimensions(1, 1);
 
         this.terrainContext = terrainCanvas.getContext("2d");
         this.unitContext = unitCanvas.getContext("2d");
@@ -283,3 +283,4 @@ var Drawer = (function () {
     };
     return Drawer;
 })();
+//# sourceMappingURL=drawer.js.map

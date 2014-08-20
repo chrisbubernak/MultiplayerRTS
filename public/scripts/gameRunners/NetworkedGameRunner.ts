@@ -28,7 +28,7 @@ class NetworkedGameRunner implements GameRunner {
   constructor(id, enemyId, host) {
     var gameId = 123;
     this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
-    this.myGame;
+    this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
     this.host = host;
     var playerNumber;
     if (this.host) {
@@ -37,7 +37,7 @@ class NetworkedGameRunner implements GameRunner {
     else {
       playerNumber = 2;
     }
-    this.drawer = new Drawer(1440, 720, playerNumber,
+    this.drawer = new Drawer(playerNumber,
       document.getElementById("terrainCanvas"),
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
@@ -128,7 +128,6 @@ class NetworkedGameRunner implements GameRunner {
         that.conn = that.peer.connect(enemyId, { reliable: true });
         that.conn.on('open', function () {
           that.conn.send('Hey from player: ' + id);
-          that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
           that.run();
         });
         that.conn.on('close', function () {
@@ -152,7 +151,6 @@ class NetworkedGameRunner implements GameRunner {
           console.log('client ' + conn)
           that.conn.on('open', function () {
             that.conn.send('Hey from player: ' + id);
-            that.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
             that.run();
           });
           that.conn.on('close', function () {

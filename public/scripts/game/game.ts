@@ -11,17 +11,20 @@
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
+/// <reference path="maps/Map1.ts" />
 
 class Game {
   //static variables
-  private static RATIO: number = 2;
-  private static NUM_OF_COL: number = 60;
-  private static NUM_OF_ROW: number = (Game.NUM_OF_COL / Game.RATIO);
 
-  private static terrain = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
-  private static NUMBER_OF_UNITS : number = 3;
-  private static grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
+  //private static RATIO: number = 2;
+  //private static NUM_OF_COL: number = 60;
+  //private static NUM_OF_ROW: number = (Game.NUM_OF_COL / Game.RATIO);
+
+  private static terrain = [];// = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
+  //private static NUMBER_OF_UNITS : number = 3;
+  private static grid = [];// = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
   private static units = new Array(); //array of units
+  private static map;
 
 
   //"private" variables
@@ -31,10 +34,10 @@ class Game {
   private playerNumber: number;
   private enemyId;
   private host; 
-  private map: IMap = new Map1();
 
   //Public Methods:
   constructor(host, id, enemyId, gameId) {
+    Game.map = new Map1();
     this.gameId = gameId;
     this.id = id; //this players id
     this.enemyId = enemyId;
@@ -48,16 +51,16 @@ class Game {
   }
 
   public setup() {
-    Game.terrain = this.map.GetTerrain();
+    Game.terrain = Game.map.GetTerrain();
     //disable the right click so we can use it for other purposes
     document.oncontextmenu = function () { return false; };
 
-    Game.grid = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
+    Game.grid = new Array(Game.terrain.length);
     for (var g in Game.grid) {
       Game.grid[g] = null;
     }
 
-    Game.units = this.map.GetUnits();
+    Game.units = Game.map.GetUnits();
     for (var u in Game.units) {
       Game.markOccupiedGridLocs(Game.units[u]);
     }
@@ -87,15 +90,15 @@ class Game {
   }
 
   public static getNumOfCols() {
-    return Game.NUM_OF_COL;
+    return Game.map.GetNumberOfCols();
   }
 
   public static getNumOfRows() {
-    return Game.NUM_OF_ROW;
+    return Game.map.GetNumberOfRows();
   }
 
   public static getRatio() {
-    return Game.RATIO;
+    return Game.getNumOfCols() / Game.getNumOfRows();
   }
 
   public getPlayerNumber() {
