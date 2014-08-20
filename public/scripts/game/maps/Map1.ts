@@ -23,9 +23,6 @@ class Map1 implements IMap {
         terrain[i] = new DirtTile();
       }
     }
-    /*for (var i = 0; i < 6; i++) {
-      this.generateLake();
-    }*/
     return terrain;
   }
 
@@ -38,29 +35,6 @@ class Map1 implements IMap {
     return [u1, u2, u3, u4];
   }
 
-
-
-  /*private generateLake() {
-    var first = Math.round(Utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
-    var lake = new Array();
-    var old = new Array();
-    lake.push(first);
-    var counter = 0;
-    while (lake.length > 0 && counter < 23) {
-      Game.terrain[lake[0]] = new WaterTile();
-      var neighbors = Utilities.neighbors(lake[0]);
-      for (var i = 0; i < neighbors.length; i++) {
-        if (Utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
-          lake.push(neighbors[i]);
-        }
-      }
-      old.push(lake.shift());
-      counter++;
-    }
-    for (var i = 0; i < lake.length; i++) {
-      Game.terrain[lake[i]] = new WaterTile();
-    }
-  }*/
 }
 
 
