@@ -17,7 +17,13 @@ var NetworkedGameRunner = (function () {
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame;
         this.host = host;
-        this.drawer = new Drawer(1440, 720, id, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        var playerNumber;
+        if (this.host) {
+            playerNumber = 1;
+        } else {
+            playerNumber = 2;
+        }
+        this.drawer = new Drawer(1440, 720, playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
         var that = this;
 
@@ -230,7 +236,7 @@ var NetworkedGameRunner = (function () {
                 var id = Game.getGridLoc(occupied[o]);
                 if (id != null) {
                     var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player == that.myGame.getId()) {
+                    if (unit.player === that.myGame.getPlayerNumber()) {
                         unit.selected = true;
                     }
                 }

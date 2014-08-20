@@ -104,4 +104,3 @@ var AttackingState = (function (_super) {
     };
     return AttackingState;
 })(State);
-//# sourceMappingURL=AttackingState.js.map

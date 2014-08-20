@@ -28,13 +28,13 @@ class Drawer {
   private unitContext;
   private fogContext;
   private selectionContext;
-  private playerId;
+  private playerNumber: number;
   private gameRunner: GameRunner;
 
-  constructor(width, height, player,
+  constructor(width, height, playerNumber,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
 
-    this.playerId = player;
+    this.playerNumber = playerNumber;
     this.gameRunner = gameRunner;
     this.terrainCanvas = terrainCanvas;
     this.unitCanvas = unitCanvas;
@@ -127,7 +127,7 @@ class Drawer {
       }
 
 
-      if (units[i].player == this.playerId) {
+      if (units[i].player === this.playerNumber) {
         var coords = this.boxToCoords(units[i].loc);
         var x = coords.x;
         var y = coords.y;

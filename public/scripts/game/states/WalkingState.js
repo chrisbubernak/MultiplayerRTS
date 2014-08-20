@@ -82,4 +82,3 @@ var WalkingState = (function (_super) {
     };
     return WalkingState;
 })(State);
-//# sourceMappingURL=WalkingState.js.map

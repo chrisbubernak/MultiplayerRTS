@@ -2,7 +2,7 @@
 /// <reference path="unit.ts" />
 /// <reference path="../gameRunners/NetworkedGameRunner.ts" />
 var Drawer = (function () {
-    function Drawer(width, height, player, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
+    function Drawer(width, height, playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         //consts
         this.UPDATE_FPS = 10;
         this.FPS = 60;
@@ -11,7 +11,7 @@ var Drawer = (function () {
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
-        this.playerId = player;
+        this.playerNumber = playerNumber;
         this.gameRunner = gameRunner;
         this.terrainCanvas = terrainCanvas;
         this.unitCanvas = unitCanvas;
@@ -100,7 +100,7 @@ var Drawer = (function () {
                 this.drawStateText(units[i]);
             }
 
-            if (units[i].player == this.playerId) {
+            if (units[i].player === this.playerNumber) {
                 var coords = this.boxToCoords(units[i].loc);
                 var x = coords.x;
                 var y = coords.y;

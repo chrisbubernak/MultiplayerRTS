@@ -16,7 +16,7 @@ class Unit extends BaseGameEntity {
   h: number; //refers to size of image...refactor me!!
   gridWidth: number; //width in # of grid locs
   gridHeight: number; //height in #of  grid locs
-  player: string;
+  player: number; //e.g. 1, 2, 3....etc
   imageX: number;
   imageY: number;
   imageW: number;
@@ -45,7 +45,7 @@ class Unit extends BaseGameEntity {
 
   direction: string = 'down';
 
-  constructor(loc: number, player: string) {
+  constructor(loc: number, player: number) {
     super();
     this.currentState = WaitingState.Instance();
     this.loc = loc;

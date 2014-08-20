@@ -20,7 +20,7 @@ class LocalGameRunner implements GameRunner {
   constructor() {
     var id = "test";
     this.myGame;
-    this.drawer = new Drawer(1440, 720, id,
+    this.drawer = new Drawer(1440, 720, 1,
       document.getElementById("terrainCanvas"),
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
@@ -100,7 +100,7 @@ class LocalGameRunner implements GameRunner {
     });
     //mouse move stuff END
 
-    this.myGame = new Game(false, id, "enemyId", "gameId");
+    this.myGame = new Game(true, id, "enemyId", "gameId");
     this.run();
   }
 
@@ -184,9 +184,9 @@ class LocalGameRunner implements GameRunner {
       var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
       for (var o in occupied) {
         var id = Game.getGridLoc(occupied[o]);
-        if (id != null) {
+        if (id !== null && typeof id !== 'undefined') {
           var unit = Utilities.findUnit(id, Game.getUnits());
-          if (unit.player == that.myGame.getId()) {
+          if (unit.player === that.myGame.getPlayerNumber()) {
             unit.selected = true;
           }
         }

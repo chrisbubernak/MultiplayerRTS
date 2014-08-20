@@ -33,6 +33,7 @@ var State = (function () {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
 
         locs.sort(function (a, b) {
+            //what this really should do instead of a -> loc is find the min distance from a to a spot occupied by the unit
             return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
         });
 
@@ -58,4 +59,3 @@ var State = (function () {
     };
     return State;
 })();
-//# sourceMappingURL=State.js.map

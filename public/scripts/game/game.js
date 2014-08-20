@@ -10,18 +10,25 @@
 /// <reference path="commands/ICommand.ts" />
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
+/// <reference path="maps/IMap.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(host, id, enemyId, gameId) {
         //"private" variables
         this.simTick = 0;
+        this.map = new Map1();
         this.gameId = gameId;
         this.id = id; //this players id
         this.enemyId = enemyId;
         this.host = host;
+        if (host) {
+            this.playerNumber = 1;
+        } else {
+            this.playerNumber = 2;
+        }
     }
     Game.prototype.setup = function () {
-        this.generateTerrain();
+        Game.terrain = this.map.GetTerrain();
 
         //disable the right click so we can use it for other purposes
         document.oncontextmenu = function () {
@@ -33,40 +40,16 @@ var Game = (function () {
             Game.grid[g] = null;
         }
 
-        var that = this;
-
-        for (var i = 0; i < Game.NUMBER_OF_UNITS; i++) {
-            var p1;
-            var p2;
-            if (this.host) {
-                p1 = this.id;
-                p2 = this.enemyId;
-            } else {
-                p1 = this.enemyId;
-                p2 = this.id;
-            }
-
-            var loc1 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
-            while (!Game.getTerrainLoc(loc1).walkable) {
-                loc1 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
-            }
-            var p1unit = new Knight(loc1, p1);
-            Game.markOccupiedGridLocs(p1unit);
-            Game.units.push(p1unit);
-            var loc2 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
-            while (!Game.getTerrainLoc(loc2).walkable) {
-                loc2 = Math.round(Utilities.random() * Game.NUM_OF_COL * Game.NUM_OF_ROW);
-            }
-            var p2unit = new Orc(loc2, p2);
-            Game.markOccupiedGridLocs(p2unit);
-            Game.units.push(p2unit);
+        Game.units = this.map.GetUnits();
+        for (var u in Game.units) {
+            Game.markOccupiedGridLocs(Game.units[u]);
         }
     };
     Game.prototype.isOver = function () {
         //check if either player is out of units & return based on that
-        if (Game.getUnitsForPlayer(this.enemyId).length === 0) {
+        if (Game.getUnitsForPlayer(2).length === 0) {
             return true;
-        } else if (Game.getUnitsForPlayer(this.id).length === 0) {
+        } else if (Game.getUnitsForPlayer(1).length === 0) {
             return true;
         }
 
@@ -97,8 +80,8 @@ var Game = (function () {
         return Game.RATIO;
     };
 
-    Game.prototype.getId = function () {
-        return this.id;
+    Game.prototype.getPlayerNumber = function () {
+        return this.playerNumber;
     };
 
     Game.prototype.getGridLoc = function (g) {
@@ -147,11 +130,11 @@ var Game = (function () {
         }
     };
 
-    Game.getUnitsForPlayer = function (id) {
+    Game.getUnitsForPlayer = function (playerNumber) {
         var myUnits = new Array();
         for (var u in Game.units) {
             var unit = Game.units[u];
-            if (unit.player === id) {
+            if (unit.player === playerNumber) {
                 myUnits.push(unit);
             }
         }
@@ -165,18 +148,6 @@ var Game = (function () {
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
             var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
-                //old logic for taking user input and translating it to behavior
-                /*var targetLoc = action.getTarget();
-                unit.target = targetLoc;
-                if (Game.grid[targetLoc] != null) {
-                var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
-                if (this.areEnemies(unit, unitTarget)) {
-                unit.unitTarget = unitTarget;
-                }
-                }
-                else {
-                unit.unitTarget = null;
-                }*/
                 //new logic!
                 var targetLoc = action.getTarget();
                 if (Game.grid[targetLoc] != null) {
@@ -226,52 +197,9 @@ var Game = (function () {
     };
 
     //Private Methods:
-    Game.prototype.generateTerrain = function () {
-        for (var i = 0; i < (length = Game.NUM_OF_COL * Game.NUM_OF_ROW); i++) {
-            var type = Utilities.random();
-            var grass = .5;
-            if (Game.terrain[i - 1] && Game.terrain[i - 1].type == 'grass') {
-                grass -= .2;
-            }
-            if (Game.terrain[i - Game.NUM_OF_COL] && Game.terrain[i - Game.NUM_OF_COL].type == 'grass') {
-                grass -= .2;
-            }
-            if (type >= grass) {
-                Game.terrain[i] = new GrassTile();
-            } else {
-                Game.terrain[i] = new DirtTile();
-            }
-        }
-        for (var i = 0; i < 6; i++) {
-            this.generateLake();
-        }
-    };
-
     Game.prototype.areEnemies = function (unit1, unit2) {
         if (unit1.player !== unit2.player) {
             return true;
-        }
-    };
-
-    Game.prototype.generateLake = function () {
-        var first = Math.round(Utilities.random() * Game.NUM_OF_ROW * Game.NUM_OF_COL);
-        var lake = new Array();
-        var old = new Array();
-        lake.push(first);
-        var counter = 0;
-        while (lake.length > 0 && counter < 23) {
-            Game.terrain[lake[0]] = new WaterTile();
-            var neighbors = Utilities.neighbors(lake[0]);
-            for (var i = 0; i < neighbors.length; i++) {
-                if (Utilities.random() > .35 && old.indexOf(neighbors[i]) == -1) {
-                    lake.push(neighbors[i]);
-                }
-            }
-            old.push(lake.shift());
-            counter++;
-        }
-        for (var i = 0; i < lake.length; i++) {
-            Game.terrain[lake[i]] = new WaterTile();
         }
     };
     Game.RATIO = 2;
@@ -284,3 +212,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map

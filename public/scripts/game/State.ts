@@ -35,6 +35,7 @@ class State {
     var locs = Utilities.getGridLocsInTargetAquireRange(unit);
     
     locs.sort(function (a, b) { //sort by min distance to the unit so we find the closest enemy...not 100% this is working
+      //what this really should do instead of a -> loc is find the min distance from a to a spot occupied by the unit
       return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
     });
 
