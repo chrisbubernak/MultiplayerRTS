@@ -5,35 +5,41 @@
 /// <reference path="IMap.ts" />
 var Map1 = (function () {
     function Map1() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert('INVALID MAP DETECTED!');
+        }
     }
     Map1.prototype.GetTerrain = function () {
         var terrain = [];
-        for (var i = 0; i < (length = 60 * 30); i++) {
-            var type = Utilities.random();
-            var grass = .5;
-            if (terrain[i - 1] && terrain[i - 1].type == 'grass') {
-                grass -= .2;
-            }
-            if (terrain[i - 30] && terrain[i - 30].type == 'grass') {
-                grass -= .2;
-            }
-            if (type >= grass) {
-                terrain[i] = new GrassTile();
-            } else {
-                terrain[i] = new DirtTile();
-            }
+        for (var i = 0; i < 5000; i++) {
+            terrain.push(new GrassTile());
         }
         return terrain;
     };
 
     Map1.prototype.GetUnits = function () {
         var u1 = new Knight(15, 1);
-        var u2 = new Knight(28, 1);
-        var u3 = new Orc(99, 2);
-        var u4 = new Orc(105, 2);
+        var u2 = new Knight(315, 1);
+        var u3 = new Knight(615, 1);
+        var u4 = new Knight(915, 1);
 
-        return [u1, u2, u3, u4];
+        var u5 = new Orc(80, 2);
+        var u6 = new Orc(380, 2);
+        var u7 = new Orc(680, 2);
+        var u8 = new Orc(980, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
+    };
+
+    Map1.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    Map1.prototype.GetNumberOfCols = function () {
+        return 100;
+    };
+
+    Map1.prototype.GetNumberOfRows = function () {
+        return 50;
     };
     return Map1;
 })();
-//# sourceMappingURL=Map1.js.map
