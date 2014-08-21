@@ -66,6 +66,7 @@
     <Content Include="views\game.jade" />
     <Content Include="views\lobby.jade" />
     <Content Include="views\layout.jade" />
+    <Content Include="views\replay.jade" />
     <Content Include="views\localGame.jade" />
     <Content Include="views\login.jade" />
     <Content Include="views\signup.jade" />

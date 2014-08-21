@@ -46,6 +46,10 @@ exports.localGame = function ( req, res ) {
   res.render( 'localGame' );
 };
 
+exports.replay = function ( req, res ) {
+  res.render( 'replay' );
+};
+
 //signs up user and logs them in
 exports.signUpPost = function ( req, res ) {
   var user = req.param( 'user' );
