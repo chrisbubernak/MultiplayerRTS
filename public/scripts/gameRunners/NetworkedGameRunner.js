@@ -1,4 +1,4 @@
-﻿/// <reference path="../game/game.ts" />
+/// <reference path="../game/game.ts" />
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
@@ -244,4 +244,3 @@ var NetworkedGameRunner = (function () {
     NetworkedGameRunner.updateFPS = 10;
     return NetworkedGameRunner;
 })();
-//# sourceMappingURL=NetworkedGameRunner.js.map

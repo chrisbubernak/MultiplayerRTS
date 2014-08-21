@@ -11,13 +11,12 @@
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
-/// <reference path="maps/Map1.ts" />
 var Game = (function () {
     //Public Methods:
     function Game(host, id, enemyId, gameId) {
         //"private" variables
         this.simTick = 0;
-        Game.map = new Map1();
+        Game.map = new StripesMap();
         this.gameId = gameId;
         this.id = id; //this players id
         this.enemyId = enemyId;
@@ -209,4 +208,3 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
-//# sourceMappingURL=game.js.map

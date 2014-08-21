@@ -152,6 +152,7 @@
     <TypeScriptCompile Include="public\scripts\game\commands\WalkCommand.ts" />
     <TypeScriptCompile Include="public\scripts\game\maps\IMap.ts" />
     <TypeScriptCompile Include="public\scripts\game\maps\Map1.ts" />
+    <TypeScriptCompile Include="public\scripts\game\maps\StripesMap.ts" />
     <TypeScriptCompile Include="public\scripts\game\states\PursuingState.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />

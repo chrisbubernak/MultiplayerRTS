@@ -178,4 +178,3 @@ var LocalGameRunner = (function () {
     LocalGameRunner.updateFPS = 10;
     return LocalGameRunner;
 })();
-//# sourceMappingURL=LocalGameRunner.js.map

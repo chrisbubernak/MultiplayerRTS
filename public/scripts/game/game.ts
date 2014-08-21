@@ -11,7 +11,6 @@
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
-/// <reference path="maps/Map1.ts" />
 
 class Game {
   //static variables
@@ -37,7 +36,7 @@ class Game {
 
   //Public Methods:
   constructor(host, id, enemyId, gameId) {
-    Game.map = new Map1();
+    Game.map = new StripesMap();
     this.gameId = gameId;
     this.id = id; //this players id
     this.enemyId = enemyId;

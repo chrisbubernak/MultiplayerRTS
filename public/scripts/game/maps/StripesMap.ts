@@ -4,7 +4,7 @@
 /// <reference path="../units/knight.ts" />
 /// <reference path="IMap.ts" />
 
-class Map1 implements IMap {
+class StripesMap implements IMap {
   constructor() {
     if (this.GetGridSize() !== this.GetTerrain().length) {
       alert('INVALID MAP DETECTED!');
@@ -14,7 +14,12 @@ class Map1 implements IMap {
   public GetTerrain(): TerrainTile[] {
     var terrain = [];
     for (var i = 0; i < 5000; i++) {
-      terrain.push(new GrassTile());
+      if (i % 10 <= 5) {
+        terrain.push(new DirtTile());
+      }
+      else {
+        terrain.push(new GrassTile());
+      }
     }
     return terrain;
   }
@@ -44,5 +49,3 @@ class Map1 implements IMap {
     return 50;
   }
 }
-
-
