@@ -39,6 +39,7 @@
     <Compile Include="public\vendor\jquery\jquery.forms.js" />
     <Compile Include="public\vendor\jquery\jquery-2.1.0.min.js" />
     <Compile Include="public\scripts\signup.js" />
+    <Compile Include="routes\modules\gameManager.js" />
     <Compile Include="routes\modules\lobbyManager.js" />
     <Content Include="app.ts" />
     <Content Include="public\css\game.css" />

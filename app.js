@@ -45,6 +45,7 @@ var server = http.createServer(app).listen(app.get('port'), function () {
 //socket stuff...might want to move this somewhere else in the future to keep this file small and encapsulate lobby code
 var io = require('socket.io').listen(server);
 var LM = require('./routes/modules/lobbyManager')(io);
+var GM = require('./routes/modules/gameManager')(io);
 
 io.sockets.on('connection', function (client) {
     client.emit('ClientJoined', { userId: client.id });
@@ -60,6 +61,8 @@ io.sockets.on('connection', function (client) {
         var gameId = uuid.v4();
         io.sockets.socket(host).emit('StartGame', { host: host, client: client, gameId: gameId });
         io.sockets.socket(client).emit('StartGame', { host: host, client: client, gameId: gameId });
+
+        GM.reportGameStart(host, client, gameId);
     });
 
     client.on('disconnect', function () {
