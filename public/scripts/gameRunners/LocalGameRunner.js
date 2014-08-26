@@ -9,9 +9,14 @@ var LocalGameRunner = (function () {
         this.RealFPS = this.FPS;
         this.updateFPS = 10;
         this.actionList = new Array();
-        var id = "test";
+        var id = "Human";
+        var enemyId = "Computer";
+        var gameId = "LocalGame";
+        var host = true;
 
-        this.myGame = new Game(true, id, "enemyId", "gameId");
+        this.myGame = new Game(true, id, enemyId, gameId);
+
+        this.reportGameStartToServer(gameId, id, enemyId, host);
 
         this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
@@ -156,6 +161,9 @@ var LocalGameRunner = (function () {
     LocalGameRunner.prototype.end = function (message) {
         alert(message);
         window.location.href = "/lobby";
+    };
+
+    LocalGameRunner.prototype.reportGameStartToServer = function (gameId, id, enemyId, host) {
     };
 
     LocalGameRunner.prototype.getSelection = function () {

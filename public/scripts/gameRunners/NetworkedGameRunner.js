@@ -4,7 +4,7 @@
 /// <reference path="../definitions/Peer.d.ts" />
 /// <reference path="GameRunner.ts" />
 var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host) {
+    function NetworkedGameRunner(id, enemyId, host, gameId) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
@@ -13,7 +13,6 @@ var NetworkedGameRunner = (function () {
         this.RealFPS = this.FPS;
         this.updateFPS = 10;
         this.actionList = new Array();
-        var gameId = 123;
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
         this.host = host;

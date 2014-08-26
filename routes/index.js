@@ -65,3 +65,38 @@ exports.signUpPost = function ( req, res ) {
     }
   });
 };
+
+
+//let the server know a game is starting
+exports.gameStart = function ( req, res ) {
+  var gameId = req.param( 'gameId' );
+  var player1 = req.param( 'player1' );
+  var player2 = req.param( 'player2' );
+  var map = req.param( 'map' );
+
+  AM.signUp( user, pass, email, function ( error, user ) {
+    if ( !user ) {
+      res.send( error, 400 );
+    }
+    else {
+      req.session.user = user;
+      res.redirect( 'lobby' );
+    }
+  });
+};
+
+//let the server know the game ended and report the result
+exports.gameEnd = function ( req, res ) {
+  var user = req.param( 'user' );
+  var pass = req.param( 'pass' );
+  var email = req.param( 'email' );
+  AM.signUp( user, pass, email, function ( error, user ) {
+    if ( !user ) {
+      res.send( error, 400 );
+    }
+    else {
+      req.session.user = user;
+      res.redirect( 'lobby' );
+    }
+  });
+};

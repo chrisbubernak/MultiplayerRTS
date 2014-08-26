@@ -18,9 +18,15 @@ class LocalGameRunner implements GameRunner {
   private drawer: Drawer;
 
   constructor() {
-    var id = "test";
-    
-    this.myGame = new Game(true, id, "enemyId", "gameId");
+    var id = "Human";
+    var enemyId = "Computer";
+    var gameId = "LocalGame";
+    var host = true;
+
+
+    this.myGame = new Game(true, id, enemyId, gameId);
+
+    this.reportGameStartToServer(gameId, id, enemyId, host);
 
     this.drawer = new Drawer(1,
       document.getElementById("terrainCanvas"),
@@ -177,6 +183,10 @@ class LocalGameRunner implements GameRunner {
   public end(message: string) {
     alert(message);
     window.location.href = "/lobby";
+  }
+
+  private reportGameStartToServer(gameId, id, enemyId, host) {
+
   }
 
   public getSelection() {

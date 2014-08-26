@@ -25,8 +25,7 @@ class NetworkedGameRunner implements GameRunner {
   private selection: SelectionObject;
   private drawer: Drawer;
 
-  constructor(id, enemyId, host) {
-    var gameId = 123;
+  constructor(id, enemyId, host, gameId) {
     this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
     this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
     this.host = host;

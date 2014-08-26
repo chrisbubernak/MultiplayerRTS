@@ -49,5 +49,6 @@ block scripts
       var id = '#{id.split('_').join('').split(' - ').join('')}';
       var enemyId = '#{enemyId.split('_').join('').split(' - ').join('')}';
       var host = #{host };
-      var c = new NetworkedGameRunner(id, enemyId, host);
+      var gameId = '#{gameId}';
+      var c = new NetworkedGameRunner(id, enemyId, host, gameId);
     });

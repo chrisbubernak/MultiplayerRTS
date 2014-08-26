@@ -26,19 +26,23 @@ function start(username) {
   });
    
   socket.on('StartGame', function (data) {
+    var hostId = data.host;
+    var clientId = data.client;
+    var gameId = data.gameId;
+    
     socket.disconnect();
     var host = false;
-    if (id == data.host) {
-      enemyId = data.client;
+    if (id === data.host) {
+      enemyId = clientId;
       host = true;
       console.log('Game started and I am the host');
     }
     else {
-      enemyId = data.host;
+      enemyId = hostId;
       host = false;
       console.log('Game started and I am the client');
     }
-    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId;
+    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId;
   });
 }
 

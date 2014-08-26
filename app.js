@@ -1,6 +1,6 @@
-﻿/// <reference path="node.d.ts" />
-var express = require('express');
+﻿var express = require('express');
 var routes = require('./routes');
+var uuid = require('uuid');
 var http = require('http');
 var path = require('path');
 var app = express();
@@ -30,6 +30,8 @@ app.get('/', routes.index);
 app.get('/login', routes.login);
 app.get('/lobby', routes.lobby);
 app.get('/signup', routes.signup);
+app.post('/gameStart', routes.gameStart);
+app.post('/gameEnd', routes.gameEnd);
 app.post('/', routes.post);
 app.post('/signup', routes.signUpPost);
 app.get('/game', routes.game);
@@ -55,8 +57,9 @@ io.sockets.on('connection', function (client) {
     client.on('RequestGame', function (data) {
         var host = data.host;
         var client = data.client;
-        io.sockets.socket(host).emit('StartGame', { host: host, client: client });
-        io.sockets.socket(client).emit('StartGame', { host: host, client: client });
+        var gameId = uuid.v4();
+        io.sockets.socket(host).emit('StartGame', { host: host, client: client, gameId: gameId });
+        io.sockets.socket(client).emit('StartGame', { host: host, client: client, gameId: gameId });
     });
 
     client.on('disconnect', function () {
