@@ -15,6 +15,7 @@ function start(username) {
     id = data.userId;
     socket.emit('SendUserInfoToServer', { socket: data.userId, username: username });
   });
+
   socket.on('ClientList', function (data) {
     console.log(data);
     document.getElementById('playerList').innerHTML = "Client List:\n";

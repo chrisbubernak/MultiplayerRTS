@@ -16,6 +16,7 @@ var Game = (function () {
     function Game(host, id, enemyId, gameId) {
         //"private" variables
         this.simTick = 0;
+        this.winner = null;
         Game.map = new StripesMap();
         this.gameId = gameId;
         this.id = id; //this players id
@@ -45,11 +46,22 @@ var Game = (function () {
             Game.markOccupiedGridLocs(Game.units[u]);
         }
     };
+
     Game.prototype.isOver = function () {
         //check if either player is out of units & return based on that
         if (Game.getUnitsForPlayer(2).length === 0) {
+            if (this.host) {
+                this.winner = this.id;
+            } else {
+                this.winner = this.enemyId;
+            }
             return true;
         } else if (Game.getUnitsForPlayer(1).length === 0) {
+            if (this.host) {
+                this.winner = this.enemyId;
+            } else {
+                this.winner = this.id;
+            }
             return true;
         }
 
@@ -208,3 +220,4 @@ var Game = (function () {
     Game.units = new Array();
     return Game;
 })();
+//# sourceMappingURL=game.js.map

@@ -30,7 +30,6 @@ app.get('/', routes.index);
 app.get('/login', routes.login);
 app.get('/lobby', routes.lobby);
 app.get('/signup', routes.signup);
-app.post('/gameStart', routes.gameStart);
 app.post('/gameEnd', routes.gameEnd);
 app.post('/', routes.post);
 app.post('/signup', routes.signUpPost);
@@ -47,6 +46,11 @@ var server = http.createServer(app).listen(app.get('port'), function () {
 var io = require('socket.io').listen(server);
 var LM = require('./routes/modules/lobbyManager')(io);
 var GM = require('./routes/modules/gameManager')(io);
+
+
+
+//TODO: remove all stale clients from lobby
+
 
 
 io.sockets.on('connection', function (client) {

@@ -13,6 +13,8 @@ var NetworkedGameRunner = (function () {
         this.RealFPS = this.FPS;
         this.updateFPS = 10;
         this.actionList = new Array();
+        this.myId = id;
+        this.gameId = gameId;
         this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
         this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
         this.host = host;
@@ -170,9 +172,10 @@ var NetworkedGameRunner = (function () {
         var fpsOut = document.getElementById("fps");
 
         //var conn = Game.conn;
-        setInterval(function () {
+        var intervalId = setInterval(function () {
             if (that.myGame.isOver()) {
                 that.end("Game is over!");
+                clearInterval(intervalId);
                 return;
             }
 
@@ -219,8 +222,36 @@ var NetworkedGameRunner = (function () {
     };
 
     NetworkedGameRunner.prototype.end = function (message) {
-        alert(message);
+        this.sendGameReportToServer();
         window.location.href = "/lobby";
+    };
+
+    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
+        //console.log(this.actionList);
+        var actions = {};
+        for (var a in this.actionList) {
+            if (this.actionList[a].length > 0) {
+                actions[a] = this.actionList[a];
+            }
+        }
+        console.log(actions);
+        var that = this;
+        $.ajax({
+            url: "/gameEnd",
+            type: "POST",
+            data: {
+                gameId: that.gameId,
+                reporter: that.myId,
+                winner: that.myGame.winner,
+                actions: JSON.stringify(actions)
+            },
+            success: function (data, textStatus, jqXHR) {
+                alert('SUCCESS');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert('ERR');
+            }
+        });
     };
 
     NetworkedGameRunner.prototype.getSelection = function () {
@@ -243,3 +274,4 @@ var NetworkedGameRunner = (function () {
     NetworkedGameRunner.updateFPS = 10;
     return NetworkedGameRunner;
 })();
+//# sourceMappingURL=NetworkedGameRunner.js.map

@@ -27,12 +27,15 @@ class Game {
 
 
   //"private" variables
-  private simTick : number = 0;
+  private simTick: number = 0;
   private gameId: string;
   private id: string;
   private playerNumber: number;
   private enemyId;
-  private host; 
+  private host;
+
+
+  public winner: string = null;
 
   //Public Methods:
   constructor(host, id, enemyId, gameId) {
@@ -64,19 +67,32 @@ class Game {
       Game.markOccupiedGridLocs(Game.units[u]);
     }
   }
+
   public isOver() {
     //check if either player is out of units & return based on that
     if (Game.getUnitsForPlayer(2).length === 0) {
+      if (this.host) {
+        this.winner = this.id;
+      }
+      else {
+        this.winner = this.enemyId;
+      }
       return true;
     }
     else if (Game.getUnitsForPlayer(1).length === 0) {
+      if (this.host) {
+        this.winner = this.enemyId;
+      }
+      else {
+        this.winner = this.id;
+      }
       return true;
     }
 
     return false; //for now always return false
   }
 
-  public static getGridLoc(index : number) {
+  public static getGridLoc(index: number) {
     return Game.grid[index];
   }
 
@@ -106,7 +122,7 @@ class Game {
 
   public getGridLoc(g) {
     return Game.grid[g];
-  } 
+  }
 
   public static removeUnit(unit: Unit) {
     var id = unit.id;
