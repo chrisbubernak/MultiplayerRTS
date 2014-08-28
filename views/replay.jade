@@ -43,5 +43,7 @@ block scripts
 
   script.
     $(document).ready(function () {
-      var gameRunner = new ReplayGameRunner();
+      var actions = !{actions};
+
+      var gameRunner = new ReplayGameRunner(actions);
     });

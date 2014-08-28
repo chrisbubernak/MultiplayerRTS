@@ -44,7 +44,7 @@ var server = http.createServer(app).listen(app.get('port'), function () {
 //socket stuff...might want to move this somewhere else in the future to keep this file small and encapsulate lobby code
 var io = require('socket.io').listen(server);
 var LM = require('./routes/modules/lobbyManager')(io);
-var GM = require('./routes/modules/gameManager')(io);
+var GM = require('./routes/modules/gameManager');
 
 //TODO: remove all stale clients from lobby
 io.sockets.on('connection', function (client) {

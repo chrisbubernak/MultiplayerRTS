@@ -1,6 +1,6 @@
 ﻿/// <reference path="GameRunner.ts" />
 var ReplayGameRunner = (function () {
-    function ReplayGameRunner() {
+    function ReplayGameRunner(actions) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
@@ -9,9 +9,11 @@ var ReplayGameRunner = (function () {
         this.RealFPS = this.FPS;
         this.updateFPS = 10;
         this.actionList = new Array();
-        this.actions = [];
-        for (var i = 0; i < 10000; i++) {
-            this.actions.push([]);
+        console.log(actions);
+        this.actions = actions;
+
+        /*for (var i = 0; i < 10000; i++) {
+        this.actions.push([]);
         }
         var action1 = new Action(20, 0, false);
         var action2 = new Action(500, 1, false);
@@ -20,15 +22,14 @@ var ReplayGameRunner = (function () {
         var action5 = new Action(589, 1, false);
         var action6 = new Action(400, 3, false);
         var action7 = new Action(2000, 2, false);
-
+        
         this.actions[100].push(action1);
         this.actions[50].push(action3);
         this.actions[120].push(action2);
         this.actions[130].push(action4);
         this.actions[135].push(action5);
         this.actions[136].push(action6);
-        this.actions[200].push(action7);
-
+        this.actions[200].push(action7);*/
         var id = "test";
 
         this.myGame = new Game(true, id, "enemyId", "gameId");
@@ -97,3 +98,4 @@ var ReplayGameRunner = (function () {
     ReplayGameRunner.updateFPS = 10;
     return ReplayGameRunner;
 })();
+//# sourceMappingURL=ReplayGameRunner.js.map

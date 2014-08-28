@@ -17,9 +17,10 @@ class ReplayGameRunner implements GameRunner {
   private selection: SelectionObject;
   private drawer: Drawer;
 
-  constructor() {
-    this.actions = [];
-    for (var i = 0; i < 10000; i++) {
+  constructor(actions) {
+    console.log(actions);
+    this.actions = actions;
+    /*for (var i = 0; i < 10000; i++) {
       this.actions.push([]);
     }
     var action1 = new Action(20, 0, false);
@@ -36,7 +37,7 @@ class ReplayGameRunner implements GameRunner {
     this.actions[130].push(action4);
     this.actions[135].push(action5);
     this.actions[136].push(action6);
-    this.actions[200].push(action7);
+    this.actions[200].push(action7);*/
 
     var id = "test";
 

@@ -275,4 +275,3 @@ var NetworkedGameRunner = (function () {
     NetworkedGameRunner.updateFPS = 10;
     return NetworkedGameRunner;
 })();
-//# sourceMappingURL=NetworkedGameRunner.js.map

@@ -1,4 +1,5 @@
 ﻿var AM = require( './modules/accountManager' );
+var GM = require( './modules/gameManager' );
 
 
 exports.index = function ( req, res ) {
@@ -47,10 +48,6 @@ exports.localGame = function ( req, res ) {
   res.render( 'localGame' );
 };
 
-exports.replay = function ( req, res ) {
-  res.render( 'replay' );
-};
-
 //signs up user and logs them in
 exports.signUpPost = function ( req, res ) {
   var user = req.param( 'user' );
@@ -70,9 +67,24 @@ exports.signUpPost = function ( req, res ) {
 
 //let the server know the game ended and report the result
 exports.gameEnd = function ( req, res ) {
-  var gameId = req.param( 'gameId' );
-  var reportingPlayerId = req.param( 'reporter' );
-  var winningPlayerId = req.param( 'winner' );
-  var actions = JSON.parse(req.param('actions')); 
-  
+  var game = req.param( 'gameId' );
+  var reporter = req.param( 'reporter' );
+  var winner = req.param( 'winner' );
+  var actions = req.param('actions'); 
+  GM.reportGameEnd(game, reporter, winner, actions);
+};
+
+
+exports.replay = function (req, res) {
+  var game = req.param('gameId');
+  GM.gameActionsGet(game, function ( error, actions ) {
+    if ( !actions ) {
+      res.send( error, 400 );
+    }
+    else {
+      res.render( 'replay', {
+        actions: actions
+      });
+    }
+  });
 };
