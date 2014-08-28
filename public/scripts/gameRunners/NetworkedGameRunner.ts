@@ -21,6 +21,7 @@ class NetworkedGameRunner implements GameRunner {
   private RealFPS: number = this.FPS;
   private updateFPS: number = 10;
   private actionList = new Array();
+  private actionHistory = {};
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
@@ -164,6 +165,9 @@ class NetworkedGameRunner implements GameRunner {
             if (!(typeof (data.simTick) === 'undefined')) {
               //if we are the client it means the host sent us an update and we should apply it
               that.myGame.applyActions(data.actions, data.simTick);
+              if (data.actions.length > 0) {
+                that.actionHistory[data.simTick] = data.actions;
+              }
             }
           });
         });
@@ -218,6 +222,9 @@ class NetworkedGameRunner implements GameRunner {
         that.actions = that.actions.concat(that.actionList[currentSimTick]);
         that.conn.send({ actions: that.actions, simTick: currentSimTick});
         that.myGame.applyActions(that.actions, currentSimTick);
+        if (that.actions.length > 0) {
+          that.actionHistory[currentSimTick] = that.actions;
+        }
         that.actions = new Array();
       }
 
@@ -254,14 +261,8 @@ class NetworkedGameRunner implements GameRunner {
   }
 
   private sendGameReportToServer() {
-    //console.log(this.actionList);
-    var actions = {};
-    for (var a in this.actionList) {
-      if (this.actionList[a].length > 0) {
-        actions[a] = this.actionList[a];
-      }
-    }
-    console.log(actions);
+    console.log(this.actionHistory);
+
     var that = this;
     $.ajax({
       url: "/gameEnd",
@@ -270,7 +271,7 @@ class NetworkedGameRunner implements GameRunner {
         gameId: that.gameId,
         reporter: that.myId,
         winner: that.myGame.winner,
-        actions: JSON.stringify(actions)
+        actions: JSON.stringify(that.actionHistory)
       },
       success: function (data, textStatus, jqXHR) {
         alert('SUCCESS');
