@@ -515,9 +515,9 @@ var WaterTile = (function (_super) {
     __extends(WaterTile, _super);
     function WaterTile() {
         _super.call(this);
-        this.imageX = 448;
         this.type = "water";
         this.walkable = false;
+        this.imageX = 448;
     }
     return WaterTile;
 })(TerrainTile);
@@ -526,8 +526,8 @@ var GrassTile = (function (_super) {
     __extends(GrassTile, _super);
     function GrassTile() {
         _super.call(this);
-        this.imageX = 224;
         this.type = "grass";
+        this.imageX = 224;
     }
     return GrassTile;
 })(TerrainTile);
@@ -536,8 +536,8 @@ var DirtTile = (function (_super) {
     __extends(DirtTile, _super);
     function DirtTile() {
         _super.call(this);
-        this.imageX = 0;
         this.type = "dirt";
+        this.imageX = 0;
     }
     return DirtTile;
 })(TerrainTile);
@@ -931,12 +931,12 @@ var Game = (function () {
         };
 
         Game.grid = new Array(Game.terrain.length);
-        for (var g in Game.grid) {
+        for (var g = 0; g < Game.grid.length; g++) {
             Game.grid[g] = null;
         }
 
         Game.units = Game.map.GetUnits();
-        for (var u in Game.units) {
+        for (var u = 0; u < Game.units.length; u++) {
             Game.markOccupiedGridLocs(Game.units[u]);
         }
     };
@@ -996,7 +996,7 @@ var Game = (function () {
     Game.removeUnit = function (unit) {
         var id = unit.id;
         for (var i = 0; i < (length = Game.units.length); i++) {
-            if (Game.units[i].id == id) {
+            if (Game.units[i].id === id) {
                 Game.units.splice(i, 1);
                 Game.unmarkGridLocs(unit);
                 return;
@@ -1007,7 +1007,7 @@ var Game = (function () {
     Game.removeUnitById = function (unitId) {
         var id = unitId;
         for (var i = 0; i < (length = Game.units.length); i++) {
-            if (Game.units[i].id == id) {
+            if (Game.units[i].id === id) {
                 Game.unmarkGridLocs(Game.units[i]);
                 Game.units.splice(i, 1);
                 return;
@@ -1021,21 +1021,21 @@ var Game = (function () {
 
     Game.markOccupiedGridLocs = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             Game.setGridLoc(locs[l], unit.id);
         }
     };
 
     Game.unmarkGridLocs = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             Game.setGridLoc(locs[l], null);
         }
     };
 
     Game.getUnitsForPlayer = function (playerNumber) {
         var myUnits = new Array();
-        for (var u in Game.units) {
+        for (var u = 0; u < Game.units.length; u++) {
             var unit = Game.units[u];
             if (unit.player === playerNumber) {
                 myUnits.push(unit);
@@ -1045,7 +1045,7 @@ var Game = (function () {
     };
 
     Game.prototype.applyActions = function (actions, simTick) {
-        for (var a in actions) {
+        for (var a = 0; a < actions.length; a++) {
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
             var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
@@ -1059,12 +1059,14 @@ var Game = (function () {
                     } else if (isEnemy && !isVisible) {
                         unit.command = new WalkCommand(unitTarget.loc);
                     } else if (!isEnemy && isVisible) {
+                        alert("issue a follow command");
                     } else {
                         alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
                     }
                 } else {
                     unit.command = new WalkCommand(targetLoc);
                 }
+
                 unit.newCommand = true;
             }
         }
@@ -1090,7 +1092,7 @@ var Game = (function () {
     };
 
     Game.prototype.unselectAll = function () {
-        for (var u in Game.getUnits()) {
+        for (var u = 0; u < Game.getUnits().length; u++) {
             Game.units[u].selected = false;
         }
     };
@@ -1099,11 +1101,11 @@ var Game = (function () {
         if (unit1.player !== unit2.player) {
             return true;
         }
+        return false;
     };
-    Game.terrain = [];
-
-    Game.grid = [];
-    Game.units = new Array();
+    Game.terrain = Array();
+    Game.grid = Array();
+    Game.units = Array();
     return Game;
 })();
 var Utilities = (function () {
@@ -1524,11 +1526,11 @@ var Pathing = (function () {
 var Map1 = (function () {
     function Map1() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert('INVALID MAP DETECTED!');
+            alert("INVALID MAP DETECTED!");
         }
     }
     Map1.prototype.GetTerrain = function () {
-        var terrain = [];
+        var terrain = Array();
         for (var i = 0; i < 5000; i++) {
             terrain.push(new GrassTile());
         }
@@ -1564,11 +1566,11 @@ var Map1 = (function () {
 var StripesMap = (function () {
     function StripesMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert('INVALID MAP DETECTED!');
+            alert("INVALID MAP DETECTED!");
         }
     }
     StripesMap.prototype.GetTerrain = function () {
-        var terrain = [];
+        var terrain = Array();
         for (var i = 0; i < 5000; i++) {
             if (i % 10 <= 5) {
                 terrain.push(new DirtTile());

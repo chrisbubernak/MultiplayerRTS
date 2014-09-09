@@ -1,5 +1,6 @@
 ﻿/// <reference path="../../_references.ts" />
 class TerrainTile {
+  imageX: number;
   imageW: number = 224;
   imageH: number = 224;
   imageY: number = 0;
@@ -9,27 +10,27 @@ class TerrainTile {
 }
 
 class WaterTile extends TerrainTile {
-  imageX: number = 448;
   constructor() {
     super();
     this.type = "water";
     this.walkable = false;
+    this.imageX = 448;
   }
 }
 
 class GrassTile extends TerrainTile {
-  imageX: number = 224;
   constructor() {
     super();
     this.type = "grass";
+    this.imageX = 224;
   }
 }
 
 class DirtTile extends TerrainTile {
-  imageX: number = 0;
   constructor() {
     super();
     this.type = "dirt";
+    this.imageX = 0;
   }
 }
 

@@ -14,121 +14,113 @@
 /// <reference path="maps/IMap.ts" />
 
 class Game {
-  //static variables
-
-  //private static RATIO: number = 2;
-  //private static NUM_OF_COL: number = 60;
-  //private static NUM_OF_ROW: number = (Game.NUM_OF_COL / Game.RATIO);
-
-  private static terrain = [];// = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
-  //private static NUMBER_OF_UNITS : number = 3;
-  private static grid = [];// = new Array(Game.NUM_OF_COL * Game.NUM_OF_ROW);
-  private static units = new Array(); //array of units
-  private static map;
+  // static variables
+  private static terrain: TerrainTile[] = Array();
+  private static grid: number[] = Array();
+  private static units: Unit[] = Array();
+  private static map: IMap;
 
 
-  //"private" variables
+  // "private" variables
   private simTick: number = 0;
   private gameId: string;
   private id: string;
   private playerNumber: number;
-  private enemyId;
-  private host;
+  private enemyId: string;
+  private host: boolean;
 
 
   public winner: string = null;
 
-  //Public Methods:
-  constructor(host, id, enemyId, gameId) {
+  // public Methods:
+  constructor(host: boolean, id: string, enemyId: string, gameId: string) {
     Game.map = new StripesMap();
     this.gameId = gameId;
-    this.id = id; //this players id
+    this.id = id; // this players id
     this.enemyId = enemyId;
     this.host = host;
     if (host) {
       this.playerNumber = 1;
-    }
-    else {
+    } else {
       this.playerNumber = 2;
     }
   }
 
-  public setup() {
+  public setup(): void {
     Game.terrain = Game.map.GetTerrain();
-    //disable the right click so we can use it for other purposes
-    document.oncontextmenu = function () { return false; };
+
+    // todo: move this to gamerunners, game shouldn't know about this
+    // disable the right click so we can use it for other purposes
+    document.oncontextmenu = function (): boolean { return false; };
 
     Game.grid = new Array(Game.terrain.length);
-    for (var g in Game.grid) {
+    for (var g: number = 0; g < Game.grid.length; g++) {
       Game.grid[g] = null;
     }
 
     Game.units = Game.map.GetUnits();
-    for (var u in Game.units) {
+    for (var u: number = 0; u < Game.units.length; u++) {
       Game.markOccupiedGridLocs(Game.units[u]);
     }
   }
 
-  public isOver() {
-    //check if either player is out of units & return based on that
+  public isOver(): boolean {
+    // check if either player is out of units & return based on that
     if (Game.getUnitsForPlayer(2).length === 0) {
       if (this.host) {
         this.winner = this.id;
-      }
-      else {
+      } else {
         this.winner = this.enemyId;
       }
       return true;
-    }
-    else if (Game.getUnitsForPlayer(1).length === 0) {
+    } else if (Game.getUnitsForPlayer(1).length === 0) {
       if (this.host) {
         this.winner = this.enemyId;
-      }
-      else {
+      } else {
         this.winner = this.id;
       }
       return true;
     }
 
-    return false; //for now always return false
+    return false;
   }
 
-  public static getGridLoc(index: number) {
+  public static getGridLoc(index: number): number {
     return Game.grid[index];
   }
 
-  public static setGridLoc(index: number, unitId: number) {
+  public static setGridLoc(index: number, unitId: number): void {
     Game.grid[index] = unitId;
   }
 
-  public static getTerrainLoc(index: number) {
+  public static getTerrainLoc(index: number): TerrainTile {
     return Game.terrain[index];
   }
 
-  public static getNumOfCols() {
+  public static getNumOfCols(): number {
     return Game.map.GetNumberOfCols();
   }
 
-  public static getNumOfRows() {
+  public static getNumOfRows(): number {
     return Game.map.GetNumberOfRows();
   }
 
-  public static getRatio() {
+  public static getRatio(): number {
     return Game.getNumOfCols() / Game.getNumOfRows();
   }
 
-  public getPlayerNumber() {
+  public getPlayerNumber(): number {
     return this.playerNumber;
   }
 
-  public getGridLoc(g) {
+  public getGridLoc(g: number): number {
     return Game.grid[g];
   }
 
-  public static removeUnit(unit: Unit) {
-    var id = unit.id;
-    for (var i = 0; i < (length = Game.units.length); i++) {
-      if (Game.units[i].id == id) {
+  public static removeUnit(unit: Unit): void {
+    var id: number = unit.id;
+    for (var i: number = 0; i < (length = Game.units.length); i++) {
+      if (Game.units[i].id === id) {
         Game.units.splice(i, 1);
         Game.unmarkGridLocs(unit);
         return;
@@ -136,10 +128,10 @@ class Game {
     }
   }
 
-  public static removeUnitById(unitId: number) {
-    var id = unitId;
-    for (var i = 0; i < (length = Game.units.length); i++) {
-      if (Game.units[i].id == id) {
+  public static removeUnitById(unitId: number): void {
+    var id: number = unitId;
+    for (var i: number = 0; i < (length = Game.units.length); i++) {
+      if (Game.units[i].id === id) {
         Game.unmarkGridLocs(Game.units[i]);
         Game.units.splice(i, 1);
         return;
@@ -147,30 +139,30 @@ class Game {
     }
   }
 
-  public static getUnits() {
+  public static getUnits(): Unit[] {
     return Game.units;
   }
 
-  public static markOccupiedGridLocs(unit: Unit) {
-    //mark the locs occupied by this unit
-    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-    for (var l in locs) {
+  public static markOccupiedGridLocs(unit: Unit): void {
+    // mark the locs occupied by this unit
+    var locs: number[] = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    for (var l: number = 0; l < locs.length; l++) {
       Game.setGridLoc(locs[l], unit.id);
     }
   }
 
-  public static unmarkGridLocs(unit: Unit) {
-    //unmark the locs occupied by this unit
-    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-    for (var l in locs) {
+  public static unmarkGridLocs(unit: Unit): void {
+    // unmark the locs occupied by this unit
+    var locs: number[] = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
+    for (var l: number = 0; l < locs.length; l++) {
       Game.setGridLoc(locs[l], null);
     }
   }
 
-  public static getUnitsForPlayer(playerNumber: number) {
-    var myUnits = new Array();
-    for (var u in Game.units) {
-      var unit = Game.units[u];
+  public static getUnitsForPlayer(playerNumber: number): Unit[] {
+    var myUnits: Unit[] = new Array();
+    for (var u: number = 0; u < Game.units.length; u++) {
+      var unit: Unit = Game.units[u];
       if (unit.player === playerNumber) {
         myUnits.push(unit);
       }
@@ -178,79 +170,72 @@ class Game {
     return myUnits;
   }
 
-  public applyActions(actions, simTick: number) {
-    for (var a in actions) {
-      //this is a little silly at the moment to convert the data into an object but I'd like to 
-      //be able to just pass around this object in the future without modifying the following code
-      var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
-      var unit = Utilities.findUnit(action.getUnit(), Game.units);
+  public applyActions(actions: any, simTick: number): void {
+    for (var a: number = 0; a < actions.length; a++) {
+      // this is a little silly at the moment to convert the data into an object but I'd like to 
+      // be able to just pass around this object in the future without modifying the following code
+      var action: Action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
+      var unit: Unit = Utilities.findUnit(action.getUnit(), Game.units);
       if (unit != null) {
-        //new logic!
-        var targetLoc = action.getTarget();
+        // new logic!
+        var targetLoc: number = action.getTarget();
         if (Game.grid[targetLoc] != null) {
-          var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
-          var isEnemy = this.areEnemies(unit, unitTarget);
-          var isVisible = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
+          var unitTarget: Unit = Utilities.findUnit(Game.grid[targetLoc], Game.units);
+          var isEnemy: boolean = this.areEnemies(unit, unitTarget);
+          var isVisible: boolean = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
           if (isEnemy && isVisible) {
             unit.command = new AttackCommand(unitTarget);
-          }
-          //if we try and walk to a hidden loc that contains an enemy, just issue a walk to that location
-          else if (isEnemy && !isVisible) {
+          } else if (isEnemy && !isVisible) {
+            // if we try and walk to a hidden loc that contains an enemy, just issue a walk to that location
             unit.command = new WalkCommand(unitTarget.loc);
-          }
-          //if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
-          else if (!isEnemy && isVisible) {
-            //issue a follow command
-          }
-          else {
+          } else if (!isEnemy && isVisible) {
+            // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
+            alert("issue a follow command");
+          } else {
             alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
           }
-        }
-        else {
+        } else {
           unit.command = new WalkCommand(targetLoc);
         }
-        unit.newCommand = true; //set this so the unit knows to transition to waiting state
+        // set this so the unit knows to transition to waiting state        
+        unit.newCommand = true;
       }
     }
     this.simTick++;
   }
 
-  public getSimTick() {
+  public getSimTick(): number {
     return this.simTick;
   }
 
-  public update() {
-    //iterate backwards b/c we could be removing units from the unit list 
-    //I THINK THERE IS A BUG WHERE IF UNIT 5 IS UPDATING AND KILLS UNIT 4 UNIT WILL THEN HAVE UPDATE
-    //CALLED ON IT AGAIN....NEED TO INVESTIGATE
-    for (var i = Game.units.length - 1; i >= 0; i--) {
+  public update(): void {
+    // iterate backwards b/c we could be removing units from the unit list 
+    // there might be a bug here if unit 5 kills unit 4...
+    for (var i: number = Game.units.length - 1; i >= 0; i--) {
       Game.units[i].update();
     }
   }
 
-
-
-  public getMousePos(canvas, evt) {
-    var rect = canvas.getBoundingClientRect();
+  public getMousePos(canvas: any, evt: any): any {
+    var rect: any = canvas.getBoundingClientRect();
     return {
       x: evt.clientX - rect.left,
       y: evt.clientY - rect.top
     };
   }
 
-
-  public unselectAll() {
-    for (var u in Game.getUnits()) {
+  public unselectAll(): void {
+    for (var u: number = 0; u < Game.getUnits().length; u++) {
       Game.units[u].selected = false;
     }
   }
 
-  //Private Methods:
-
-  private areEnemies(unit1, unit2) {
+  // private Methods:
+  private areEnemies(unit1: Unit, unit2: Unit): boolean {
     if (unit1.player !== unit2.player) {
       return true;
     }
+    return false;
   }
 }
 
