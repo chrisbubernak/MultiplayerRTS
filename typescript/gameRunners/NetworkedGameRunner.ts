@@ -19,7 +19,6 @@ class NetworkedGameRunner implements GameRunner {
   private static updateFPS: number = 10;
   private FPS: number = 60;
   private RealFPS: number = this.FPS;
-  private updateFPS: number = 10;
   private actionList = new Array();
   private actionHistory = {};
   private shifted: boolean;
@@ -31,14 +30,13 @@ class NetworkedGameRunner implements GameRunner {
   constructor(id, enemyId, host, gameId) {
     this.myId = id;
     this.gameId = gameId;
-    this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' }); //TODO: use our own server
+    this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" }); //TODO: use our own server
     this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
     this.host = host;
     var playerNumber;
     if (this.host) {
       playerNumber = 1;
-    }
-    else {
+    } else {
       playerNumber = 2;
     }
     this.drawer = new Drawer(playerNumber,
@@ -46,20 +44,19 @@ class NetworkedGameRunner implements GameRunner {
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"),
-      this)
+      this);
 
     var that = this;
     //mouse move stuff
     $(document).mousedown(function (e) {
       //on left click...
-      if (e.which == 1) {
-        $(this).data('mousedown', true);
+      if (e.which === 1) {
+        $(this).data("mousedown", true);
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.setSelection(coords);
         that.myGame.unselectAll();
-      }
-      //if right click...
-      else if (e.which == 3) {
+      } else if (e.which === 3) {
+        //if right click...
         var units = Game.getUnits();
         for (var u in units) {
           if (units[u].selected) {
@@ -76,37 +73,32 @@ class NetworkedGameRunner implements GameRunner {
     });
 
     $(document).mouseup(function (e) {
-      $(this).data('mousedown', false);
+      $(this).data("mousedown", false);
     });
 
     $(document).mousemove(function (e) {
-      if ($(this).data('mousedown')) {
+      if ($(this).data("mousedown")) {
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
 
-    var that = this;
-
     //keep track of when shift is held down so we can queue up unit movements
     //for debugging also listen for g clicked ...this signifies to draw the grid
-    $(document).bind('keydown', function (e) {
+    $(document).bind("keydown", function (e) {
       var code = e.keyCode || e.which;
-      if (code == 71) {
+      if (code === 71) {
         if (that.DRAWGRID) {
           that.DRAWGRID = false;
           that.drawer.drawTerrain();
-        }
-        else {
+        } else {
           that.DRAWGRID = true;
           that.drawer.drawGrid();
         }
-      }
-      else if (code === 68) {
+      } else if (code === 68) {
         if (that.DEBUG) {
           that.DEBUG = false;
-        }
-        else {
+        } else {
           that.DEBUG = true;
         }
       }
@@ -116,53 +108,51 @@ class NetworkedGameRunner implements GameRunner {
     //mouse move stuff END
 
 
-    this.peer.on('error', function (err) {
-      console.log('error connecting!');
+    this.peer.on("error", function (err) {
+      console.log("error connecting!");
       console.log(err);
     });
 
-    var that = this;
-    this.peer.on('open', function () {
-      console.log('peer is open!');
+    this.peer.on("open", function () {
+      console.log("peer is open!");
 
       //IF HOST
       if (host) {
-        console.log('im initiating a connection')
+        console.log("im initiating a connection");
         //connect to peer
         that.conn = that.peer.connect(enemyId, { reliable: true });
-        that.conn.on('open', function () {
-          that.conn.send('Hey from player: ' + id);
+        that.conn.on("open", function () {
+          that.conn.send("Hey from player: " + id);
           that.run();
         });
-        that.conn.on('close', function () {
-          console.log('connection closed!');
-          that.end('Enemy Quit');
+        that.conn.on("close", function () {
+          console.log("connection closed!");
+          that.end("Enemy Quit");
         });
-        that.conn.on('data', function (data) {
-          if (!(typeof (data.simTick) === 'undefined')) {
+        that.conn.on("data", function (data) {
+          if (!(typeof (data.simTick) === "undefined")) {
             //if we are the host it means the client sent us their actions
             //store these so we can send back an authoritatve action list 
             that.actionList[data.simTick] = data.actions;
           }
         });
-      }
-      //ELSE IF CLIENT
-      else {
-        console.log('im waiting for a connection')
+      } else {
+        //ELSE IF CLIENT
+        console.log("im waiting for a connection");
         //wait for connection
-        that.peer.on('connection', function (conn) {
+        that.peer.on("connection", function (conn) {
           that.conn = conn;
-          console.log('client ' + conn)
-          that.conn.on('open', function () {
-            that.conn.send('Hey from player: ' + id);
+          console.log("client " + conn);
+          that.conn.on("open", function () {
+            that.conn.send("Hey from player: " + id);
             that.run();
           });
-          that.conn.on('close', function () {
-            console.log('connection closed!');
-            that.end('Enemy Quit');
+          that.conn.on("close", function () {
+            console.log("connection closed!");
+            that.end("Enemy Quit");
           });
-          that.conn.on('data', function (data) {
-            if (!(typeof (data.simTick) === 'undefined')) {
+          that.conn.on("data", function (data) {
+            if (!(typeof (data.simTick) === "undefined")) {
               //if we are the client it means the host sent us an update and we should apply it
               that.myGame.applyActions(data.actions, data.simTick);
               if (data.actions.length > 0) {
@@ -216,9 +206,8 @@ class NetworkedGameRunner implements GameRunner {
       if (!that.host) {
         that.conn.send({ actions: that.actions, simTick: currentSimTick });
         that.actions = new Array();
-      }
-      //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
-      else if (that.host && that.actionList[currentSimTick]) {
+      } else if (that.host && that.actionList[currentSimTick]) {
+        //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
         that.actions = that.actions.concat(that.actionList[currentSimTick]);
         that.conn.send({ actions: that.actions, simTick: currentSimTick});
         that.myGame.applyActions(that.actions, currentSimTick);
@@ -238,7 +227,7 @@ class NetworkedGameRunner implements GameRunner {
 
   public drawSelect() {
     var that = this;
-    if ($(document).data('mousedown')) {
+    if ($(document).data("mousedown")) {
       this.drawer.drawSelect(this.selection);
     }
   }
@@ -274,21 +263,23 @@ class NetworkedGameRunner implements GameRunner {
         actions: JSON.stringify(that.actionHistory)
       },
       success: function (data, textStatus, jqXHR) {
-        alert('SUCCESS');
+        alert("SUCCESS");
       },
       error: function (jqXHR, textStatus, errorThrown) {
-        alert('ERR');
+        alert("ERR");
       }
     });
   }
 
   public getSelection() {
     var that = this;
-    if ($(document).data('mousedown')) {
+    if ($(document).data("mousedown")) {
       //create the selection
       var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w/that.drawer.getBoxWidth(), that.selection.h/that.drawer.getBoxHeight());
-      for (var o in occupied) {
+      var occupied = Utilities.getOccupiedSquares(selectionLoc,
+        that.selection.w / that.drawer.getBoxWidth(),
+        that.selection.h / that.drawer.getBoxHeight());
+      for (var o = 0; o < occupied.length; o++) {
         var id = Game.getGridLoc(occupied[o]);
         if (id != null) {
           var unit = Utilities.findUnit(id, Game.getUnits());
