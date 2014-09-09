@@ -46,22 +46,19 @@ class PursuingState extends State {
 
     var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
 
-    if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) { //the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid)
-      unit.ChangeState(WaitingState.Instance());
-    }
-    else if (!canWeStillSeeEnemy && unit.moveTimer >= unit.moveSpeed) {
+    //the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid) 
+    if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
+     unit.ChangeState(WaitingState.Instance());
+    } else if (!canWeStillSeeEnemy && unit.moveTimer >= unit.moveSpeed) {
       unit.command = null;
       unit.ChangeState(WaitingState.Instance());
-    }
-    else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
+    } else if (closeEnoughToAttack && unit.moveTimer >= unit.moveSpeed) {
       unit.ChangeState(AttackingState.Instance());
-    }
-    else if (engageCommand && !currentTargetInPursueRange && potentialTarget) {
+    } else if (engageCommand && !currentTargetInPursueRange && potentialTarget) {
       //modify the engagecommandtohave the new target
       (<EngageCommand>unit.command).SetTarget(potentialTarget);
       PursuingState.move(unit);
-    }
-    else {
+    } else {
       PursuingState.move(unit);
     }
   }
@@ -84,23 +81,25 @@ class PursuingState extends State {
 
       //if the unit has a new target change our path
       var enemy = (<AttackCommand>unit.command).GetTarget();
-      if (enemy.prevLoc != enemy.loc) {
+      if (enemy.prevLoc !== enemy.loc) {
         unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
       }
 
       unit.prevLoc = unit.loc;
 
       //if something now stands in the units path re-path around it
-      var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight)
-      for (var l in locs) {
+      var locs = Utilities.getOccupiedSquares(unit.path[0],
+        unit.gridWidth,
+        unit.gridHeight);
+      for (var l = 0 ; l < locs.length; l++) {
         var gridLoc = Game.getGridLoc(locs[l]);
-        if (gridLoc != unit.id && gridLoc != null) {
+        if (gridLoc !== unit.id && gridLoc !== null) {
           unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
           break;
         }
       }
       //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-      var direction = Utilities.getDirection(unit.loc, unit.path[0])
+      var direction = Utilities.getDirection(unit.loc, unit.path[0]);
       if (direction) {
         unit.setDirection(direction);
       }
@@ -109,8 +108,7 @@ class PursuingState extends State {
       unit.moveTimer = 0;
       //mark the new locs occupied by this unit as true
       Game.markOccupiedGridLocs(unit);
-    }
-    else {
+    } else {
       unit.moveTimer++;
     }
   }

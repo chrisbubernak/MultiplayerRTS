@@ -29,8 +29,7 @@ class PriorityQueue {
     this.array[index].priority = newPriority;
     if (newPriority > oldPriority) {
       this.bubbleDown(index);
-    }
-    else if (newPriority < oldPriority) {
+    } else if (newPriority < oldPriority) {
       this.bubbleUp(index);
     }
   }
@@ -53,7 +52,7 @@ class PriorityQueue {
   public dequeue() {
     if (this.isEmpty()) {
       return null;
-    } 
+    }
     var min = this.array[1].val;
     var last = this.array.length - 1;
     this.array[1] = this.array[last];
@@ -63,23 +62,23 @@ class PriorityQueue {
   }
 
   private parent(index : number) {
-    return Math.floor(index/2);
+    return Math.floor(index / 2);
   }
 
   private leftChild(index : number) {
-  	return index*2;
+  	return index * 2;
   }
 
   private rightChild(index : number) {
-  	return index*2+1;
+  	return index * 2 + 1;
   }
 
   private bubbleUp(index : number) {
     var cur = index;
     var parent = this.parent(cur);
-    while (cur != 1 && this.array[cur].priority < this.array[parent].priority) {
+    while (cur !== 1 && this.array[cur].priority < this.array[parent].priority) {
       var tempPriority = this.array[cur].priority;
-      var tempVal = this.array[cur].val; 
+      var tempVal = this.array[cur].val;
       this.array[cur].val = this.array[parent].val;
       this.array[cur].priority = this.array[parent].priority;
       this.array[parent].val = tempVal;
@@ -93,51 +92,48 @@ class PriorityQueue {
     var cur = index;
     var left = this.leftChild(1);
     var right = this.rightChild(1);
-
+    var tempVal;
+    var tempPriority;
     while (this.array[left] != null) {
       if (this.array[right] == null) {
         if (this.array[left].priority < this.array[cur].priority) {
           //bubble down left
-          var tempPriority = this.array[cur].priority;
-          var tempVal = this.array[cur].val; 
+          tempPriority = this.array[cur].priority;
+          tempVal = this.array[cur].val;
           this.array[cur].val = this.array[left].val;
           this.array[cur].priority = this.array[left].priority;
           this.array[left].val = tempVal;
           this.array[left].priority = tempPriority;
           cur = left;
-        }
-        else {
+        } else {
           break;
         }
-      }
-      else {
+      } else {
         if (this.array[left].priority <= this.array[right].priority && this.array[left].priority < this.array[cur].priority) {
           //bubble down left
-          var tempPriority = this.array[cur].priority;
-          var tempVal = this.array[cur].val; 
+          tempPriority = this.array[cur].priority;
+          tempVal = this.array[cur].val;
           this.array[cur].val = this.array[left].val;
           this.array[cur].priority = this.array[left].priority;
           this.array[left].val = tempVal;
           this.array[left].priority = tempPriority;
           cur = left;
-        }
-        else if (this.array[left].priority > this.array[right].priority && this.array[right].priority < this.array[cur].priority) {
+        } else if (this.array[left].priority > this.array[right].priority && this.array[right].priority < this.array[cur].priority) {
           //bubble down right
-          var tempPriority = this.array[cur].priority;
-          var tempVal = this.array[cur].val; 
+          tempPriority = this.array[cur].priority;
+          tempVal = this.array[cur].val;
           this.array[cur].val = this.array[right].val;
           this.array[cur].priority = this.array[right].priority;
           this.array[right].val = tempVal;
-          this.array[right].priority = tempPriority;      
+          this.array[right].priority = tempPriority;
           cur = right;
-        }
-        else {
+        } else {
       	  break;
         }
       }
       left = this.leftChild(cur);
       right = this.rightChild(cur);
     }
-  }  
+  }
 }
 

@@ -39,12 +39,10 @@ class AttackingState extends State {
 
     if (!canWeStillSeeEnemy && unit.attackTimer === 0) { //only allow state change after finishing an attack
       unit.command = null;
-      unit.ChangeState(WaitingState.Instance()); 
-    }
-    else if (!closeEnoughToAttack && unit.attackTimer === 0) { //only allow state change after finishing an attack
-      unit.ChangeState(PursuingState.Instance()); 
-    }
-    else {
+      unit.ChangeState(WaitingState.Instance());
+    } else if (!closeEnoughToAttack && unit.attackTimer === 0) { //only allow state change after finishing an attack
+      unit.ChangeState(PursuingState.Instance());
+    } else {
       AttackingState.Instance().attack(unit, enemy); //attack them
     }
   }
@@ -55,7 +53,7 @@ class AttackingState extends State {
 
   private attack(attacker: Unit, defender: Unit) {
     //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-    var direction = Utilities.getDirection(attacker.loc, defender.loc)
+    var direction = Utilities.getDirection(attacker.loc, defender.loc);
     if (direction) {
       attacker.setDirection(direction);
     }
@@ -70,8 +68,7 @@ class AttackingState extends State {
         }
       }
       attacker.attackTimer = 0;
-    }
-    else {
+    } else {
       attacker.attackTimer++;
     }
   }
@@ -81,20 +78,20 @@ class AttackingState extends State {
     var enemies = new Array();
 
     var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-    for (var l in locs) {
+    for (var l = 0; l < locs.length; l++) {
       var neighbors = Utilities.neighbors(locs[l]);
-      for (var n in neighbors) {
+      for (var n = 0; n < neighbors.length; n++) {
         var id = Game.getGridLoc(neighbors[n]);
         var enemy = Utilities.findUnit(id, Game.getUnits());
-        if (enemy != null && enemy.player != unit.player) {
-          if (prefTarget == null || id == prefTarget.id) { //if we didn't have a preference or this was our preference return it
+        if (enemy !== null && enemy.player !== unit.player) {
+          if (prefTarget === null || id === prefTarget.id) { //if we didn't have a preference or this was our preference return it
             return enemy;
           }
           enemies.push(enemy);
         }
       }
     }
-    if (enemies.length == 0) {
+    if (enemies.length === 0) {
       return null;
     }
     return enemies[0];

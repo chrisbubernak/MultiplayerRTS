@@ -19,7 +19,7 @@ module.exports = function (grunt) {
         },
         tslint: {
             options: {
-                configuration: grunt.file.readJSON('node_modules/grunt-tslint/tslint.json')
+                configuration: grunt.file.readJSON('tslint.json')
             },
             files: {
                 src: ['typescript/**/*.ts']

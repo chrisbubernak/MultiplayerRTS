@@ -20,6 +20,7 @@ class WaitingState extends State {
     return "WaitingState";
   }
 
+  /* tslint:disable:no-empty*/
   public Enter(unit: Unit) {
 
   }
@@ -31,14 +32,10 @@ class WaitingState extends State {
     //if we recieve have a walk command, transition to walking
     if (unit.command && unit.command.ToString() === "walk") {
       unit.ChangeState(WalkingState.Instance());
-    }
-
-    //if we have an attack command, transition to pursuing
-    else if (unit.command && (unit.command.ToString() === "attack" || unit.command.ToString() === "engage")) {
+    } else if (unit.command && (unit.command.ToString() === "attack" || unit.command.ToString() === "engage")) {
+      //if we have an attack command, transition to pursuing
       unit.ChangeState(PursuingState.Instance());
-    }
-
-    else if (enemy !== null) {
+    } else if (enemy !== null) {
       //artificially issue an engage command to the unit
       unit.command = new EngageCommand(enemy);
       unit.newCommand = true;
