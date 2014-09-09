@@ -17,12 +17,12 @@ class Orc extends Unit {
   src: string = "/images/orc.png";
   static image;
 
-  public getImage() {
+  public getImage(): void {
     if (Orc.image) {
       return Orc.image;
     } else {
       Orc.image = new Image();
-      Orc.image.onload = function () {
+      Orc.image.onload = function(): any {
         return Orc.image;
       };
       Orc.image.src = this.src;

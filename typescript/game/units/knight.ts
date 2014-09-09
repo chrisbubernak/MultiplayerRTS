@@ -17,12 +17,12 @@ class Knight extends Unit {
   src: string = "/images/knight.png";
   static image;
 
-  public getImage() {
+  public getImage(): void {
     if (Knight.image) {
       return Knight.image;
     } else {
       Knight.image = new Image();
-      Knight.image.onload = function () {
+      Knight.image.onload = function (): any {
         return Knight.image;
       };
       Knight.image.src = this.src;

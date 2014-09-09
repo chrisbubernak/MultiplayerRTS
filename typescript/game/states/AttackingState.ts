@@ -6,7 +6,7 @@
 class AttackingState extends State {
   static instance: AttackingState;
 
-  public static Instance() {
+  public static Instance(): AttackingState {
     if (AttackingState.instance == null) {
       AttackingState.instance = new AttackingState();
     }
@@ -17,11 +17,11 @@ class AttackingState extends State {
     return "AttackingState";
   }
 
-  public Enter(unit: Unit) {
+  public Enter(unit: Unit): void {
     unit.attackTimer = 0;
   }
 
-  public Execute(unit: Unit) {
+  public Execute(unit: Unit): void {
 
     if (unit.newCommand) {
       unit.ChangeState(WaitingState.Instance());
@@ -29,39 +29,40 @@ class AttackingState extends State {
     }
 
     unit.attackArtTimer = ((unit.attackTimer / unit.attackSpeed) * unit.numberOfAttackAnimations) % unit.numberOfAttackAnimations;
-    var enemy = (<AttackCommand>unit.command).GetTarget();
+    var enemy: Unit = (<AttackCommand>unit.command).GetTarget();
 
-    var enemyIsAlive = Utilities.findUnit(enemy.id, Game.getUnits());
+    var enemyIsAlive: Unit = Utilities.findUnit(enemy.id, Game.getUnits());
 
-    var closeEnoughToAttack = enemyIsAlive && AttackingState.Instance().specificEnemyInAttackRange(unit, enemy);
+    var closeEnoughToAttack: boolean = enemyIsAlive && AttackingState.Instance().specificEnemyInAttackRange(unit, enemy);
 
-    var canWeStillSeeEnemy = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy); //either we can't see it, or its dead
+    // either we can't see it, or its dead
+    var canWeStillSeeEnemy: boolean = enemyIsAlive && Utilities.canAnyUnitSeeEnemy(unit, enemy);
 
-    if (!canWeStillSeeEnemy && unit.attackTimer === 0) { //only allow state change after finishing an attack
+    if (!canWeStillSeeEnemy && unit.attackTimer === 0) { // only allow state change after finishing an attack
       unit.command = null;
       unit.ChangeState(WaitingState.Instance());
-    } else if (!closeEnoughToAttack && unit.attackTimer === 0) { //only allow state change after finishing an attack
+    } else if (!closeEnoughToAttack && unit.attackTimer === 0) { // only allow state change after finishing an attack
       unit.ChangeState(PursuingState.Instance());
     } else {
-      AttackingState.Instance().attack(unit, enemy); //attack them
+      AttackingState.Instance().attack(unit, enemy); // attack them
     }
   }
 
-  public Exit(unit: Unit) {
+  public Exit(unit: Unit): void {
     unit.attackTimer = 0;
   }
 
-  private attack(attacker: Unit, defender: Unit) {
-    //try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
-    var direction = Utilities.getDirection(attacker.loc, defender.loc);
+  private attack(attacker: Unit, defender: Unit): void {
+    // try and figure out which way the unit is moving and change its direction, otherwise just leave it alone
+    var direction: string = Utilities.getDirection(attacker.loc, defender.loc);
     if (direction) {
       attacker.setDirection(direction);
     }
 
     if (attacker.attackTimer >= attacker.attackSpeed) {
       if (AttackingState.Instance().specificEnemyInAttackRange(attacker, defender)) {
-        var attackRange = attacker.attackMax - attacker.attackMin;
-        var damage = Utilities.random() * attackRange + attacker.attackMin;
+        var attackRange: number = attacker.attackMax - attacker.attackMin;
+        var damage: number = Utilities.random() * attackRange + attacker.attackMin;
         defender.health -= damage;
         if (defender.health <= 0) {
           Game.removeUnit(defender);
@@ -71,29 +72,5 @@ class AttackingState extends State {
     } else {
       attacker.attackTimer++;
     }
-  }
-
-  //returns an enemy to attack, will try and keep attacking same unit if a prefTarget is supplied
-  private getEnemy(unit: Unit, prefTarget: Unit) {
-    var enemies = new Array();
-
-    var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-    for (var l = 0; l < locs.length; l++) {
-      var neighbors = Utilities.neighbors(locs[l]);
-      for (var n = 0; n < neighbors.length; n++) {
-        var id = Game.getGridLoc(neighbors[n]);
-        var enemy = Utilities.findUnit(id, Game.getUnits());
-        if (enemy !== null && enemy.player !== unit.player) {
-          if (prefTarget === null || id === prefTarget.id) { //if we didn't have a preference or this was our preference return it
-            return enemy;
-          }
-          enemies.push(enemy);
-        }
-      }
-    }
-    if (enemies.length === 0) {
-      return null;
-    }
-    return enemies[0];
   }
 }

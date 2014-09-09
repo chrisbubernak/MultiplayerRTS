@@ -1,12 +1,12 @@
 ﻿var BaseGameEntity = (function () {
     function BaseGameEntity() {
-        this.id = BaseGameEntity.NextValidId;
-        BaseGameEntity.NextValidId++;
+        this.id = BaseGameEntity.nextValidId;
+        BaseGameEntity.nextValidId++;
     }
     BaseGameEntity.prototype.Update = function () {
         alert("update not implemented!!!");
     };
-    BaseGameEntity.NextValidId = 0;
+    BaseGameEntity.nextValidId = 0;
     return BaseGameEntity;
 })();
 var State = (function () {
@@ -213,29 +213,6 @@ var AttackingState = (function (_super) {
             attacker.attackTimer++;
         }
     };
-
-    AttackingState.prototype.getEnemy = function (unit, prefTarget) {
-        var enemies = new Array();
-
-        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l = 0; l < locs.length; l++) {
-            var neighbors = Utilities.neighbors(locs[l]);
-            for (var n = 0; n < neighbors.length; n++) {
-                var id = Game.getGridLoc(neighbors[n]);
-                var enemy = Utilities.findUnit(id, Game.getUnits());
-                if (enemy !== null && enemy.player !== unit.player) {
-                    if (prefTarget === null || id === prefTarget.id) {
-                        return enemy;
-                    }
-                    enemies.push(enemy);
-                }
-            }
-        }
-        if (enemies.length === 0) {
-            return null;
-        }
-        return enemies[0];
-    };
     return AttackingState;
 })(State);
 var PursuingState = (function (_super) {
@@ -244,7 +221,7 @@ var PursuingState = (function (_super) {
         _super.apply(this, arguments);
     }
     PursuingState.Instance = function () {
-        if (PursuingState.instance == null) {
+        if (PursuingState.instance === null) {
             PursuingState.instance = new PursuingState();
         }
         return PursuingState.instance;
@@ -299,9 +276,6 @@ var PursuingState = (function (_super) {
 
     PursuingState.prototype.Exit = function (unit) {
         unit.prevLoc = unit.loc;
-    };
-
-    PursuingState.prototype.enemeyInTargetRange = function (unit, enemy) {
     };
 
     PursuingState.move = function (unit) {
@@ -456,7 +430,6 @@ var Unit = (function (_super) {
     };
 
     Unit.prototype.getDrawCoordinates = function () {
-        var moving = this.isMoving();
         var attacking = this.isAttacking();
 
         if (this.direction === "up") {
@@ -483,10 +456,6 @@ var Unit = (function (_super) {
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 3);
         }
-    };
-
-    Unit.prototype.isMoving = function () {
-        return this.path.length > 0;
     };
 
     Unit.prototype.isAttacking = function () {
