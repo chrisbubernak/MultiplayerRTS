@@ -3,7 +3,7 @@
 
 class BaseGameEntity {
   id: number;
-  static NextValidId: number = 0; 
+  static NextValidId: number = 0;
 
   constructor() {
     this.id = BaseGameEntity.NextValidId;
@@ -11,6 +11,6 @@ class BaseGameEntity {
   }
 
   public Update() {
-    alert('update not implemented!!!');
+    alert("update not implemented!!!");
   }
 }

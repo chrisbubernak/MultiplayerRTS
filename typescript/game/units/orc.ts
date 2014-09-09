@@ -1,5 +1,5 @@
 /// <reference path="unit.ts" />
-class Orc extends Unit{
+class Orc extends Unit {
   w = 30;
   h = 30;
   gridWidth = 2;
@@ -14,14 +14,13 @@ class Orc extends Unit{
   totalHealth = 120;
   health = this.totalHealth;
   attackSpeed = 15;
-  src: string = '/images/orc.png';
+  src: string = "/images/orc.png";
   static image;
 
   public getImage() {
     if (Orc.image) {
       return Orc.image;
-    }
-    else {
+    } else {
       Orc.image = new Image();
       Orc.image.onload = function () {
         return Orc.image;
