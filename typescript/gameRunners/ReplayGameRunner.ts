@@ -11,7 +11,6 @@ class ReplayGameRunner implements GameRunner {
   private static updateFPS: number = 10;
   private FPS: number = 60;
   private RealFPS: number = this.FPS;
-  private updateFPS: number = 10;
   private actionList = new Array();
   private shifted: boolean;
   private selection: SelectionObject;
@@ -54,7 +53,6 @@ class ReplayGameRunner implements GameRunner {
 
 
     var that = this;
-    
     $(window).resize(function () {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
