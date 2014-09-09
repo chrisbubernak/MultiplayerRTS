@@ -1170,6 +1170,7 @@ var Utilities = (function () {
     };
 
     Utilities.collides = function (i, j) {
+        alert("THIS IS BROKEN!!!!");
         return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
     };
 
