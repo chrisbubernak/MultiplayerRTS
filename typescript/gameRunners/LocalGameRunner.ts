@@ -11,7 +11,6 @@ class LocalGameRunner implements GameRunner {
   private static updateFPS: number = 10;
   private FPS: number = 60;
   private RealFPS: number = this.FPS;
-  private updateFPS: number = 10;
   private actionList = new Array();
   private shifted: boolean;
   private selection: SelectionObject;
@@ -42,14 +41,13 @@ class LocalGameRunner implements GameRunner {
     //mouse move stuff
     $(document).mousedown(function (e) {
       //on left click...
-      if (e.which == 1) {
-        $(this).data('mousedown', true);
+      if (e.which === 1) {
+        $(this).data("mousedown", true);
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.setSelection(coords);
         that.myGame.unselectAll();
-      }
-      //if right click...
-      else if (e.which == 3) {
+      } else if (e.which === 3) {
+        //if right click...
         var units = Game.getUnits();
         for (var u in units) {
           if (units[u].selected) {
@@ -66,43 +64,38 @@ class LocalGameRunner implements GameRunner {
     });
 
     $(document).mouseup(function (e) {
-      $(this).data('mousedown', false);
+      $(this).data("mousedown", false);
     });
 
     $(document).mousemove(function (e) {
-      if ($(this).data('mousedown')) {
+      if ($(this).data("mousedown")) {
         var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
-    var that = this;
+
     //keep track of when shift is held down so we can queue up unit movements
     //for debugging also listen for g clicked ...this signifies to draw the grid
-    $(document).bind('keydown', function (e) {
+    $(document).bind("keydown", function (e) {
       var code = e.keyCode || e.which;
-      if (code == 71) {
+      if (code === 71) {
         if (that.DRAWGRID) {
           that.DRAWGRID = false;
           that.drawer.drawTerrain();
-        }
-        else {
+        } else {
           that.DRAWGRID = true;
           that.drawer.drawGrid();
         }
-      }
-      else if (code === 68) {
+      } else if (code === 68) {
         if (that.DEBUG) {
           that.DEBUG = false;
-        }
-        else {
+        } else {
           that.DEBUG = true;
         }
-      }
-      else if (code === 83) {
+      } else if (code === 83) {
         if (that.STATEDEBUG) {
           that.STATEDEBUG = false;
-        }
-        else {
+        } else {
           that.STATEDEBUG = true;
         }
       }
@@ -163,7 +156,7 @@ class LocalGameRunner implements GameRunner {
 
   public drawSelect() {
     var that = this;
-    if ($(document).data('mousedown')) {
+    if ($(document).data("mousedown")) {
       this.drawer.drawSelect(this.selection);
     }
   }
@@ -185,19 +178,17 @@ class LocalGameRunner implements GameRunner {
     window.location.href = "/lobby";
   }
 
-  private reportGameStartToServer(gameId, id, enemyId, host) {
-
-  }
-
   public getSelection() {
     var that = this;
-    if ($(document).data('mousedown')) {
+    if ($(document).data("mousedown")) {
       //create the selection
       var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-      for (var o in occupied) {
+      var occupied = Utilities.getOccupiedSquares(selectionLoc,
+        that.selection.w / that.drawer.getBoxWidth(),
+        that.selection.h / that.drawer.getBoxHeight());
+      for (var o = 0; o < occupied.length; o++) {
         var id = Game.getGridLoc(occupied[o]);
-        if (id !== null && typeof id !== 'undefined') {
+        if (id !== null && typeof id !== "undefined") {
           var unit = Utilities.findUnit(id, Game.getUnits());
           if (unit.player === that.myGame.getPlayerNumber()) {
             unit.selected = true;
