@@ -25,7 +25,7 @@ class Utilities {
   //return the index of the unit with a given id
   public static findUnit(id: number, units: Unit[]) {
     for (var i = 0; i < units.length; i++) {
-      if (units[i].id == id) {
+      if (units[i].id === id) {
         return units[i];
       }
     }
@@ -59,17 +59,16 @@ class Utilities {
   public static getDirection(loc1: number, loc2: number) {
     if (loc1 < loc2) { //we are moving right or down
       if ((loc1 % Game.getNumOfCols()) <= (loc2 % Game.getNumOfCols())) {
-        return 'right';
+        return "right";
       }
-      return 'down';
-    }
-    else { // we are moving left or up
+      return "down";
+    } else { // we are moving left or up
       if (Math.floor(loc1 / Game.getNumOfCols()) > Math.floor(loc2 / Game.getNumOfCols())) {
-        return 'up';
+        return "up";
       }
-      return 'left';
+      return "left";
     }
-    console.log('ERROR: Utilities.getDirection() did not set a direction');
+    console.log("ERROR: Utilities.getDirection() did not set a direction");
   }
 
   public static getGridLocsInSightRange(unit: Unit) {
@@ -135,9 +134,9 @@ class Utilities {
   public static canAnyUnitSeeEnemy(unit: Unit, enemy: Unit) {
     //for each of my units check if they can see enemy
     var units = Game.getUnitsForPlayer(unit.player);
-    for (var u in units) {
+    for (var u  = 0; u < units.length; u++) {
       var locs = Utilities.getGridLocsInSightRange(units[u]);
-      for (var l in locs) {
+      for (var l = 0; l < locs.length; l++) {
         var id = Game.getGridLoc(locs[l]);
         if (id === enemy.id) {
           return true;
@@ -157,7 +156,7 @@ class Utilities {
       return false;
     }
     if (id1 === id2) {
-      console.log('it worked? ' + id1 + " " + id2);
+      console.log("it worked? " + id1 + " " + id2);
       return true;
     }
     return false;
@@ -167,11 +166,11 @@ class Utilities {
     var neighbors = new Array();
 
     //if we arean't on the left edge of the board add neighbor to the left
-    if (boxNumber % Game.getNumOfCols() != 0) {
+    if (boxNumber % Game.getNumOfCols() !== 0) {
       neighbors.push(boxNumber - 1);
     }
     //if we arean't on the right edge of the board add neighbor to the right 
-    if ((boxNumber + 1) % Game.getNumOfCols() != 0) {
+    if ((boxNumber + 1) % Game.getNumOfCols() !== 0) {
       neighbors.push(boxNumber + 1);
     }
     //if we arean't on the top of the board add neighbor above us
@@ -185,19 +184,19 @@ class Utilities {
     //diagonal cases...refactor this logic later for speed ups!!
 
     //if we arean't on the left edge and we arean't on the top of the board add the left/up beighbor
-    if (boxNumber % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+    if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
       neighbors.push(boxNumber - Game.getNumOfCols() - 1);
     }
     //if we arean't on the left edge and we arean't on the bottom of the board add the left/below neighbor
-    if (boxNumber % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+    if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
       neighbors.push(boxNumber + Game.getNumOfCols() - 1);
     }
     //if we arean't on the right edge of the board and we arean't on the top of the board add right/up neighbor
-    if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+    if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
       neighbors.push(boxNumber - Game.getNumOfCols() + 1);
     }
     //if we arean't on the right edge of the board and we arean't on the bottom of the board add right/below neighbor
-    if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+    if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
       neighbors.push(boxNumber + Game.getNumOfCols() + 1);
     }
     return neighbors;
