@@ -34,7 +34,7 @@ class Unit extends BaseGameEntity {
   moveTimer: number;
   attackTimer: number;
   inCombat: boolean = false;
-  animateTimer: number; 
+  animateTimer: number;
   attackArtTimer: number;
   numberOfAnimations: number = 9;
   numberOfAttackAnimations: number = 6;
@@ -43,7 +43,7 @@ class Unit extends BaseGameEntity {
   static animationIncrememt: number = .1;
   static attackAnimationIncrememt: number = .2;
 
-  direction: string = 'down';
+  direction: string = "down";
 
   constructor(loc: number, player: number) {
     super();
@@ -57,6 +57,7 @@ class Unit extends BaseGameEntity {
   }
 
   public getImage() {
+    alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
   }
 
   public update() {
@@ -68,7 +69,10 @@ class Unit extends BaseGameEntity {
   public ChangeState(pNewState: State) {
     //make sure both states are valid before attempting to call their methods
     if (!this.currentState || !pNewState) {
-      alert('Error changing state from ' + this.currentState + ' to ' + pNewState);
+      alert("Error changing state from " +
+        this.currentState +
+        " to " +
+        pNewState);
     }
 
     //exit the old state
@@ -92,25 +96,25 @@ class Unit extends BaseGameEntity {
     var moving = this.isMoving();
     var attacking = this.isAttacking();
 
-    if (this.direction == 'up') {
+    if (this.direction === "up") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 256);
       }
-      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY)
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY);
     }
-    if (this.direction == 'down') {
+    if (this.direction === "down") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 384);
       }
       return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 2);
     }
-    if (this.direction == 'left') {
+    if (this.direction === "left") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 320);
       }
       return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH);
     }
-    if (this.direction == 'right') {
+    if (this.direction === "right") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 448);
       }
