@@ -3,6 +3,8 @@
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
 /// <reference path="GameRunner.ts" />
+/// <reference path="../game/coords.ts" />
+/// <reference path="../game/selectionObject.ts" />
 
 class NetworkedGameRunner implements GameRunner {
   public DEBUG: boolean = false;
@@ -13,12 +15,10 @@ class NetworkedGameRunner implements GameRunner {
   private host: Boolean;
   private peer;
   private conn;
-  private interval;
-  private actionsFromClient;
   private actions = new Array();
-  private static updateFPS: number = 10;
+  private updateFPS: number = 10;
   private FPS: number = 60;
-  private RealFPS: number = this.FPS;
+  private REAL_FPS: number = this.FPS;
   private actionList = new Array();
   private actionHistory = {};
   private shifted: boolean;
@@ -27,13 +27,13 @@ class NetworkedGameRunner implements GameRunner {
   private gameId: string;
   private myId: string;
 
-  constructor(id, enemyId, host, gameId) {
+  constructor(id: string, enemyId: string, host: boolean, gameId: string) {
     this.myId = id;
     this.gameId = gameId;
-    this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" }); //TODO: use our own server
-    this.myGame = new Game(host, id, enemyId, gameId); //am i host? what is my id? what is the enemies id?
+    this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" }); // todo: use our own server
+    this.myGame = new Game(host, id, enemyId, gameId); // am i host? what is my id? what is the enemies id?
     this.host = host;
-    var playerNumber;
+    var playerNumber: number;
     if (this.host) {
       playerNumber = 1;
     } else {
@@ -46,47 +46,50 @@ class NetworkedGameRunner implements GameRunner {
       document.getElementById("selectionCanvas"),
       this);
 
-    var that = this;
-    //mouse move stuff
-    $(document).mousedown(function (e) {
-      //on left click...
+    var that: NetworkedGameRunner = this;
+    // mouse move stuff
+    $(document).mousedown(function (e: any): void {
+      // on left click...
       if (e.which === 1) {
         $(this).data("mousedown", true);
-        var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.setSelection(coords);
         that.myGame.unselectAll();
       } else if (e.which === 3) {
-        //if right click...
-        var units = Game.getUnits();
-        for (var u in units) {
+        // if right click...
+        var units: Unit[] = Game.getUnits();
+        for (var u: number = 0; u < units.length; u++) {
           if (units[u].selected) {
-            var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-            var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+            // todo: create a custom class for the return of getMousePos
+            var tar: any = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+            var a: Action = new Action(that.drawer.coordsToBox(tar.x, tar.y),
+              Game.getUnits()[u].id,
+              that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
           }
         }
       }
     });
 
-    $(window).resize(function() {
+    $(window).resize(function(): any {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
-    $(document).mouseup(function (e) {
+    $(document).mouseup(function (e: any): void {
       $(this).data("mousedown", false);
     });
 
-    $(document).mousemove(function (e) {
+    $(document).mousemove(function (e: any): void {
       if ($(this).data("mousedown")) {
-        var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
 
-    //keep track of when shift is held down so we can queue up unit movements
-    //for debugging also listen for g clicked ...this signifies to draw the grid
-    $(document).bind("keydown", function (e) {
-      var code = e.keyCode || e.which;
+    // keep track of when shift is held down so we can queue up unit movements
+    // for debugging also listen for g clicked ...this signifies to draw the grid
+    $(document).bind("keydown", function (e: any): boolean {
+      var code: number = e.keyCode || e.which;
       if (code === 71) {
         if (that.DRAWGRID) {
           that.DRAWGRID = false;
@@ -105,55 +108,55 @@ class NetworkedGameRunner implements GameRunner {
       that.shifted = e.shiftKey;
       return true;
     });
-    //mouse move stuff END
+    // mouse move stuff END
 
 
-    this.peer.on("error", function (err) {
+    this.peer.on("error", function (err: string): void {
       console.log("error connecting!");
       console.log(err);
     });
 
-    this.peer.on("open", function () {
+    this.peer.on("open", function (): void {
       console.log("peer is open!");
 
-      //IF HOST
+      // if i am host
       if (host) {
         console.log("im initiating a connection");
-        //connect to peer
+        // connect to peer
         that.conn = that.peer.connect(enemyId, { reliable: true });
-        that.conn.on("open", function () {
+        that.conn.on("open", function (): void {
           that.conn.send("Hey from player: " + id);
           that.run();
         });
-        that.conn.on("close", function () {
+        that.conn.on("close", function (): void {
           console.log("connection closed!");
           that.end("Enemy Quit");
         });
-        that.conn.on("data", function (data) {
+        that.conn.on("data", function (data: any): void {
           if (!(typeof (data.simTick) === "undefined")) {
-            //if we are the host it means the client sent us their actions
-            //store these so we can send back an authoritatve action list 
+            // if we are the host it means the client sent us their actions
+            // store these so we can send back an authoritatve action list 
             that.actionList[data.simTick] = data.actions;
           }
         });
       } else {
-        //ELSE IF CLIENT
+        // if i am the client
         console.log("im waiting for a connection");
-        //wait for connection
-        that.peer.on("connection", function (conn) {
+        // wait for connection
+        that.peer.on("connection", function (conn: any): void {
           that.conn = conn;
           console.log("client " + conn);
-          that.conn.on("open", function () {
+          that.conn.on("open", function (): void {
             that.conn.send("Hey from player: " + id);
             that.run();
           });
-          that.conn.on("close", function () {
+          that.conn.on("close", function (): void {
             console.log("connection closed!");
             that.end("Enemy Quit");
           });
-          that.conn.on("data", function (data) {
+          that.conn.on("data", function (data: any): void {
             if (!(typeof (data.simTick) === "undefined")) {
-              //if we are the client it means the host sent us an update and we should apply it
+              // if we are the client it means the host sent us an update and we should apply it
               that.myGame.applyActions(data.actions, data.simTick);
               if (data.actions.length > 0) {
                 that.actionHistory[data.simTick] = data.actions;
@@ -165,21 +168,21 @@ class NetworkedGameRunner implements GameRunner {
     });
   }
 
-  public run() {
+  public run(): void {
     this.myGame.setup();
     this.drawer.drawTerrain();
 
-    //timing stuff
-    var oldTime = new Date().getTime();
-    var diffTime = 0;
-    var newTime = 0;
-    var oldTime2 = new Date().getTime();
-    var diffTime2 = 0;
-    var newTime2 = 0;
+    // timing stuff
+    var oldTime: number = new Date().getTime();
+    var diffTime: number = 0;
+    var newTime: number = 0;
+    var oldTime2: number = new Date().getTime();
+    var diffTime2: number = 0;
+    var newTime2: number = 0;
 
-    //loop that runs at 60 fps...aka drawing & selection stuff
-    var that = this;
-    setInterval(function () {
+    // loop that runs at 60 fps...aka drawing & selection stuff
+    var that: NetworkedGameRunner = this;
+    setInterval(function (): void {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
@@ -188,26 +191,24 @@ class NetworkedGameRunner implements GameRunner {
       newTime = new Date().getTime();
     }, 1000 / this.FPS);
 
-    //loop that runs much less frequently (10 fps)
-    //and handles physics/updating the game state/networking 
-    var fpsOut = document.getElementById("fps");
-    //var conn = Game.conn;
-    var intervalId = setInterval(function () {
+    // loop that runs much less frequently (10 fps)
+    // and handles physics/updating the game state/networking 
+    var fpsOut: any = document.getElementById("fps");
+    var intervalId: number = setInterval(function (): void {
       if (that.myGame.isOver()) {
         that.end("Game is over!");
         clearInterval(intervalId);
-        return;
       }
 
-      var currentSimTick = that.myGame.getSimTick();
+      var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
       that.getSelection();
-      //if we arean't the host just send our actions to the host
+      // if we arean't the host just send our actions to the host
       if (!that.host) {
         that.conn.send({ actions: that.actions, simTick: currentSimTick });
         that.actions = new Array();
       } else if (that.host && that.actionList[currentSimTick]) {
-        //if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
+        // if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
         that.actions = that.actions.concat(that.actionList[currentSimTick]);
         that.conn.send({ actions: that.actions, simTick: currentSimTick});
         that.myGame.applyActions(that.actions, currentSimTick);
@@ -220,23 +221,22 @@ class NetworkedGameRunner implements GameRunner {
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      that.RealFPS = Math.round(1000 / diffTime);
-      fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      that.REAL_FPS = Math.round(1000 / diffTime);
+      fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 
-  public drawSelect() {
-    var that = this;
+  public drawSelect(): void {
     if ($(document).data("mousedown")) {
       this.drawer.drawSelect(this.selection);
     }
   }
 
-  public setSelection(coords) {
+  public setSelection(coords: Coords): void {
     this.selection = new SelectionObject(coords.x, coords.y);
   }
 
-  public updateSelection(selection, eX, eY) {
+  public updateSelection(selection: SelectionObject, eX: number, eY: number): SelectionObject {
     selection.x = Math.min(selection.sX, eX);
     selection.y = Math.min(selection.sY, eY);
     selection.w = Math.abs(selection.sX - eX);
@@ -244,15 +244,15 @@ class NetworkedGameRunner implements GameRunner {
     return selection;
   }
 
-  public end(message: string) {
+  public end(message: string): void {
     this.sendGameReportToServer();
     window.location.href = "/lobby";
   }
 
-  private sendGameReportToServer() {
+  private sendGameReportToServer(): void {
     console.log(this.actionHistory);
 
-    var that = this;
+    var that: NetworkedGameRunner = this;
     $.ajax({
       url: "/gameEnd",
       type: "POST",
@@ -262,27 +262,28 @@ class NetworkedGameRunner implements GameRunner {
         winner: that.myGame.winner,
         actions: JSON.stringify(that.actionHistory)
       },
-      success: function (data, textStatus, jqXHR) {
+      // todo: get types for these callback func params
+      success: function (data: any, textStatus: any, jqXHR: any): void {
         alert("SUCCESS");
       },
-      error: function (jqXHR, textStatus, errorThrown) {
+      error: function (jqXHR: any, textStatus: any, errorThrown: any): void {
         alert("ERR");
       }
     });
   }
 
-  public getSelection() {
-    var that = this;
+  public getSelection(): void {
+    var that: NetworkedGameRunner = this;
     if ($(document).data("mousedown")) {
-      //create the selection
-      var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied = Utilities.getOccupiedSquares(selectionLoc,
+      // create the selection
+      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
         that.selection.w / that.drawer.getBoxWidth(),
         that.selection.h / that.drawer.getBoxHeight());
-      for (var o = 0; o < occupied.length; o++) {
-        var id = Game.getGridLoc(occupied[o]);
+      for (var o: number = 0; o < occupied.length; o++) {
+        var id: number = Game.getGridLoc(occupied[o]);
         if (id != null) {
-          var unit = Utilities.findUnit(id, Game.getUnits());
+          var unit: Unit = Utilities.findUnit(id, Game.getUnits());
           if (unit.player === that.myGame.getPlayerNumber()) {
             unit.selected = true;
           }
