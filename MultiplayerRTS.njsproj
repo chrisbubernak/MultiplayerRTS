@@ -20,20 +20,12 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="app.js" />
-    <Compile Include="public\scripts\gameRunners\GameRunner.js" />
-    <Compile Include="public\scripts\gameRunners\LocalGameRunner.js" />
-    <Compile Include="public\scripts\gameRunners\replayGameRunner.js" />
-    <Compile Include="public\scripts\game\action.js" />
-    <Compile Include="public\scripts\game\commands\AttackCommand.js" />
-    <Compile Include="public\scripts\game\commands\EngageCommand.js" />
-    <Compile Include="public\scripts\game\commands\ICommand.js" />
-    <Compile Include="public\scripts\game\commands\WalkCommand.js" />
-    <Compile Include="public\scripts\game\coords.js" />
-    <Compile Include="public\scripts\game\selectionObject.js" />
-    <Compile Include="public\scripts\game\states\PursuingState.js" />
-    <Compile Include="public\scripts\game\units\orc.js" />
+    <Compile Include="public\scripts\game.js" />
+    <Compile Include="typescript\gameRunners\GameRunner.js" />
+    <Compile Include="typescript\gameRunners\LocalGameRunner.js" />
+    <Compile Include="typescript\gameRunners\replayGameRunner.js" />
     <Compile Include="public\scripts\lobby.js" />
-    <Compile Include="public\scripts\gameRunners\NetworkedGameRunner.js" />
+    <Compile Include="typescript\gameRunners\NetworkedGameRunner.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.js" />
     <Compile Include="public\vendor\bootstrap\js\bootstrap.min.js" />
     <Compile Include="public\vendor\jquery\jquery.forms.js" />
@@ -41,17 +33,13 @@
     <Compile Include="public\scripts\signup.js" />
     <Compile Include="routes\modules\gameManager.js" />
     <Compile Include="routes\modules\lobbyManager.js" />
-    <Content Include="app.ts" />
     <Content Include="public\css\game.css" />
     <Content Include="public\css\lobby.css" />
     <Content Include="public\css\lobbyOLD.styl" />
-    <Content Include="public\scripts\definitions\jquery.d.ts" />
+    <Content Include="typescript\definitions\jquery.d.ts" />
     <Content Include="public\css\gameOLD.styl" />
     <Content Include="public\css\style.css" />
-    <Content Include="public\scripts\definitions\peer.d.ts" />
-    <Content Include="public\scripts\game\commands\EngageCommand.ts" />
-    <Content Include="public\scripts\game\coords.ts" />
-    <Content Include="public\scripts\game\selectionObject.ts" />
+    <Content Include="typescript\definitions\peer.d.ts" />
     <Content Include="public\vendor\bootstrap\css\bootstrap-theme.css" />
     <Content Include="public\vendor\bootstrap\css\bootstrap-theme.css.map" />
     <Content Include="public\vendor\bootstrap\css\bootstrap-theme.min.css" />
@@ -78,55 +66,27 @@
     <Content Include="public\images\knight.png" />
     <Content Include="public\images\orc.png" />
     <Content Include="public\images\units.png" />
-    <Content Include="public\scripts\game\BaseGameEntity.ts" />
-    <Content Include="public\scripts\game\Pathing.ts" />
-    <Content Include="public\scripts\game\State.ts" />
-    <Content Include="public\scripts\game\states\AttackingState.ts" />
-    <Content Include="public\scripts\game\states\WaitingState.ts" />
-    <Content Include="public\scripts\game\states\WalkingState.ts" />
-    <Content Include="public\scripts\game\units\orc.ts" />
-    <Content Include="public\scripts\game\units\mage.ts" />
-    <Content Include="public\scripts\game\terrainTile.ts" />
+    <Content Include="typescript\game\State.ts" />
     <Content Include="public\images\dirt.jpg" />
     <Content Include="public\images\grass.jpg" />
     <Content Include="public\images\terrain.jpg" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <Compile Include="public\scripts\game\BaseGameEntity.js" />
-    <Compile Include="public\scripts\gameRunners\NetworkedGameRunner.ts" />
     <Compile Include="public\scripts\login.js" />
-    <Compile Include="public\scripts\game\drawer.js" />
-    <Compile Include="public\scripts\game\drawer.ts" />
-    <Compile Include="public\scripts\game\game.js" />
-    <Compile Include="public\scripts\game\game.ts" />
-    <Compile Include="public\scripts\game\Pathing.js" />
-    <Compile Include="public\scripts\game\priorityQueue.js" />
-    <Compile Include="public\scripts\game\State.js" />
-    <Compile Include="public\scripts\game\states\AttackingState.js" />
-    <Compile Include="public\scripts\game\states\WaitingState.js" />
-    <Compile Include="public\scripts\game\states\WalkingState.js" />
-    <Compile Include="public\scripts\game\terrainTile.js" />
-    <Compile Include="public\scripts\game\unit.js" />
-    <Compile Include="public\scripts\game\units\knight.js" />
-    <Compile Include="public\scripts\game\units\knight.ts" />
-    <Compile Include="public\scripts\game\priorityQueue.ts" />
-    <Compile Include="public\scripts\game\unit.ts" />
-    <Compile Include="public\scripts\game\units\mage.js" />
-    <Compile Include="public\scripts\game\utilities.js" />
     <Compile Include="routes\index.js" />
     <Compile Include="routes\modules\accountManager.js" />
-    <Compile Include="public\scripts\game\utilities.ts" />
     <Content Include="Web.config" />
     <None Include="Web.cloud.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="public\css\" />
     <Folder Include="public\scripts\" />
-    <Folder Include="public\scripts\game\" />
-    <Folder Include="public\scripts\definitions\" />
-    <Folder Include="public\scripts\gameRunners\" />
-    <Folder Include="public\scripts\game\commands\" />
-    <Folder Include="public\scripts\game\maps\" />
+    <Folder Include="typescript\game\" />
+    <Folder Include="typescript\" />
+    <Folder Include="typescript\definitions\" />
+    <Folder Include="typescript\gameRunners\" />
+    <Folder Include="typescript\game\commands\" />
+    <Folder Include="typescript\game\maps\" />
     <Folder Include="public\vendor\" />
     <Folder Include="public\vendor\bootstrap\" />
     <Folder Include="public\vendor\bootstrap\css\" />
@@ -135,8 +95,8 @@
     <Folder Include="public\vendor\jquery\" />
     <Folder Include="bin\" />
     <Folder Include="public\images\" />
-    <Folder Include="public\scripts\game\states\" />
-    <Folder Include="public\scripts\game\units\" />
+    <Folder Include="typescript\game\states\" />
+    <Folder Include="typescript\game\units\" />
     <Folder Include="node_modules\" />
     <Folder Include="routes\modules\" />
     <Folder Include="sql\" />
@@ -145,17 +105,36 @@
     <Folder Include="public\" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="public\scripts\gameRunners\GameRunner.ts" />
-    <TypeScriptCompile Include="public\scripts\gameRunners\LocalGameRunner.ts" />
-    <TypeScriptCompile Include="public\scripts\gameRunners\ReplayGameRunner.ts" />
-    <TypeScriptCompile Include="public\scripts\game\action.ts" />
-    <TypeScriptCompile Include="public\scripts\game\commands\AttackCommand.ts" />
-    <TypeScriptCompile Include="public\scripts\game\commands\ICommand.ts" />
-    <TypeScriptCompile Include="public\scripts\game\commands\WalkCommand.ts" />
-    <TypeScriptCompile Include="public\scripts\game\maps\IMap.ts" />
-    <TypeScriptCompile Include="public\scripts\game\maps\Map1.ts" />
-    <TypeScriptCompile Include="public\scripts\game\maps\StripesMap.ts" />
-    <TypeScriptCompile Include="public\scripts\game\states\PursuingState.ts" />
+    <TypeScriptCompile Include="typescript\game\commands\EngageCommand.ts" />
+    <TypeScriptCompile Include="typescript\game\coords.ts" />
+    <TypeScriptCompile Include="typescript\game\selectionObject.ts" />
+    <TypeScriptCompile Include="typescript\gameRunners\GameRunner.ts" />
+    <TypeScriptCompile Include="typescript\gameRunners\LocalGameRunner.ts" />
+    <TypeScriptCompile Include="typescript\gameRunners\ReplayGameRunner.ts" />
+    <TypeScriptCompile Include="typescript\game\action.ts" />
+    <TypeScriptCompile Include="typescript\game\commands\AttackCommand.ts" />
+    <TypeScriptCompile Include="typescript\game\commands\ICommand.ts" />
+    <TypeScriptCompile Include="typescript\game\commands\WalkCommand.ts" />
+    <TypeScriptCompile Include="typescript\game\maps\IMap.ts" />
+    <TypeScriptCompile Include="typescript\game\maps\Map1.ts" />
+    <TypeScriptCompile Include="typescript\game\maps\StripesMap.ts" />
+    <TypeScriptCompile Include="typescript\game\states\PursuingState.ts" />
+    <TypeScriptCompile Include="typescript\game\utilities.ts" />
+    <TypeScriptCompile Include="typescript\game\units\knight.ts" />
+    <TypeScriptCompile Include="typescript\game\priorityQueue.ts" />
+    <TypeScriptCompile Include="typescript\game\units\unit.ts" />
+    <TypeScriptCompile Include="typescript\game\units\BaseGameEntity.ts" />
+    <TypeScriptCompile Include="typescript\game\Pathing.ts" />
+    <TypeScriptCompile Include="typescript\game\states\AttackingState.ts" />
+    <TypeScriptCompile Include="typescript\game\states\WaitingState.ts" />
+    <TypeScriptCompile Include="typescript\game\states\WalkingState.ts" />
+    <TypeScriptCompile Include="typescript\game\units\orc.ts" />
+    <TypeScriptCompile Include="typescript\game\units\mage.ts" />
+    <TypeScriptCompile Include="typescript\game\terrainTile.ts" />
+    <TypeScriptCompile Include="typescript\gameRunners\NetworkedGameRunner.ts" />
+    <TypeScriptCompile Include="typescript\game\drawer.ts" />
+    <TypeScriptCompile Include="typescript\game\game.ts" />
+    <TypeScriptCompile Include="_references.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
@@ -202,11 +181,13 @@
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptIncludeComments>true</TypeScriptIncludeComments>
     <TypeScriptSourceMap>true</TypeScriptSourceMap>
+    <TypeScriptOutFile>public\scripts\game.js</TypeScriptOutFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES5</TypeScriptTarget>
     <TypeScriptIncludeComments>false</TypeScriptIncludeComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
+    <TypeScriptOutFile>public\scripts\game.js</TypeScriptOutFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>
