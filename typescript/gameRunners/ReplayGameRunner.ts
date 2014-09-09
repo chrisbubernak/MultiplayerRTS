@@ -1,6 +1,6 @@
-﻿/// <reference path="GameRunner.ts" />
+﻿/// <reference path="IGameRunner.ts" />
 
-class ReplayGameRunner implements GameRunner {
+class ReplayGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;

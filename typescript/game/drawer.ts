@@ -1,6 +1,6 @@
 /// <reference path="coords.ts" />
 /// <reference path="units/unit.ts" />
-/// <reference path="../gameRunners/NetworkedGameRunner.ts" />
+/// <reference path="../gameRunners/IGameRunner.ts" />
 
 class Drawer {
   private static context: Drawer;
@@ -29,7 +29,7 @@ class Drawer {
   private fogContext;
   private selectionContext;
   private playerNumber: number;
-  private gameRunner: GameRunner;
+  private gameRunner: IGameRunner;
 
   constructor(playerNumber,
     terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {

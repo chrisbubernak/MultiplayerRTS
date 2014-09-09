@@ -22,12 +22,12 @@ module.exports = function (grunt) {
                 configuration: grunt.file.readJSON('tslint.json')
             },
             files: {
-                src: ['typescript/**/*.ts']
+                src: ['typescript/game/**/*.ts', 'typescript/gameRunners/**/*.ts'],
             }
         },
         typescript: {
             base: {
-                src: ['typescript/**/*.ts'],
+                src: ['typescript/game/**/*.ts', 'typescript/gameRunners/**/*.ts'],
                 dest: 'public/scripts/game.js',
                 options: {
                     module: 'amd',

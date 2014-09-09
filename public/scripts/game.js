@@ -4,7 +4,7 @@
         BaseGameEntity.NextValidId++;
     }
     BaseGameEntity.prototype.Update = function () {
-        alert('update not implemented!!!');
+        alert("update not implemented!!!");
     };
     BaseGameEntity.NextValidId = 0;
     return BaseGameEntity;
@@ -96,7 +96,8 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Execute = function (unit) {
-        var doneWalking = (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed);
+        var doneWalking = (unit.path.length === 0 && unit.moveTimer >= unit.moveSpeed);
+
         if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
             unit.ChangeState(WaitingState.Instance());
         } else if (doneWalking) {
@@ -120,9 +121,9 @@ var WalkingState = (function (_super) {
             unit.prevLoc = unit.loc;
 
             var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var gridLoc = Game.getGridLoc(locs[l]);
-                if (gridLoc != unit.id && gridLoc != null) {
+                if (gridLoc !== unit.id && gridLoc !== null) {
                     unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
@@ -217,20 +218,20 @@ var AttackingState = (function (_super) {
         var enemies = new Array();
 
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
+            for (var n = 0; n < neighbors.length; n++) {
                 var id = Game.getGridLoc(neighbors[n]);
                 var enemy = Utilities.findUnit(id, Game.getUnits());
-                if (enemy != null && enemy.player != unit.player) {
-                    if (prefTarget == null || id == prefTarget.id) {
+                if (enemy !== null && enemy.player !== unit.player) {
+                    if (prefTarget === null || id === prefTarget.id) {
                         return enemy;
                     }
                     enemies.push(enemy);
                 }
             }
         }
-        if (enemies.length == 0) {
+        if (enemies.length === 0) {
             return null;
         }
         return enemies[0];
@@ -310,16 +311,16 @@ var PursuingState = (function (_super) {
             Game.unmarkGridLocs(unit);
 
             var enemy = unit.command.GetTarget();
-            if (enemy.prevLoc != enemy.loc) {
+            if (enemy.prevLoc !== enemy.loc) {
                 unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
             }
 
             unit.prevLoc = unit.loc;
 
             var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var gridLoc = Game.getGridLoc(locs[l]);
-                if (gridLoc != unit.id && gridLoc != null) {
+                if (gridLoc !== unit.id && gridLoc !== null) {
                     unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
@@ -419,7 +420,7 @@ var Unit = (function (_super) {
         this.numberOfAttackAnimations = 6;
         this.command = null;
         this.newCommand = false;
-        this.direction = 'down';
+        this.direction = "down";
         this.currentState = WaitingState.Instance();
         this.loc = loc;
         this.prevLoc = loc;
@@ -429,6 +430,7 @@ var Unit = (function (_super) {
         this.attackArtTimer = 0;
     }
     Unit.prototype.getImage = function () {
+        alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
     };
 
     Unit.prototype.update = function () {
@@ -439,7 +441,7 @@ var Unit = (function (_super) {
 
     Unit.prototype.ChangeState = function (pNewState) {
         if (!this.currentState || !pNewState) {
-            alert('Error changing state from ' + this.currentState + ' to ' + pNewState);
+            alert("Error changing state from " + this.currentState + " to " + pNewState);
         }
 
         this.currentState.Exit(this);
@@ -457,25 +459,25 @@ var Unit = (function (_super) {
         var moving = this.isMoving();
         var attacking = this.isAttacking();
 
-        if (this.direction == 'up') {
+        if (this.direction === "up") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 256);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY);
         }
-        if (this.direction == 'down') {
+        if (this.direction === "down") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 384);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 2);
         }
-        if (this.direction == 'left') {
+        if (this.direction === "left") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 320);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH);
         }
-        if (this.direction == 'right') {
+        if (this.direction === "right") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 448);
             }
@@ -514,7 +516,7 @@ var Knight = (function (_super) {
         this.totalHealth = 100;
         this.health = this.totalHealth;
         this.attackSpeed = 10;
-        this.src = '/images/knight.png';
+        this.src = "/images/knight.png";
     }
     Knight.prototype.getImage = function () {
         if (Knight.image) {
@@ -536,7 +538,7 @@ var TerrainTile = (function () {
         this.imageY = 0;
         this.walkable = true;
     }
-    TerrainTile.src = '/images/terrain.jpg';
+    TerrainTile.src = "/images/terrain.jpg";
     return TerrainTile;
 })();
 
@@ -545,7 +547,7 @@ var WaterTile = (function (_super) {
     function WaterTile() {
         _super.call(this);
         this.imageX = 448;
-        this.type = 'water';
+        this.type = "water";
         this.walkable = false;
     }
     return WaterTile;
@@ -556,7 +558,7 @@ var GrassTile = (function (_super) {
     function GrassTile() {
         _super.call(this);
         this.imageX = 224;
-        this.type = 'grass';
+        this.type = "grass";
     }
     return GrassTile;
 })(TerrainTile);
@@ -566,264 +568,10 @@ var DirtTile = (function (_super) {
     function DirtTile() {
         _super.call(this);
         this.imageX = 0;
-        this.type = 'dirt';
+        this.type = "dirt";
     }
     return DirtTile;
 })(TerrainTile);
-var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host, gameId) {
-        this.DEBUG = false;
-        this.STATEDEBUG = false;
-        this.DRAWGRID = false;
-        this.actions = new Array();
-        this.FPS = 60;
-        this.RealFPS = this.FPS;
-        this.updateFPS = 10;
-        this.actionList = new Array();
-        this.actionHistory = {};
-        this.myId = id;
-        this.gameId = gameId;
-        this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' });
-        this.myGame = new Game(host, id, enemyId, gameId);
-        this.host = host;
-        var playerNumber;
-        if (this.host) {
-            playerNumber = 1;
-        } else {
-            playerNumber = 2;
-        }
-        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
-
-        var that = this;
-
-        $(document).mousedown(function (e) {
-            if (e.which == 1) {
-                $(this).data('mousedown', true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.setSelection(coords);
-                that.myGame.unselectAll();
-            } else if (e.which == 3) {
-                var units = Game.getUnits();
-                for (var u in units) {
-                    if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                        var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
-                        that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
-                    }
-                }
-            }
-        });
-
-        $(window).resize(function () {
-            that.drawer.updateDimensions($(window).width(), $(window).height());
-        });
-
-        $(document).mouseup(function (e) {
-            $(this).data('mousedown', false);
-        });
-
-        $(document).mousemove(function (e) {
-            if ($(this).data('mousedown')) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.updateSelection(that.selection, coords.x, coords.y);
-            }
-        });
-
-        var that = this;
-
-        $(document).bind('keydown', function (e) {
-            var code = e.keyCode || e.which;
-            if (code == 71) {
-                if (that.DRAWGRID) {
-                    that.DRAWGRID = false;
-                    that.drawer.drawTerrain();
-                } else {
-                    that.DRAWGRID = true;
-                    that.drawer.drawGrid();
-                }
-            } else if (code === 68) {
-                if (that.DEBUG) {
-                    that.DEBUG = false;
-                } else {
-                    that.DEBUG = true;
-                }
-            }
-            that.shifted = e.shiftKey;
-            return true;
-        });
-
-        this.peer.on('error', function (err) {
-            console.log('error connecting!');
-            console.log(err);
-        });
-
-        var that = this;
-        this.peer.on('open', function () {
-            console.log('peer is open!');
-
-            if (host) {
-                console.log('im initiating a connection');
-
-                that.conn = that.peer.connect(enemyId, { reliable: true });
-                that.conn.on('open', function () {
-                    that.conn.send('Hey from player: ' + id);
-                    that.run();
-                });
-                that.conn.on('close', function () {
-                    console.log('connection closed!');
-                    that.end('Enemy Quit');
-                });
-                that.conn.on('data', function (data) {
-                    if (!(typeof (data.simTick) === 'undefined')) {
-                        that.actionList[data.simTick] = data.actions;
-                    }
-                });
-            } else {
-                console.log('im waiting for a connection');
-
-                that.peer.on('connection', function (conn) {
-                    that.conn = conn;
-                    console.log('client ' + conn);
-                    that.conn.on('open', function () {
-                        that.conn.send('Hey from player: ' + id);
-                        that.run();
-                    });
-                    that.conn.on('close', function () {
-                        console.log('connection closed!');
-                        that.end('Enemy Quit');
-                    });
-                    that.conn.on('data', function (data) {
-                        if (!(typeof (data.simTick) === 'undefined')) {
-                            that.myGame.applyActions(data.actions, data.simTick);
-                            if (data.actions.length > 0) {
-                                that.actionHistory[data.simTick] = data.actions;
-                            }
-                        }
-                    });
-                });
-            }
-        });
-    }
-    NetworkedGameRunner.prototype.run = function () {
-        this.myGame.setup();
-        this.drawer.drawTerrain();
-
-        var oldTime = new Date().getTime();
-        var diffTime = 0;
-        var newTime = 0;
-        var oldTime2 = new Date().getTime();
-        var diffTime2 = 0;
-        var newTime2 = 0;
-
-        var that = this;
-        setInterval(function () {
-            that.drawer.interpolate();
-            that.drawer.drawUnits(Game.getUnits());
-            that.drawSelect();
-            diffTime = newTime - oldTime;
-            oldTime = newTime;
-            newTime = new Date().getTime();
-        }, 1000 / this.FPS);
-
-        var fpsOut = document.getElementById("fps");
-
-        var intervalId = setInterval(function () {
-            if (that.myGame.isOver()) {
-                that.end("Game is over!");
-                clearInterval(intervalId);
-                return;
-            }
-
-            var currentSimTick = that.myGame.getSimTick();
-            that.myGame.update();
-            that.getSelection();
-
-            if (!that.host) {
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
-                that.actions = new Array();
-            } else if (that.host && that.actionList[currentSimTick]) {
-                that.actions = that.actions.concat(that.actionList[currentSimTick]);
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
-                that.myGame.applyActions(that.actions, currentSimTick);
-                if (that.actions.length > 0) {
-                    that.actionHistory[currentSimTick] = that.actions;
-                }
-                that.actions = new Array();
-            }
-
-            diffTime2 = newTime2 - oldTime2;
-            oldTime2 = newTime2;
-            newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
-        }, 1000 / (that.updateFPS));
-    };
-
-    NetworkedGameRunner.prototype.drawSelect = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            this.drawer.drawSelect(this.selection);
-        }
-    };
-
-    NetworkedGameRunner.prototype.setSelection = function (coords) {
-        this.selection = new SelectionObject(coords.x, coords.y);
-    };
-
-    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
-        selection.x = Math.min(selection.sX, eX);
-        selection.y = Math.min(selection.sY, eY);
-        selection.w = Math.abs(selection.sX - eX);
-        selection.h = Math.abs(selection.sY - eY);
-        return selection;
-    };
-
-    NetworkedGameRunner.prototype.end = function (message) {
-        this.sendGameReportToServer();
-        window.location.href = "/lobby";
-    };
-
-    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
-        console.log(this.actionHistory);
-
-        var that = this;
-        $.ajax({
-            url: "/gameEnd",
-            type: "POST",
-            data: {
-                gameId: that.gameId,
-                reporter: that.myId,
-                winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory)
-            },
-            success: function (data, textStatus, jqXHR) {
-                alert('SUCCESS');
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('ERR');
-            }
-        });
-    };
-
-    NetworkedGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o in occupied) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id != null) {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
-    NetworkedGameRunner.updateFPS = 10;
-    return NetworkedGameRunner;
-})();
 var Drawer = (function () {
     function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
@@ -1113,7 +861,7 @@ var Orc = (function (_super) {
         this.totalHealth = 120;
         this.health = this.totalHealth;
         this.attackSpeed = 15;
-        this.src = '/images/orc.png';
+        this.src = "/images/orc.png";
     }
     Orc.prototype.getImage = function () {
         if (Orc.image) {
@@ -1414,7 +1162,7 @@ var Utilities = (function () {
 
     Utilities.findUnit = function (id, units) {
         for (var i = 0; i < units.length; i++) {
-            if (units[i].id == id) {
+            if (units[i].id === id) {
                 return units[i];
             }
         }
@@ -1445,16 +1193,16 @@ var Utilities = (function () {
     Utilities.getDirection = function (loc1, loc2) {
         if (loc1 < loc2) {
             if ((loc1 % Game.getNumOfCols()) <= (loc2 % Game.getNumOfCols())) {
-                return 'right';
+                return "right";
             }
-            return 'down';
+            return "down";
         } else {
             if (Math.floor(loc1 / Game.getNumOfCols()) > Math.floor(loc2 / Game.getNumOfCols())) {
-                return 'up';
+                return "up";
             }
-            return 'left';
+            return "left";
         }
-        console.log('ERROR: Utilities.getDirection() did not set a direction');
+        console.log("ERROR: Utilities.getDirection() did not set a direction");
     };
 
     Utilities.getGridLocsInSightRange = function (unit) {
@@ -1515,9 +1263,9 @@ var Utilities = (function () {
 
     Utilities.canAnyUnitSeeEnemy = function (unit, enemy) {
         var units = Game.getUnitsForPlayer(unit.player);
-        for (var u in units) {
+        for (var u = 0; u < units.length; u++) {
             var locs = Utilities.getGridLocsInSightRange(units[u]);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var id = Game.getGridLoc(locs[l]);
                 if (id === enemy.id) {
                     return true;
@@ -1537,7 +1285,7 @@ var Utilities = (function () {
             return false;
         }
         if (id1 === id2) {
-            console.log('it worked? ' + id1 + " " + id2);
+            console.log("it worked? " + id1 + " " + id2);
             return true;
         }
         return false;
@@ -1546,11 +1294,11 @@ var Utilities = (function () {
     Utilities.neighbors = function (boxNumber) {
         var neighbors = new Array();
 
-        if (boxNumber % Game.getNumOfCols() != 0) {
+        if (boxNumber % Game.getNumOfCols() !== 0) {
             neighbors.push(boxNumber - 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0) {
             neighbors.push(boxNumber + 1);
         }
 
@@ -1562,19 +1310,19 @@ var Utilities = (function () {
             neighbors.push(boxNumber + Game.getNumOfCols());
         }
 
-        if (boxNumber % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+        if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
             neighbors.push(boxNumber - Game.getNumOfCols() - 1);
         }
 
-        if (boxNumber % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+        if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
             neighbors.push(boxNumber + Game.getNumOfCols() - 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
             neighbors.push(boxNumber - Game.getNumOfCols() + 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
             neighbors.push(boxNumber + Game.getNumOfCols() + 1);
         }
         return neighbors;
@@ -1650,7 +1398,7 @@ var PriorityQueue = (function () {
     PriorityQueue.prototype.bubbleUp = function (index) {
         var cur = index;
         var parent = this.parent(cur);
-        while (cur != 1 && this.array[cur].priority < this.array[parent].priority) {
+        while (cur !== 1 && this.array[cur].priority < this.array[parent].priority) {
             var tempPriority = this.array[cur].priority;
             var tempVal = this.array[cur].val;
             this.array[cur].val = this.array[parent].val;
@@ -1666,12 +1414,13 @@ var PriorityQueue = (function () {
         var cur = index;
         var left = this.leftChild(1);
         var right = this.rightChild(1);
-
+        var tempVal;
+        var tempPriority;
         while (this.array[left] != null) {
             if (this.array[right] == null) {
                 if (this.array[left].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[left].val;
                     this.array[cur].priority = this.array[left].priority;
                     this.array[left].val = tempVal;
@@ -1682,16 +1431,16 @@ var PriorityQueue = (function () {
                 }
             } else {
                 if (this.array[left].priority <= this.array[right].priority && this.array[left].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[left].val;
                     this.array[cur].priority = this.array[left].priority;
                     this.array[left].val = tempVal;
                     this.array[left].priority = tempPriority;
                     cur = left;
                 } else if (this.array[left].priority > this.array[right].priority && this.array[right].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[right].val;
                     this.array[cur].priority = this.array[right].priority;
                     this.array[right].val = tempVal;
@@ -1899,18 +1648,14 @@ var LocalGameRunner = (function () {
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
         this.actions = new Array();
-        this.FPS = 60;
-        this.RealFPS = this.FPS;
         this.updateFPS = 10;
-        this.actionList = new Array();
+        this.FPS = 60;
+        this.REAL_FPS = this.FPS;
         var id = "Human";
         var enemyId = "Computer";
         var gameId = "LocalGame";
-        var host = true;
 
         this.myGame = new Game(true, id, enemyId, gameId);
-
-        this.reportGameStartToServer(gameId, id, enemyId, host);
 
         this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
@@ -1919,14 +1664,14 @@ var LocalGameRunner = (function () {
         var that = this;
 
         $(document).mousedown(function (e) {
-            if (e.which == 1) {
-                $(this).data('mousedown', true);
+            if (e.which === 1) {
+                $(this).data("mousedown", true);
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
-            } else if (e.which == 3) {
+            } else if (e.which === 3) {
                 var units = Game.getUnits();
-                for (var u in units) {
+                for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
                         var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
@@ -1941,20 +1686,19 @@ var LocalGameRunner = (function () {
         });
 
         $(document).mouseup(function (e) {
-            $(this).data('mousedown', false);
+            $(this).data("mousedown", false);
         });
 
         $(document).mousemove(function (e) {
-            if ($(this).data('mousedown')) {
+            if ($(this).data("mousedown")) {
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
-        var that = this;
 
-        $(document).bind('keydown', function (e) {
+        $(document).bind("keydown", function (e) {
             var code = e.keyCode || e.which;
-            if (code == 71) {
+            if (code === 71) {
                 if (that.DRAWGRID) {
                     that.DRAWGRID = false;
                     that.drawer.drawTerrain();
@@ -2018,14 +1762,13 @@ var LocalGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
     LocalGameRunner.prototype.drawSelect = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
+        if ($(document).data("mousedown")) {
             this.drawer.drawSelect(this.selection);
         }
     };
@@ -2043,21 +1786,17 @@ var LocalGameRunner = (function () {
     };
 
     LocalGameRunner.prototype.end = function (message) {
-        alert(message);
         window.location.href = "/lobby";
-    };
-
-    LocalGameRunner.prototype.reportGameStartToServer = function (gameId, id, enemyId, host) {
     };
 
     LocalGameRunner.prototype.getSelection = function () {
         var that = this;
-        if ($(document).data('mousedown')) {
+        if ($(document).data("mousedown")) {
             var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
             var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o in occupied) {
+            for (var o = 0; o < occupied.length; o++) {
                 var id = Game.getGridLoc(occupied[o]);
-                if (id !== null && typeof id !== 'undefined') {
+                if (id !== null && typeof id !== "undefined") {
                     var unit = Utilities.findUnit(id, Game.getUnits());
                     if (unit.player === that.myGame.getPlayerNumber()) {
                         unit.selected = true;
@@ -2066,8 +1805,254 @@ var LocalGameRunner = (function () {
             }
         }
     };
-    LocalGameRunner.updateFPS = 10;
     return LocalGameRunner;
+})();
+var NetworkedGameRunner = (function () {
+    function NetworkedGameRunner(id, enemyId, host, gameId) {
+        this.DEBUG = false;
+        this.STATEDEBUG = false;
+        this.DRAWGRID = false;
+        this.actions = new Array();
+        this.updateFPS = 10;
+        this.FPS = 60;
+        this.REAL_FPS = this.FPS;
+        this.actionList = new Array();
+        this.actionHistory = {};
+        this.myId = id;
+        this.gameId = gameId;
+        this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
+        this.myGame = new Game(host, id, enemyId, gameId);
+        this.host = host;
+        var playerNumber;
+        if (this.host) {
+            playerNumber = 1;
+        } else {
+            playerNumber = 2;
+        }
+        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+
+        var that = this;
+
+        $(document).mousedown(function (e) {
+            if (e.which === 1) {
+                $(this).data("mousedown", true);
+                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                that.setSelection(coords);
+                that.myGame.unselectAll();
+            } else if (e.which === 3) {
+                var units = Game.getUnits();
+                for (var u = 0; u < units.length; u++) {
+                    if (units[u].selected) {
+                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+                        that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
+                    }
+                }
+            }
+        });
+
+        $(window).resize(function () {
+            that.drawer.updateDimensions($(window).width(), $(window).height());
+        });
+
+        $(document).mouseup(function (e) {
+            $(this).data("mousedown", false);
+        });
+
+        $(document).mousemove(function (e) {
+            if ($(this).data("mousedown")) {
+                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                that.updateSelection(that.selection, coords.x, coords.y);
+            }
+        });
+
+        $(document).bind("keydown", function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 71) {
+                if (that.DRAWGRID) {
+                    that.DRAWGRID = false;
+                    that.drawer.drawTerrain();
+                } else {
+                    that.DRAWGRID = true;
+                    that.drawer.drawGrid();
+                }
+            } else if (code === 68) {
+                if (that.DEBUG) {
+                    that.DEBUG = false;
+                } else {
+                    that.DEBUG = true;
+                }
+            }
+            that.shifted = e.shiftKey;
+            return true;
+        });
+
+        this.peer.on("error", function (err) {
+            console.log("error connecting!");
+            console.log(err);
+        });
+
+        this.peer.on("open", function () {
+            console.log("peer is open!");
+
+            if (host) {
+                console.log("im initiating a connection");
+
+                that.conn = that.peer.connect(enemyId, { reliable: true });
+                that.conn.on("open", function () {
+                    that.conn.send("Hey from player: " + id);
+                    that.run();
+                });
+                that.conn.on("close", function () {
+                    console.log("connection closed!");
+                    that.end("Enemy Quit");
+                });
+                that.conn.on("data", function (data) {
+                    if (!(typeof (data.simTick) === "undefined")) {
+                        that.actionList[data.simTick] = data.actions;
+                    }
+                });
+            } else {
+                console.log("im waiting for a connection");
+
+                that.peer.on("connection", function (conn) {
+                    that.conn = conn;
+                    console.log("client " + conn);
+                    that.conn.on("open", function () {
+                        that.conn.send("Hey from player: " + id);
+                        that.run();
+                    });
+                    that.conn.on("close", function () {
+                        console.log("connection closed!");
+                        that.end("Enemy Quit");
+                    });
+                    that.conn.on("data", function (data) {
+                        if (!(typeof (data.simTick) === "undefined")) {
+                            that.myGame.applyActions(data.actions, data.simTick);
+                            if (data.actions.length > 0) {
+                                that.actionHistory[data.simTick] = data.actions;
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
+    NetworkedGameRunner.prototype.run = function () {
+        this.myGame.setup();
+        this.drawer.drawTerrain();
+
+        var oldTime = new Date().getTime();
+        var diffTime = 0;
+        var newTime = 0;
+        var oldTime2 = new Date().getTime();
+        var diffTime2 = 0;
+        var newTime2 = 0;
+
+        var that = this;
+        setInterval(function () {
+            that.drawer.interpolate();
+            that.drawer.drawUnits(Game.getUnits());
+            that.drawSelect();
+            diffTime = newTime - oldTime;
+            oldTime = newTime;
+            newTime = new Date().getTime();
+        }, 1000 / this.FPS);
+
+        var fpsOut = document.getElementById("fps");
+        var intervalId = setInterval(function () {
+            if (that.myGame.isOver()) {
+                that.end("Game is over!");
+                clearInterval(intervalId);
+            }
+
+            var currentSimTick = that.myGame.getSimTick();
+            that.myGame.update();
+            that.getSelection();
+
+            if (!that.host) {
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.actions = new Array();
+            } else if (that.host && that.actionList[currentSimTick]) {
+                that.actions = that.actions.concat(that.actionList[currentSimTick]);
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.myGame.applyActions(that.actions, currentSimTick);
+                if (that.actions.length > 0) {
+                    that.actionHistory[currentSimTick] = that.actions;
+                }
+                that.actions = new Array();
+            }
+
+            diffTime2 = newTime2 - oldTime2;
+            oldTime2 = newTime2;
+            newTime2 = new Date().getTime();
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+        }, 1000 / (that.updateFPS));
+    };
+
+    NetworkedGameRunner.prototype.drawSelect = function () {
+        if ($(document).data("mousedown")) {
+            this.drawer.drawSelect(this.selection);
+        }
+    };
+
+    NetworkedGameRunner.prototype.setSelection = function (coords) {
+        this.selection = new SelectionObject(coords.x, coords.y);
+    };
+
+    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
+        selection.x = Math.min(selection.sX, eX);
+        selection.y = Math.min(selection.sY, eY);
+        selection.w = Math.abs(selection.sX - eX);
+        selection.h = Math.abs(selection.sY - eY);
+        return selection;
+    };
+
+    NetworkedGameRunner.prototype.end = function (message) {
+        this.sendGameReportToServer();
+        window.location.href = "/lobby";
+    };
+
+    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
+        console.log(this.actionHistory);
+
+        var that = this;
+        $.ajax({
+            url: "/gameEnd",
+            type: "POST",
+            data: {
+                gameId: that.gameId,
+                reporter: that.myId,
+                winner: that.myGame.winner,
+                actions: JSON.stringify(that.actionHistory)
+            },
+            success: function (data, textStatus, jqXHR) {
+                alert("SUCCESS");
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ERR");
+            }
+        });
+    };
+
+    NetworkedGameRunner.prototype.getSelection = function () {
+        var that = this;
+        if ($(document).data("mousedown")) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id != null) {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
+        }
+    };
+    return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
     function ReplayGameRunner(actions) {
@@ -2076,9 +2061,8 @@ var ReplayGameRunner = (function () {
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
-        this.RealFPS = this.FPS;
+        this.REAL_FPS = this.FPS;
         this.updateFPS = 10;
-        this.actionList = new Array();
         console.log(actions);
         this.actions = actions;
 
@@ -2091,7 +2075,6 @@ var ReplayGameRunner = (function () {
         this.run();
 
         var that = this;
-
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
@@ -2132,8 +2115,8 @@ var ReplayGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2141,6 +2124,5 @@ var ReplayGameRunner = (function () {
         alert(message);
         window.location.href = "/lobby";
     };
-    ReplayGameRunner.updateFPS = 10;
     return ReplayGameRunner;
 })();

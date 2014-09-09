@@ -2,7 +2,7 @@
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 
-interface GameRunner {
+interface IGameRunner {
   DEBUG: boolean;
   STATEDEBUG: boolean;
 }

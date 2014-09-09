@@ -2,11 +2,11 @@
 /// <reference path="../game/drawer.ts" />
 /// <reference path="../definitions/jquery.d.ts" />
 /// <reference path="../definitions/Peer.d.ts" />
-/// <reference path="GameRunner.ts" />
+/// <reference path="IGameRunner.ts" />
 /// <reference path="../game/coords.ts" />
 /// <reference path="../game/selectionObject.ts" />
 
-class NetworkedGameRunner implements GameRunner {
+class NetworkedGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
