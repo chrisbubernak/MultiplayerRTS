@@ -615,7 +615,8 @@ var Drawer = (function () {
         this.canvasWidth = width;
 
         this.boxSize = this.canvasWidth / Game.getNumOfCols();
-        if (typeof (Game.getTerrainLoc(0)) != 'undefined') {
+
+        if (typeof (Game.getTerrainLoc(0)) !== "undefined") {
             this.drawTerrain();
         }
     };
@@ -629,7 +630,7 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawUnits = function (units) {
-        this.fogContext.globalCompositeOperation = 'source-over';
+        this.fogContext.globalCompositeOperation = "source-over";
         this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.fogContext.fillStyle = this.FOG;
         this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
@@ -646,7 +647,7 @@ var Drawer = (function () {
 
                 var r1 = units[i].sightRange * this.boxSize;
                 var r2 = r1 + 40;
-                var density = .4;
+                var density = 0.4;
 
                 if (this.gameRunner.DEBUG) {
                     this.drawUnitSightRange(units[i]);
@@ -655,9 +656,9 @@ var Drawer = (function () {
                 }
 
                 var radGrd = this.fogContext.createRadialGradient(x + this.unitWidth() / 2, y + this.unitHeight() / 2, r1, x + this.unitWidth() / 2, y + this.unitHeight() / 2, r2);
-                radGrd.addColorStop(0, 'rgba( 0, 0, 0,  1 )');
-                radGrd.addColorStop(density, 'rgba( 0, 0, 0, .1 )');
-                radGrd.addColorStop(1, 'rgba( 0, 0, 0,  0 )');
+                radGrd.addColorStop(0, "rgba( 0, 0, 0,  1 )");
+                radGrd.addColorStop(density, "rgba( 0, 0, 0, .1 )");
+                radGrd.addColorStop(1, "rgba( 0, 0, 0,  0 )");
                 this.fogContext.globalCompositeOperation = "destination-out";
                 this.fogContext.fillStyle = radGrd;
                 this.fogContext.fillRect(x - r2, y - r2, r2 * 2, r2 * 2);
@@ -725,9 +726,9 @@ var Drawer = (function () {
             this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
             this.terrainContext.stroke();
         }
-        for (var i = 0; i <= Game.getNumOfRows(); i++) {
-            this.terrainContext.moveTo(0, i * this.boxSize);
-            this.terrainContext.lineTo(this.canvasWidth, i * this.boxSize);
+        for (var j = 0; j <= Game.getNumOfRows(); j++) {
+            this.terrainContext.moveTo(0, j * this.boxSize);
+            this.terrainContext.lineTo(this.canvasWidth, j * this.boxSize);
             this.terrainContext.stroke();
         }
     };
@@ -735,7 +736,7 @@ var Drawer = (function () {
     Drawer.prototype.drawUnit = function (unit) {
         var x = null;
         var y = null;
-        if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
+        if (unit.x === null || unit.y === null || isNaN(unit.x) || isNaN(unit.y)) {
             var unitCoords = this.boxToCoords(unit.loc);
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
@@ -750,18 +751,18 @@ var Drawer = (function () {
         if (unit.selected) {
             this.unitContext.beginPath();
             this.unitContext.strokeStyle = this.GREEN;
-            this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+            this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * 0.75, 0, 2 * Math.PI);
             this.unitContext.stroke();
 
             if (unit.command !== null) {
-                this.drawSquare(unit.command.GetLocation(), 'red');
+                this.drawSquare(unit.command.GetLocation(), "red");
             }
 
             if (unit.command && unit.command.ToString() === "attack") {
                 var targetUnit = unit.command.GetTarget();
                 this.unitContext.beginPath();
                 this.unitContext.strokeStyle = this.RED;
-                this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+                this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * 0.75, 0, 2 * Math.PI);
                 this.unitContext.stroke();
             }
         }
@@ -787,21 +788,21 @@ var Drawer = (function () {
 
     Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "purple");
         }
     };
 
     Drawer.prototype.drawUnitSightRange = function (unit) {
         var locs = Utilities.getGridLocsInSightRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "orange");
         }
     };
 
     Drawer.prototype.drawUnitLocsOccupied = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "red");
         }
     };
