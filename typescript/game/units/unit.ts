@@ -70,9 +70,10 @@ class Unit extends BaseGameEntity {
     // make sure both states are valid before attempting to call their methods
     if (!this.currentState || !pNewState) {
       alert("Error changing state from " +
-        this.currentState +
+        this.currentState.ToString() +
         " to " +
         pNewState);
+
     }
 
     // exit the old state

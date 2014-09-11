@@ -13,7 +13,6 @@ class ReplayGameRunner implements IGameRunner {
   private updateFPS: number = 10;
 
   constructor(actions: any[]) {
-    console.log(actions);
     this.actions = actions;
 
     var id: string = "test";
@@ -62,7 +61,7 @@ class ReplayGameRunner implements IGameRunner {
     // and handles physics/updating the game state/networking 
     var fpsOut: any = document.getElementById("fps");
     // var conn = Game.conn;
-    setInterval(function (): void{
+    setInterval(function (): void {
       if (that.myGame.isOver()) {
         that.end("Game is over!");
         return;
@@ -71,7 +70,11 @@ class ReplayGameRunner implements IGameRunner {
       var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
 
-      that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+      if (typeof that.actions[currentSimTick] === "undefined") {
+        that.myGame.applyActions(new Array(), currentSimTick);
+      } else {
+        that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+      }
 
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
@@ -82,7 +85,6 @@ class ReplayGameRunner implements IGameRunner {
   }
 
   public end(message: string): void {
-    alert(message);
     window.location.href = "/lobby";
   }
 }

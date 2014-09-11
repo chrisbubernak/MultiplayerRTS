@@ -10,7 +10,7 @@ class WaitingState extends State {
   static instance: WaitingState;
 
   public static Instance(): WaitingState {
-    if (WaitingState.instance == null) {
+    if (typeof WaitingState.instance === "undefined") {
       WaitingState.instance = new WaitingState();
     }
     return WaitingState.instance;

@@ -15,21 +15,24 @@ var State = (function () {
     State.prototype.ToString = function () {
         return "State";
     };
+
     State.prototype.Enter = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
+
     State.prototype.Execute = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
+
     State.prototype.Exit = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
 
     State.prototype.specificEnemyInAttackRange = function (unit, enemy) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
+            for (var n = 0; n < neighbors.length; n++) {
                 var id = Game.getGridLoc(neighbors[n]);
                 if (id === enemy.id) {
                     return true;
@@ -46,10 +49,10 @@ var State = (function () {
             return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
         });
 
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var id = Game.getGridLoc(locs[l]);
             var enemy = Utilities.findUnit(id, Game.getUnits());
-            if (enemy != null && enemy.player != unit.player) {
+            if (enemy !== null && enemy.player !== unit.player) {
                 return enemy;
             }
         }
@@ -58,7 +61,7 @@ var State = (function () {
 
     State.prototype.specificEnemyInTargetAquireRange = function (unit, enemy) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var id = Game.getGridLoc(locs[l]);
             if (id !== null && id === enemy.id) {
                 return true;
@@ -80,7 +83,7 @@ var WalkingState = (function (_super) {
         _super.apply(this, arguments);
     }
     WalkingState.Instance = function () {
-        if (WalkingState.instance == null) {
+        if (typeof WalkingState.instance === "undefined") {
             WalkingState.instance = new WalkingState();
         }
         return WalkingState.instance;
@@ -150,7 +153,7 @@ var AttackingState = (function (_super) {
         _super.apply(this, arguments);
     }
     AttackingState.Instance = function () {
-        if (AttackingState.instance == null) {
+        if (typeof AttackingState.instance === "undefined") {
             AttackingState.instance = new AttackingState();
         }
         return AttackingState.instance;
@@ -221,7 +224,7 @@ var PursuingState = (function (_super) {
         _super.apply(this, arguments);
     }
     PursuingState.Instance = function () {
-        if (PursuingState.instance === null) {
+        if (typeof PursuingState.instance === "undefined") {
             PursuingState.instance = new PursuingState();
         }
         return PursuingState.instance;
@@ -343,7 +346,7 @@ var WaitingState = (function (_super) {
         _super.apply(this, arguments);
     }
     WaitingState.Instance = function () {
-        if (WaitingState.instance == null) {
+        if (typeof WaitingState.instance === "undefined") {
             WaitingState.instance = new WaitingState();
         }
         return WaitingState.instance;
@@ -415,7 +418,7 @@ var Unit = (function (_super) {
 
     Unit.prototype.ChangeState = function (pNewState) {
         if (!this.currentState || !pNewState) {
-            alert("Error changing state from " + this.currentState + " to " + pNewState);
+            alert("Error changing state from " + this.currentState.ToString() + " to " + pNewState);
         }
 
         this.currentState.Exit(this);
@@ -1435,6 +1438,9 @@ var Pathing = (function () {
     Pathing.aStarToLoc = function (start, goal, unit) {
         var closedSet = new Array();
         var openSet = new PriorityQueue();
+
+        var final;
+
         var distanceToGoal = new PriorityQueue();
         var cameFrom = new Object();
         var gScore = new Object();
@@ -1450,7 +1456,7 @@ var Pathing = (function () {
             nodesExplored++;
             cur = openSet.dequeue();
 
-            if (cur == goal) {
+            if (cur === goal) {
                 return this.getPath(cameFrom, goal, start);
             }
 
@@ -1458,25 +1464,25 @@ var Pathing = (function () {
             var neighbors = Utilities.neighbors(cur);
 
             for (var i = neighbors.length - 1; i >= 0; i--) {
-                var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) != Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
+                var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) !== Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
                 var offGridBottom = neighbors[i] + (unit.gridHeight - 1) * Game.getNumOfCols() > Game.getNumOfCols() * Game.getNumOfRows();
                 if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-                    if (neighbors[i] == goal) {
-                        var final = distanceToGoal.dequeue();
+                    if (neighbors[i] === goal) {
+                        final = distanceToGoal.dequeue();
                         return this.getPath(cameFrom, final, start);
                     }
                     neighbors.splice(i, 1);
                     continue;
                 }
 
-                var locs = locs = Utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
-                for (var l in locs) {
+                var locs = Utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
+                for (var l = 0; l < locs.length; l++) {
                     var gridLoc = Game.getGridLoc(locs[l]);
                     var terrainLoc = Game.getTerrainLoc(locs[l]);
 
-                    if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
-                        if (neighbors[i] == goal) {
-                            var final = distanceToGoal.dequeue();
+                    if ((gridLoc !== unit.id && gridLoc !== null) || !terrainLoc.walkable) {
+                        if (neighbors[i] === goal) {
+                            final = distanceToGoal.dequeue();
                             return this.getPath(cameFrom, final || start, start);
                         }
                         neighbors.splice(i, 1);
@@ -1485,23 +1491,23 @@ var Pathing = (function () {
                 }
             }
 
-            for (var i = 0; i < neighbors.length; i++) {
-                var t_gScore = gScore[cur] + Utilities.distance(cur, neighbors[i]);
-                var heuristic = this.heuristic(neighbors[i], goal);
-                var t_fScore = t_gScore + heuristic;
-                distanceToGoal.enqueue(neighbors[i], heuristic);
-                if ((closedSet.indexOf(neighbors[i]) != -1) && (t_fScore >= fScore[neighbors[i]])) {
+            for (var j = 0; j < neighbors.length; j++) {
+                var tempGScore = gScore[cur] + Utilities.distance(cur, neighbors[j]);
+                var heuristic = this.heuristic(neighbors[j], goal);
+                var tempFScore = tempGScore + heuristic;
+                distanceToGoal.enqueue(neighbors[j], heuristic);
+                if ((closedSet.indexOf(neighbors[j]) !== -1) && (tempFScore >= fScore[neighbors[j]])) {
                     continue;
                 }
-                if ((openSet.indexOf(neighbors[i]) == -1) || t_fScore < fScore[neighbors[i]]) {
-                    cameFrom[neighbors[i]] = cur;
+                if ((openSet.indexOf(neighbors[j]) === -1) || tempFScore < fScore[neighbors[j]]) {
+                    cameFrom[neighbors[j]] = cur;
 
-                    gScore[neighbors[i]] = t_gScore;
-                    fScore[neighbors[i]] = t_fScore;
-                    if (openSet.indexOf(neighbors[i]) == -1) {
-                        openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
+                    gScore[neighbors[j]] = tempGScore;
+                    fScore[neighbors[j]] = tempFScore;
+                    if (openSet.indexOf(neighbors[j]) === -1) {
+                        openSet.enqueue(neighbors[j], fScore[neighbors[j]]);
                     } else {
-                        openSet.update(neighbors[i], fScore[neighbors[i]]);
+                        openSet.update(neighbors[j], fScore[neighbors[j]]);
                     }
                 }
             }
@@ -1511,8 +1517,8 @@ var Pathing = (function () {
     };
 
     Pathing.getPath = function (cameFrom, cur, start) {
-        var returnArray = new Array();
-        while (cur != start) {
+        var returnArray = Array();
+        while (cur !== start) {
             returnArray.splice(0, 0, cur);
             cur = cameFrom[cur];
         }
@@ -2036,7 +2042,6 @@ var ReplayGameRunner = (function () {
         this.FPS = 60;
         this.REAL_FPS = this.FPS;
         this.updateFPS = 10;
-        console.log(actions);
         this.actions = actions;
 
         var id = "test";
@@ -2083,7 +2088,11 @@ var ReplayGameRunner = (function () {
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
 
-            that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+            if (typeof that.actions[currentSimTick] === "undefined") {
+                that.myGame.applyActions(new Array(), currentSimTick);
+            } else {
+                that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+            }
 
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
@@ -2094,7 +2103,6 @@ var ReplayGameRunner = (function () {
     };
 
     ReplayGameRunner.prototype.end = function (message) {
-        alert(message);
         window.location.href = "/lobby";
     };
     return ReplayGameRunner;

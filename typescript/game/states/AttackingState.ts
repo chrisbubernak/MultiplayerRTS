@@ -7,7 +7,7 @@ class AttackingState extends State {
   static instance: AttackingState;
 
   public static Instance(): AttackingState {
-    if (AttackingState.instance == null) {
+    if (typeof AttackingState.instance === "undefined") {
       AttackingState.instance = new AttackingState();
     }
     return AttackingState.instance;

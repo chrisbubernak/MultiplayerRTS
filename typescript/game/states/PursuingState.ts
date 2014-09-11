@@ -7,7 +7,7 @@ class PursuingState extends State {
   static instance: PursuingState;
 
   public static Instance(): PursuingState {
-    if (PursuingState.instance === null) {
+    if (typeof PursuingState.instance === "undefined") {
       PursuingState.instance = new PursuingState();
     }
     return PursuingState.instance;

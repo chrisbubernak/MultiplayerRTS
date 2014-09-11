@@ -7,7 +7,7 @@ class WalkingState extends State {
   static instance: WalkingState;
 
   public static Instance(): WalkingState {
-    if (WalkingState.instance == null) {
+    if (typeof WalkingState.instance === "undefined") {
       WalkingState.instance = new WalkingState();
     }
     return WalkingState.instance;
