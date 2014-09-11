@@ -12,11 +12,11 @@ class Unit extends BaseGameEntity {
   prevLoc: number;
   x: number;
   y: number;
-  w: number; //refers to size of image...refactor me!!
-  h: number; //refers to size of image...refactor me!!
-  gridWidth: number; //width in # of grid locs
-  gridHeight: number; //height in #of  grid locs
-  player: number; //e.g. 1, 2, 3....etc
+  w: number; // refers to size of image...refactor me!!
+  h: number; // refers to size of image...refactor me!!
+  gridWidth: number; // width in # of grid locs
+  gridHeight: number; // height in #of  grid locs
+  player: number; // e.g. 1, 2, 3....etc
   imageX: number;
   imageY: number;
   imageW: number;
@@ -25,25 +25,25 @@ class Unit extends BaseGameEntity {
   attackMax: number;
   attackMin: number;
   selected: boolean;
-  sightRange: number = 8; //# of grid locs away unit can see (aka if it is 4 then unit has vision of a 16 unit square  
-  targetAquireRange: number = 4; //# of grid locs away a unit will engage another unit from
+  sightRange: number = 8; // # of grid locs away unit can see (aka if it is 4 then unit has vision of a 16 unit square  
+  targetAquireRange: number = 4; // # of grid locs away a unit will engage another unit from
   totalHealth: number;
   health: number;
   attackSpeed: number;
-  moveSpeed: number = 2; //the number of update frames it takes for a unit to move from one grid loc to the next
+  moveSpeed: number = 2; // the number of update frames it takes for a unit to move from one grid loc to the next
   moveTimer: number;
   attackTimer: number;
   inCombat: boolean = false;
-  animateTimer: number; 
+  animateTimer: number;
   attackArtTimer: number;
   numberOfAnimations: number = 9;
   numberOfAttackAnimations: number = 6;
   command: ICommand = null;
-  newCommand: boolean = false; //do we have a new command that we need to process?
+  newCommand: boolean = false; // do we have a new command that we need to process?
   static animationIncrememt: number = .1;
   static attackAnimationIncrememt: number = .2;
 
-  direction: string = 'down';
+  direction: string = "down";
 
   constructor(loc: number, player: number) {
     super();
@@ -56,61 +56,64 @@ class Unit extends BaseGameEntity {
     this.attackArtTimer = 0;
   }
 
-  public getImage() {
+  public getImage(): void {
+    alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
   }
 
-  public update() {
+  public update(): void {
     if (this.currentState != null) {
       this.currentState.Execute(this);
     }
   }
 
-  public ChangeState(pNewState: State) {
-    //make sure both states are valid before attempting to call their methods
+  public ChangeState(pNewState: State): void {
+    // make sure both states are valid before attempting to call their methods
     if (!this.currentState || !pNewState) {
-      alert('Error changing state from ' + this.currentState + ' to ' + pNewState);
+      alert("Error changing state from " +
+        this.currentState.ToString() +
+        " to " +
+        pNewState);
+
     }
 
-    //exit the old state
+    // exit the old state
     this.currentState.Exit(this);
 
-    //change state to new state
+    // change state to new state
     this.currentState = pNewState;
 
-    //call entry method on new state
+    // call entry method on new state
     this.currentState.Enter(this);
   }
 
 
 
-  public setDirection(direction: string) {
+  public setDirection(direction: string): void {
     this.direction = direction;
   }
 
-  public getDrawCoordinates() {
-    //only update animation if the unit is actually moving
-    var moving = this.isMoving();
-    var attacking = this.isAttacking();
+  public getDrawCoordinates(): Coords {
+    var attacking: boolean = this.isAttacking();
 
-    if (this.direction == 'up') {
+    if (this.direction === "up") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 256);
       }
-      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY)
+      return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY);
     }
-    if (this.direction == 'down') {
+    if (this.direction === "down") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 384);
       }
       return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 2);
     }
-    if (this.direction == 'left') {
+    if (this.direction === "left") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 320);
       }
       return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH);
     }
-    if (this.direction == 'right') {
+    if (this.direction === "right") {
       if (attacking) {
         return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 448);
       }
@@ -118,12 +121,7 @@ class Unit extends BaseGameEntity {
     }
   }
 
-  private isMoving() {
-    //right now the definition of moving is if your target array has values in it
-    return this.path.length > 0;
-  }
-
-  private isAttacking() {
+  private isAttacking(): boolean{
     if (this.attackTimer > 0) {
       return true;
     }

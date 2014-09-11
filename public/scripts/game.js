@@ -1,12 +1,12 @@
 ﻿var BaseGameEntity = (function () {
     function BaseGameEntity() {
-        this.id = BaseGameEntity.NextValidId;
-        BaseGameEntity.NextValidId++;
+        this.id = BaseGameEntity.nextValidId;
+        BaseGameEntity.nextValidId++;
     }
     BaseGameEntity.prototype.Update = function () {
-        alert('update not implemented!!!');
+        alert("update not implemented!!!");
     };
-    BaseGameEntity.NextValidId = 0;
+    BaseGameEntity.nextValidId = 0;
     return BaseGameEntity;
 })();
 var State = (function () {
@@ -15,21 +15,24 @@ var State = (function () {
     State.prototype.ToString = function () {
         return "State";
     };
+
     State.prototype.Enter = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
+
     State.prototype.Execute = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
+
     State.prototype.Exit = function (entity) {
         alert(this + " State Enter Function Not Implemented!");
     };
 
     State.prototype.specificEnemyInAttackRange = function (unit, enemy) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
+            for (var n = 0; n < neighbors.length; n++) {
                 var id = Game.getGridLoc(neighbors[n]);
                 if (id === enemy.id) {
                     return true;
@@ -46,10 +49,10 @@ var State = (function () {
             return Utilities.distance(a, unit.loc) - Utilities.distance(b, unit.loc);
         });
 
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var id = Game.getGridLoc(locs[l]);
             var enemy = Utilities.findUnit(id, Game.getUnits());
-            if (enemy != null && enemy.player != unit.player) {
+            if (enemy !== null && enemy.player !== unit.player) {
                 return enemy;
             }
         }
@@ -58,7 +61,7 @@ var State = (function () {
 
     State.prototype.specificEnemyInTargetAquireRange = function (unit, enemy) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             var id = Game.getGridLoc(locs[l]);
             if (id !== null && id === enemy.id) {
                 return true;
@@ -80,7 +83,7 @@ var WalkingState = (function (_super) {
         _super.apply(this, arguments);
     }
     WalkingState.Instance = function () {
-        if (WalkingState.instance == null) {
+        if (typeof WalkingState.instance === "undefined") {
             WalkingState.instance = new WalkingState();
         }
         return WalkingState.instance;
@@ -96,7 +99,8 @@ var WalkingState = (function (_super) {
     };
 
     WalkingState.prototype.Execute = function (unit) {
-        var doneWalking = (unit.path.length == 0 && unit.moveTimer >= unit.moveSpeed);
+        var doneWalking = (unit.path.length === 0 && unit.moveTimer >= unit.moveSpeed);
+
         if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
             unit.ChangeState(WaitingState.Instance());
         } else if (doneWalking) {
@@ -120,9 +124,9 @@ var WalkingState = (function (_super) {
             unit.prevLoc = unit.loc;
 
             var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var gridLoc = Game.getGridLoc(locs[l]);
-                if (gridLoc != unit.id && gridLoc != null) {
+                if (gridLoc !== unit.id && gridLoc !== null) {
                     unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
@@ -149,7 +153,7 @@ var AttackingState = (function (_super) {
         _super.apply(this, arguments);
     }
     AttackingState.Instance = function () {
-        if (AttackingState.instance == null) {
+        if (typeof AttackingState.instance === "undefined") {
             AttackingState.instance = new AttackingState();
         }
         return AttackingState.instance;
@@ -212,29 +216,6 @@ var AttackingState = (function (_super) {
             attacker.attackTimer++;
         }
     };
-
-    AttackingState.prototype.getEnemy = function (unit, prefTarget) {
-        var enemies = new Array();
-
-        var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
-            var neighbors = Utilities.neighbors(locs[l]);
-            for (var n in neighbors) {
-                var id = Game.getGridLoc(neighbors[n]);
-                var enemy = Utilities.findUnit(id, Game.getUnits());
-                if (enemy != null && enemy.player != unit.player) {
-                    if (prefTarget == null || id == prefTarget.id) {
-                        return enemy;
-                    }
-                    enemies.push(enemy);
-                }
-            }
-        }
-        if (enemies.length == 0) {
-            return null;
-        }
-        return enemies[0];
-    };
     return AttackingState;
 })(State);
 var PursuingState = (function (_super) {
@@ -243,7 +224,7 @@ var PursuingState = (function (_super) {
         _super.apply(this, arguments);
     }
     PursuingState.Instance = function () {
-        if (PursuingState.instance == null) {
+        if (typeof PursuingState.instance === "undefined") {
             PursuingState.instance = new PursuingState();
         }
         return PursuingState.instance;
@@ -300,9 +281,6 @@ var PursuingState = (function (_super) {
         unit.prevLoc = unit.loc;
     };
 
-    PursuingState.prototype.enemeyInTargetRange = function (unit, enemy) {
-    };
-
     PursuingState.move = function (unit) {
         unit.animateTimer = (unit.animateTimer + 1) % unit.numberOfAnimations;
 
@@ -310,16 +288,16 @@ var PursuingState = (function (_super) {
             Game.unmarkGridLocs(unit);
 
             var enemy = unit.command.GetTarget();
-            if (enemy.prevLoc != enemy.loc) {
+            if (enemy.prevLoc !== enemy.loc) {
                 unit.path = Pathing.aStarToLoc(unit.loc, enemy.loc, unit);
             }
 
             unit.prevLoc = unit.loc;
 
             var locs = Utilities.getOccupiedSquares(unit.path[0], unit.gridWidth, unit.gridHeight);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var gridLoc = Game.getGridLoc(locs[l]);
-                if (gridLoc != unit.id && gridLoc != null) {
+                if (gridLoc !== unit.id && gridLoc !== null) {
                     unit.path = Pathing.aStarToLoc(unit.loc, unit.path[unit.path.length - 1], unit);
                     break;
                 }
@@ -368,7 +346,7 @@ var WaitingState = (function (_super) {
         _super.apply(this, arguments);
     }
     WaitingState.Instance = function () {
-        if (WaitingState.instance == null) {
+        if (typeof WaitingState.instance === "undefined") {
             WaitingState.instance = new WaitingState();
         }
         return WaitingState.instance;
@@ -419,7 +397,7 @@ var Unit = (function (_super) {
         this.numberOfAttackAnimations = 6;
         this.command = null;
         this.newCommand = false;
-        this.direction = 'down';
+        this.direction = "down";
         this.currentState = WaitingState.Instance();
         this.loc = loc;
         this.prevLoc = loc;
@@ -429,6 +407,7 @@ var Unit = (function (_super) {
         this.attackArtTimer = 0;
     }
     Unit.prototype.getImage = function () {
+        alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
     };
 
     Unit.prototype.update = function () {
@@ -439,7 +418,7 @@ var Unit = (function (_super) {
 
     Unit.prototype.ChangeState = function (pNewState) {
         if (!this.currentState || !pNewState) {
-            alert('Error changing state from ' + this.currentState + ' to ' + pNewState);
+            alert("Error changing state from " + this.currentState.ToString() + " to " + pNewState);
         }
 
         this.currentState.Exit(this);
@@ -454,37 +433,32 @@ var Unit = (function (_super) {
     };
 
     Unit.prototype.getDrawCoordinates = function () {
-        var moving = this.isMoving();
         var attacking = this.isAttacking();
 
-        if (this.direction == 'up') {
+        if (this.direction === "up") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 256);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY);
         }
-        if (this.direction == 'down') {
+        if (this.direction === "down") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 384);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 2);
         }
-        if (this.direction == 'left') {
+        if (this.direction === "left") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 320);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH);
         }
-        if (this.direction == 'right') {
+        if (this.direction === "right") {
             if (attacking) {
                 return new Coords(this.imageX + Math.floor(this.attackArtTimer) * this.imageW, this.imageY + 448);
             }
             return new Coords(this.imageX + Math.floor(this.animateTimer) * this.imageW, this.imageY + this.imageH * 3);
         }
-    };
-
-    Unit.prototype.isMoving = function () {
-        return this.path.length > 0;
     };
 
     Unit.prototype.isAttacking = function () {
@@ -514,7 +488,7 @@ var Knight = (function (_super) {
         this.totalHealth = 100;
         this.health = this.totalHealth;
         this.attackSpeed = 10;
-        this.src = '/images/knight.png';
+        this.src = "/images/knight.png";
     }
     Knight.prototype.getImage = function () {
         if (Knight.image) {
@@ -536,7 +510,7 @@ var TerrainTile = (function () {
         this.imageY = 0;
         this.walkable = true;
     }
-    TerrainTile.src = '/images/terrain.jpg';
+    TerrainTile.src = "/images/terrain.jpg";
     return TerrainTile;
 })();
 
@@ -544,9 +518,9 @@ var WaterTile = (function (_super) {
     __extends(WaterTile, _super);
     function WaterTile() {
         _super.call(this);
-        this.imageX = 448;
-        this.type = 'water';
+        this.type = "water";
         this.walkable = false;
+        this.imageX = 448;
     }
     return WaterTile;
 })(TerrainTile);
@@ -555,8 +529,8 @@ var GrassTile = (function (_super) {
     __extends(GrassTile, _super);
     function GrassTile() {
         _super.call(this);
+        this.type = "grass";
         this.imageX = 224;
-        this.type = 'grass';
     }
     return GrassTile;
 })(TerrainTile);
@@ -565,265 +539,11 @@ var DirtTile = (function (_super) {
     __extends(DirtTile, _super);
     function DirtTile() {
         _super.call(this);
+        this.type = "dirt";
         this.imageX = 0;
-        this.type = 'dirt';
     }
     return DirtTile;
 })(TerrainTile);
-var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host, gameId) {
-        this.DEBUG = false;
-        this.STATEDEBUG = false;
-        this.DRAWGRID = false;
-        this.actions = new Array();
-        this.FPS = 60;
-        this.RealFPS = this.FPS;
-        this.updateFPS = 10;
-        this.actionList = new Array();
-        this.actionHistory = {};
-        this.myId = id;
-        this.gameId = gameId;
-        this.peer = new Peer(id, { key: 'vgs0u19dlxhqto6r' });
-        this.myGame = new Game(host, id, enemyId, gameId);
-        this.host = host;
-        var playerNumber;
-        if (this.host) {
-            playerNumber = 1;
-        } else {
-            playerNumber = 2;
-        }
-        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
-
-        var that = this;
-
-        $(document).mousedown(function (e) {
-            if (e.which == 1) {
-                $(this).data('mousedown', true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.setSelection(coords);
-                that.myGame.unselectAll();
-            } else if (e.which == 3) {
-                var units = Game.getUnits();
-                for (var u in units) {
-                    if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                        var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
-                        that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
-                    }
-                }
-            }
-        });
-
-        $(window).resize(function () {
-            that.drawer.updateDimensions($(window).width(), $(window).height());
-        });
-
-        $(document).mouseup(function (e) {
-            $(this).data('mousedown', false);
-        });
-
-        $(document).mousemove(function (e) {
-            if ($(this).data('mousedown')) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
-                that.updateSelection(that.selection, coords.x, coords.y);
-            }
-        });
-
-        var that = this;
-
-        $(document).bind('keydown', function (e) {
-            var code = e.keyCode || e.which;
-            if (code == 71) {
-                if (that.DRAWGRID) {
-                    that.DRAWGRID = false;
-                    that.drawer.drawTerrain();
-                } else {
-                    that.DRAWGRID = true;
-                    that.drawer.drawGrid();
-                }
-            } else if (code === 68) {
-                if (that.DEBUG) {
-                    that.DEBUG = false;
-                } else {
-                    that.DEBUG = true;
-                }
-            }
-            that.shifted = e.shiftKey;
-            return true;
-        });
-
-        this.peer.on('error', function (err) {
-            console.log('error connecting!');
-            console.log(err);
-        });
-
-        var that = this;
-        this.peer.on('open', function () {
-            console.log('peer is open!');
-
-            if (host) {
-                console.log('im initiating a connection');
-
-                that.conn = that.peer.connect(enemyId, { reliable: true });
-                that.conn.on('open', function () {
-                    that.conn.send('Hey from player: ' + id);
-                    that.run();
-                });
-                that.conn.on('close', function () {
-                    console.log('connection closed!');
-                    that.end('Enemy Quit');
-                });
-                that.conn.on('data', function (data) {
-                    if (!(typeof (data.simTick) === 'undefined')) {
-                        that.actionList[data.simTick] = data.actions;
-                    }
-                });
-            } else {
-                console.log('im waiting for a connection');
-
-                that.peer.on('connection', function (conn) {
-                    that.conn = conn;
-                    console.log('client ' + conn);
-                    that.conn.on('open', function () {
-                        that.conn.send('Hey from player: ' + id);
-                        that.run();
-                    });
-                    that.conn.on('close', function () {
-                        console.log('connection closed!');
-                        that.end('Enemy Quit');
-                    });
-                    that.conn.on('data', function (data) {
-                        if (!(typeof (data.simTick) === 'undefined')) {
-                            that.myGame.applyActions(data.actions, data.simTick);
-                            if (data.actions.length > 0) {
-                                that.actionHistory[data.simTick] = data.actions;
-                            }
-                        }
-                    });
-                });
-            }
-        });
-    }
-    NetworkedGameRunner.prototype.run = function () {
-        this.myGame.setup();
-        this.drawer.drawTerrain();
-
-        var oldTime = new Date().getTime();
-        var diffTime = 0;
-        var newTime = 0;
-        var oldTime2 = new Date().getTime();
-        var diffTime2 = 0;
-        var newTime2 = 0;
-
-        var that = this;
-        setInterval(function () {
-            that.drawer.interpolate();
-            that.drawer.drawUnits(Game.getUnits());
-            that.drawSelect();
-            diffTime = newTime - oldTime;
-            oldTime = newTime;
-            newTime = new Date().getTime();
-        }, 1000 / this.FPS);
-
-        var fpsOut = document.getElementById("fps");
-
-        var intervalId = setInterval(function () {
-            if (that.myGame.isOver()) {
-                that.end("Game is over!");
-                clearInterval(intervalId);
-                return;
-            }
-
-            var currentSimTick = that.myGame.getSimTick();
-            that.myGame.update();
-            that.getSelection();
-
-            if (!that.host) {
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
-                that.actions = new Array();
-            } else if (that.host && that.actionList[currentSimTick]) {
-                that.actions = that.actions.concat(that.actionList[currentSimTick]);
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
-                that.myGame.applyActions(that.actions, currentSimTick);
-                if (that.actions.length > 0) {
-                    that.actionHistory[currentSimTick] = that.actions;
-                }
-                that.actions = new Array();
-            }
-
-            diffTime2 = newTime2 - oldTime2;
-            oldTime2 = newTime2;
-            newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
-        }, 1000 / (that.updateFPS));
-    };
-
-    NetworkedGameRunner.prototype.drawSelect = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            this.drawer.drawSelect(this.selection);
-        }
-    };
-
-    NetworkedGameRunner.prototype.setSelection = function (coords) {
-        this.selection = new SelectionObject(coords.x, coords.y);
-    };
-
-    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
-        selection.x = Math.min(selection.sX, eX);
-        selection.y = Math.min(selection.sY, eY);
-        selection.w = Math.abs(selection.sX - eX);
-        selection.h = Math.abs(selection.sY - eY);
-        return selection;
-    };
-
-    NetworkedGameRunner.prototype.end = function (message) {
-        this.sendGameReportToServer();
-        window.location.href = "/lobby";
-    };
-
-    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
-        console.log(this.actionHistory);
-
-        var that = this;
-        $.ajax({
-            url: "/gameEnd",
-            type: "POST",
-            data: {
-                gameId: that.gameId,
-                reporter: that.myId,
-                winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory)
-            },
-            success: function (data, textStatus, jqXHR) {
-                alert('SUCCESS');
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                alert('ERR');
-            }
-        });
-    };
-
-    NetworkedGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o in occupied) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id != null) {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
-    NetworkedGameRunner.updateFPS = 10;
-    return NetworkedGameRunner;
-})();
 var Drawer = (function () {
     function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
@@ -898,7 +618,8 @@ var Drawer = (function () {
         this.canvasWidth = width;
 
         this.boxSize = this.canvasWidth / Game.getNumOfCols();
-        if (typeof (Game.getTerrainLoc(0)) != 'undefined') {
+
+        if (typeof (Game.getTerrainLoc(0)) !== "undefined") {
             this.drawTerrain();
         }
     };
@@ -912,7 +633,7 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawUnits = function (units) {
-        this.fogContext.globalCompositeOperation = 'source-over';
+        this.fogContext.globalCompositeOperation = "source-over";
         this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
         this.fogContext.fillStyle = this.FOG;
         this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
@@ -929,7 +650,7 @@ var Drawer = (function () {
 
                 var r1 = units[i].sightRange * this.boxSize;
                 var r2 = r1 + 40;
-                var density = .4;
+                var density = 0.4;
 
                 if (this.gameRunner.DEBUG) {
                     this.drawUnitSightRange(units[i]);
@@ -938,9 +659,9 @@ var Drawer = (function () {
                 }
 
                 var radGrd = this.fogContext.createRadialGradient(x + this.unitWidth() / 2, y + this.unitHeight() / 2, r1, x + this.unitWidth() / 2, y + this.unitHeight() / 2, r2);
-                radGrd.addColorStop(0, 'rgba( 0, 0, 0,  1 )');
-                radGrd.addColorStop(density, 'rgba( 0, 0, 0, .1 )');
-                radGrd.addColorStop(1, 'rgba( 0, 0, 0,  0 )');
+                radGrd.addColorStop(0, "rgba( 0, 0, 0,  1 )");
+                radGrd.addColorStop(density, "rgba( 0, 0, 0, .1 )");
+                radGrd.addColorStop(1, "rgba( 0, 0, 0,  0 )");
                 this.fogContext.globalCompositeOperation = "destination-out";
                 this.fogContext.fillStyle = radGrd;
                 this.fogContext.fillRect(x - r2, y - r2, r2 * 2, r2 * 2);
@@ -1008,9 +729,9 @@ var Drawer = (function () {
             this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
             this.terrainContext.stroke();
         }
-        for (var i = 0; i <= Game.getNumOfRows(); i++) {
-            this.terrainContext.moveTo(0, i * this.boxSize);
-            this.terrainContext.lineTo(this.canvasWidth, i * this.boxSize);
+        for (var j = 0; j <= Game.getNumOfRows(); j++) {
+            this.terrainContext.moveTo(0, j * this.boxSize);
+            this.terrainContext.lineTo(this.canvasWidth, j * this.boxSize);
             this.terrainContext.stroke();
         }
     };
@@ -1018,7 +739,7 @@ var Drawer = (function () {
     Drawer.prototype.drawUnit = function (unit) {
         var x = null;
         var y = null;
-        if (unit.x == null || unit.y == null || isNaN(unit.x) || isNaN(unit.y)) {
+        if (unit.x === null || unit.y === null || isNaN(unit.x) || isNaN(unit.y)) {
             var unitCoords = this.boxToCoords(unit.loc);
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
@@ -1033,18 +754,18 @@ var Drawer = (function () {
         if (unit.selected) {
             this.unitContext.beginPath();
             this.unitContext.strokeStyle = this.GREEN;
-            this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+            this.unitContext.arc(x + this.unitWidth() / 2, y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * 0.75, 0, 2 * Math.PI);
             this.unitContext.stroke();
 
             if (unit.command !== null) {
-                this.drawSquare(unit.command.GetLocation(), 'red');
+                this.drawSquare(unit.command.GetLocation(), "red");
             }
 
             if (unit.command && unit.command.ToString() === "attack") {
                 var targetUnit = unit.command.GetTarget();
                 this.unitContext.beginPath();
                 this.unitContext.strokeStyle = this.RED;
-                this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * .75, 0, 2 * Math.PI);
+                this.unitContext.arc(targetUnit.x + this.unitWidth() / 2, targetUnit.y + this.unitHeight() / 2, Math.max(this.unitWidth(), this.unitHeight()) * 0.75, 0, 2 * Math.PI);
                 this.unitContext.stroke();
             }
         }
@@ -1070,21 +791,21 @@ var Drawer = (function () {
 
     Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
         var locs = Utilities.getGridLocsInTargetAquireRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "purple");
         }
     };
 
     Drawer.prototype.drawUnitSightRange = function (unit) {
         var locs = Utilities.getGridLocsInSightRange(unit);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "orange");
         }
     };
 
     Drawer.prototype.drawUnitLocsOccupied = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             this.drawSquare(locs[l], "red");
         }
     };
@@ -1113,7 +834,7 @@ var Orc = (function (_super) {
         this.totalHealth = 120;
         this.health = this.totalHealth;
         this.attackSpeed = 15;
-        this.src = '/images/orc.png';
+        this.src = "/images/orc.png";
     }
     Orc.prototype.getImage = function () {
         if (Orc.image) {
@@ -1214,12 +935,12 @@ var Game = (function () {
         };
 
         Game.grid = new Array(Game.terrain.length);
-        for (var g in Game.grid) {
+        for (var g = 0; g < Game.grid.length; g++) {
             Game.grid[g] = null;
         }
 
         Game.units = Game.map.GetUnits();
-        for (var u in Game.units) {
+        for (var u = 0; u < Game.units.length; u++) {
             Game.markOccupiedGridLocs(Game.units[u]);
         }
     };
@@ -1279,7 +1000,7 @@ var Game = (function () {
     Game.removeUnit = function (unit) {
         var id = unit.id;
         for (var i = 0; i < (length = Game.units.length); i++) {
-            if (Game.units[i].id == id) {
+            if (Game.units[i].id === id) {
                 Game.units.splice(i, 1);
                 Game.unmarkGridLocs(unit);
                 return;
@@ -1290,7 +1011,7 @@ var Game = (function () {
     Game.removeUnitById = function (unitId) {
         var id = unitId;
         for (var i = 0; i < (length = Game.units.length); i++) {
-            if (Game.units[i].id == id) {
+            if (Game.units[i].id === id) {
                 Game.unmarkGridLocs(Game.units[i]);
                 Game.units.splice(i, 1);
                 return;
@@ -1304,21 +1025,21 @@ var Game = (function () {
 
     Game.markOccupiedGridLocs = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             Game.setGridLoc(locs[l], unit.id);
         }
     };
 
     Game.unmarkGridLocs = function (unit) {
         var locs = Utilities.getOccupiedSquares(unit.loc, unit.gridWidth, unit.gridHeight);
-        for (var l in locs) {
+        for (var l = 0; l < locs.length; l++) {
             Game.setGridLoc(locs[l], null);
         }
     };
 
     Game.getUnitsForPlayer = function (playerNumber) {
         var myUnits = new Array();
-        for (var u in Game.units) {
+        for (var u = 0; u < Game.units.length; u++) {
             var unit = Game.units[u];
             if (unit.player === playerNumber) {
                 myUnits.push(unit);
@@ -1328,7 +1049,7 @@ var Game = (function () {
     };
 
     Game.prototype.applyActions = function (actions, simTick) {
-        for (var a in actions) {
+        for (var a = 0; a < actions.length; a++) {
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
             var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
@@ -1342,12 +1063,14 @@ var Game = (function () {
                     } else if (isEnemy && !isVisible) {
                         unit.command = new WalkCommand(unitTarget.loc);
                     } else if (!isEnemy && isVisible) {
+                        alert("issue a follow command");
                     } else {
                         alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
                     }
                 } else {
                     unit.command = new WalkCommand(targetLoc);
                 }
+
                 unit.newCommand = true;
             }
         }
@@ -1373,7 +1096,7 @@ var Game = (function () {
     };
 
     Game.prototype.unselectAll = function () {
-        for (var u in Game.getUnits()) {
+        for (var u = 0; u < Game.getUnits().length; u++) {
             Game.units[u].selected = false;
         }
     };
@@ -1382,11 +1105,11 @@ var Game = (function () {
         if (unit1.player !== unit2.player) {
             return true;
         }
+        return false;
     };
-    Game.terrain = [];
-
-    Game.grid = [];
-    Game.units = new Array();
+    Game.terrain = Array();
+    Game.grid = Array();
+    Game.units = Array();
     return Game;
 })();
 var Utilities = (function () {
@@ -1414,7 +1137,7 @@ var Utilities = (function () {
 
     Utilities.findUnit = function (id, units) {
         for (var i = 0; i < units.length; i++) {
-            if (units[i].id == id) {
+            if (units[i].id === id) {
                 return units[i];
             }
         }
@@ -1422,6 +1145,7 @@ var Utilities = (function () {
     };
 
     Utilities.collides = function (i, j) {
+        alert("THIS IS BROKEN!!!!");
         return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
     };
 
@@ -1445,16 +1169,16 @@ var Utilities = (function () {
     Utilities.getDirection = function (loc1, loc2) {
         if (loc1 < loc2) {
             if ((loc1 % Game.getNumOfCols()) <= (loc2 % Game.getNumOfCols())) {
-                return 'right';
+                return "right";
             }
-            return 'down';
+            return "down";
         } else {
             if (Math.floor(loc1 / Game.getNumOfCols()) > Math.floor(loc2 / Game.getNumOfCols())) {
-                return 'up';
+                return "up";
             }
-            return 'left';
+            return "left";
         }
-        console.log('ERROR: Utilities.getDirection() did not set a direction');
+        console.log("ERROR: Utilities.getDirection() did not set a direction");
     };
 
     Utilities.getGridLocsInSightRange = function (unit) {
@@ -1515,9 +1239,9 @@ var Utilities = (function () {
 
     Utilities.canAnyUnitSeeEnemy = function (unit, enemy) {
         var units = Game.getUnitsForPlayer(unit.player);
-        for (var u in units) {
+        for (var u = 0; u < units.length; u++) {
             var locs = Utilities.getGridLocsInSightRange(units[u]);
-            for (var l in locs) {
+            for (var l = 0; l < locs.length; l++) {
                 var id = Game.getGridLoc(locs[l]);
                 if (id === enemy.id) {
                     return true;
@@ -1537,7 +1261,7 @@ var Utilities = (function () {
             return false;
         }
         if (id1 === id2) {
-            console.log('it worked? ' + id1 + " " + id2);
+            console.log("it worked? " + id1 + " " + id2);
             return true;
         }
         return false;
@@ -1546,11 +1270,11 @@ var Utilities = (function () {
     Utilities.neighbors = function (boxNumber) {
         var neighbors = new Array();
 
-        if (boxNumber % Game.getNumOfCols() != 0) {
+        if (boxNumber % Game.getNumOfCols() !== 0) {
             neighbors.push(boxNumber - 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0) {
             neighbors.push(boxNumber + 1);
         }
 
@@ -1562,19 +1286,19 @@ var Utilities = (function () {
             neighbors.push(boxNumber + Game.getNumOfCols());
         }
 
-        if (boxNumber % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+        if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
             neighbors.push(boxNumber - Game.getNumOfCols() - 1);
         }
 
-        if (boxNumber % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+        if (boxNumber % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
             neighbors.push(boxNumber + Game.getNumOfCols() - 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber >= Game.getNumOfCols()) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber >= Game.getNumOfCols()) {
             neighbors.push(boxNumber - Game.getNumOfCols() + 1);
         }
 
-        if ((boxNumber + 1) % Game.getNumOfCols() != 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
+        if ((boxNumber + 1) % Game.getNumOfCols() !== 0 && boxNumber < Game.getNumOfCols() * (Game.getNumOfRows() - 1)) {
             neighbors.push(boxNumber + Game.getNumOfCols() + 1);
         }
         return neighbors;
@@ -1650,7 +1374,7 @@ var PriorityQueue = (function () {
     PriorityQueue.prototype.bubbleUp = function (index) {
         var cur = index;
         var parent = this.parent(cur);
-        while (cur != 1 && this.array[cur].priority < this.array[parent].priority) {
+        while (cur !== 1 && this.array[cur].priority < this.array[parent].priority) {
             var tempPriority = this.array[cur].priority;
             var tempVal = this.array[cur].val;
             this.array[cur].val = this.array[parent].val;
@@ -1666,12 +1390,13 @@ var PriorityQueue = (function () {
         var cur = index;
         var left = this.leftChild(1);
         var right = this.rightChild(1);
-
+        var tempVal;
+        var tempPriority;
         while (this.array[left] != null) {
             if (this.array[right] == null) {
                 if (this.array[left].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[left].val;
                     this.array[cur].priority = this.array[left].priority;
                     this.array[left].val = tempVal;
@@ -1682,16 +1407,16 @@ var PriorityQueue = (function () {
                 }
             } else {
                 if (this.array[left].priority <= this.array[right].priority && this.array[left].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[left].val;
                     this.array[cur].priority = this.array[left].priority;
                     this.array[left].val = tempVal;
                     this.array[left].priority = tempPriority;
                     cur = left;
                 } else if (this.array[left].priority > this.array[right].priority && this.array[right].priority < this.array[cur].priority) {
-                    var tempPriority = this.array[cur].priority;
-                    var tempVal = this.array[cur].val;
+                    tempPriority = this.array[cur].priority;
+                    tempVal = this.array[cur].val;
                     this.array[cur].val = this.array[right].val;
                     this.array[cur].priority = this.array[right].priority;
                     this.array[right].val = tempVal;
@@ -1713,6 +1438,9 @@ var Pathing = (function () {
     Pathing.aStarToLoc = function (start, goal, unit) {
         var closedSet = new Array();
         var openSet = new PriorityQueue();
+
+        var final;
+
         var distanceToGoal = new PriorityQueue();
         var cameFrom = new Object();
         var gScore = new Object();
@@ -1728,7 +1456,7 @@ var Pathing = (function () {
             nodesExplored++;
             cur = openSet.dequeue();
 
-            if (cur == goal) {
+            if (cur === goal) {
                 return this.getPath(cameFrom, goal, start);
             }
 
@@ -1736,25 +1464,25 @@ var Pathing = (function () {
             var neighbors = Utilities.neighbors(cur);
 
             for (var i = neighbors.length - 1; i >= 0; i--) {
-                var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) != Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
+                var offGridRight = Math.floor(neighbors[i] / Game.getNumOfCols()) !== Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
                 var offGridBottom = neighbors[i] + (unit.gridHeight - 1) * Game.getNumOfCols() > Game.getNumOfCols() * Game.getNumOfRows();
                 if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-                    if (neighbors[i] == goal) {
-                        var final = distanceToGoal.dequeue();
+                    if (neighbors[i] === goal) {
+                        final = distanceToGoal.dequeue();
                         return this.getPath(cameFrom, final, start);
                     }
                     neighbors.splice(i, 1);
                     continue;
                 }
 
-                var locs = locs = Utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
-                for (var l in locs) {
+                var locs = Utilities.getOccupiedSquares(neighbors[i], unit.gridWidth, unit.gridHeight);
+                for (var l = 0; l < locs.length; l++) {
                     var gridLoc = Game.getGridLoc(locs[l]);
                     var terrainLoc = Game.getTerrainLoc(locs[l]);
 
-                    if ((gridLoc != unit.id && gridLoc != null) || !terrainLoc.walkable) {
-                        if (neighbors[i] == goal) {
-                            var final = distanceToGoal.dequeue();
+                    if ((gridLoc !== unit.id && gridLoc !== null) || !terrainLoc.walkable) {
+                        if (neighbors[i] === goal) {
+                            final = distanceToGoal.dequeue();
                             return this.getPath(cameFrom, final || start, start);
                         }
                         neighbors.splice(i, 1);
@@ -1763,23 +1491,23 @@ var Pathing = (function () {
                 }
             }
 
-            for (var i = 0; i < neighbors.length; i++) {
-                var t_gScore = gScore[cur] + Utilities.distance(cur, neighbors[i]);
-                var heuristic = this.heuristic(neighbors[i], goal);
-                var t_fScore = t_gScore + heuristic;
-                distanceToGoal.enqueue(neighbors[i], heuristic);
-                if ((closedSet.indexOf(neighbors[i]) != -1) && (t_fScore >= fScore[neighbors[i]])) {
+            for (var j = 0; j < neighbors.length; j++) {
+                var tempGScore = gScore[cur] + Utilities.distance(cur, neighbors[j]);
+                var heuristic = this.heuristic(neighbors[j], goal);
+                var tempFScore = tempGScore + heuristic;
+                distanceToGoal.enqueue(neighbors[j], heuristic);
+                if ((closedSet.indexOf(neighbors[j]) !== -1) && (tempFScore >= fScore[neighbors[j]])) {
                     continue;
                 }
-                if ((openSet.indexOf(neighbors[i]) == -1) || t_fScore < fScore[neighbors[i]]) {
-                    cameFrom[neighbors[i]] = cur;
+                if ((openSet.indexOf(neighbors[j]) === -1) || tempFScore < fScore[neighbors[j]]) {
+                    cameFrom[neighbors[j]] = cur;
 
-                    gScore[neighbors[i]] = t_gScore;
-                    fScore[neighbors[i]] = t_fScore;
-                    if (openSet.indexOf(neighbors[i]) == -1) {
-                        openSet.enqueue(neighbors[i], fScore[neighbors[i]]);
+                    gScore[neighbors[j]] = tempGScore;
+                    fScore[neighbors[j]] = tempFScore;
+                    if (openSet.indexOf(neighbors[j]) === -1) {
+                        openSet.enqueue(neighbors[j], fScore[neighbors[j]]);
                     } else {
-                        openSet.update(neighbors[i], fScore[neighbors[i]]);
+                        openSet.update(neighbors[j], fScore[neighbors[j]]);
                     }
                 }
             }
@@ -1789,8 +1517,8 @@ var Pathing = (function () {
     };
 
     Pathing.getPath = function (cameFrom, cur, start) {
-        var returnArray = new Array();
-        while (cur != start) {
+        var returnArray = Array();
+        while (cur !== start) {
             returnArray.splice(0, 0, cur);
             cur = cameFrom[cur];
         }
@@ -1805,11 +1533,11 @@ var Pathing = (function () {
 var Map1 = (function () {
     function Map1() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert('INVALID MAP DETECTED!');
+            alert("INVALID MAP DETECTED!");
         }
     }
     Map1.prototype.GetTerrain = function () {
-        var terrain = [];
+        var terrain = Array();
         for (var i = 0; i < 5000; i++) {
             terrain.push(new GrassTile());
         }
@@ -1845,11 +1573,11 @@ var Map1 = (function () {
 var StripesMap = (function () {
     function StripesMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert('INVALID MAP DETECTED!');
+            alert("INVALID MAP DETECTED!");
         }
     }
     StripesMap.prototype.GetTerrain = function () {
-        var terrain = [];
+        var terrain = Array();
         for (var i = 0; i < 5000; i++) {
             if (i % 10 <= 5) {
                 terrain.push(new DirtTile());
@@ -1899,18 +1627,14 @@ var LocalGameRunner = (function () {
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
         this.actions = new Array();
-        this.FPS = 60;
-        this.RealFPS = this.FPS;
         this.updateFPS = 10;
-        this.actionList = new Array();
+        this.FPS = 60;
+        this.REAL_FPS = this.FPS;
         var id = "Human";
         var enemyId = "Computer";
         var gameId = "LocalGame";
-        var host = true;
 
         this.myGame = new Game(true, id, enemyId, gameId);
-
-        this.reportGameStartToServer(gameId, id, enemyId, host);
 
         this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
 
@@ -1919,14 +1643,14 @@ var LocalGameRunner = (function () {
         var that = this;
 
         $(document).mousedown(function (e) {
-            if (e.which == 1) {
-                $(this).data('mousedown', true);
+            if (e.which === 1) {
+                $(this).data("mousedown", true);
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
-            } else if (e.which == 3) {
+            } else if (e.which === 3) {
                 var units = Game.getUnits();
-                for (var u in units) {
+                for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
                         var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
@@ -1941,20 +1665,19 @@ var LocalGameRunner = (function () {
         });
 
         $(document).mouseup(function (e) {
-            $(this).data('mousedown', false);
+            $(this).data("mousedown", false);
         });
 
         $(document).mousemove(function (e) {
-            if ($(this).data('mousedown')) {
+            if ($(this).data("mousedown")) {
                 var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
-        var that = this;
 
-        $(document).bind('keydown', function (e) {
+        $(document).bind("keydown", function (e) {
             var code = e.keyCode || e.which;
-            if (code == 71) {
+            if (code === 71) {
                 if (that.DRAWGRID) {
                     that.DRAWGRID = false;
                     that.drawer.drawTerrain();
@@ -2018,14 +1741,13 @@ var LocalGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
     LocalGameRunner.prototype.drawSelect = function () {
-        var that = this;
-        if ($(document).data('mousedown')) {
+        if ($(document).data("mousedown")) {
             this.drawer.drawSelect(this.selection);
         }
     };
@@ -2043,21 +1765,17 @@ var LocalGameRunner = (function () {
     };
 
     LocalGameRunner.prototype.end = function (message) {
-        alert(message);
         window.location.href = "/lobby";
-    };
-
-    LocalGameRunner.prototype.reportGameStartToServer = function (gameId, id, enemyId, host) {
     };
 
     LocalGameRunner.prototype.getSelection = function () {
         var that = this;
-        if ($(document).data('mousedown')) {
+        if ($(document).data("mousedown")) {
             var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
             var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o in occupied) {
+            for (var o = 0; o < occupied.length; o++) {
                 var id = Game.getGridLoc(occupied[o]);
-                if (id !== null && typeof id !== 'undefined') {
+                if (id !== null && typeof id !== "undefined") {
                     var unit = Utilities.findUnit(id, Game.getUnits());
                     if (unit.player === that.myGame.getPlayerNumber()) {
                         unit.selected = true;
@@ -2066,8 +1784,254 @@ var LocalGameRunner = (function () {
             }
         }
     };
-    LocalGameRunner.updateFPS = 10;
     return LocalGameRunner;
+})();
+var NetworkedGameRunner = (function () {
+    function NetworkedGameRunner(id, enemyId, host, gameId) {
+        this.DEBUG = false;
+        this.STATEDEBUG = false;
+        this.DRAWGRID = false;
+        this.actions = new Array();
+        this.updateFPS = 10;
+        this.FPS = 60;
+        this.REAL_FPS = this.FPS;
+        this.actionList = new Array();
+        this.actionHistory = {};
+        this.myId = id;
+        this.gameId = gameId;
+        this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
+        this.myGame = new Game(host, id, enemyId, gameId);
+        this.host = host;
+        var playerNumber;
+        if (this.host) {
+            playerNumber = 1;
+        } else {
+            playerNumber = 2;
+        }
+        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+
+        var that = this;
+
+        $(document).mousedown(function (e) {
+            if (e.which === 1) {
+                $(this).data("mousedown", true);
+                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                that.setSelection(coords);
+                that.myGame.unselectAll();
+            } else if (e.which === 3) {
+                var units = Game.getUnits();
+                for (var u = 0; u < units.length; u++) {
+                    if (units[u].selected) {
+                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+                        that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
+                    }
+                }
+            }
+        });
+
+        $(window).resize(function () {
+            that.drawer.updateDimensions($(window).width(), $(window).height());
+        });
+
+        $(document).mouseup(function (e) {
+            $(this).data("mousedown", false);
+        });
+
+        $(document).mousemove(function (e) {
+            if ($(this).data("mousedown")) {
+                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                that.updateSelection(that.selection, coords.x, coords.y);
+            }
+        });
+
+        $(document).bind("keydown", function (e) {
+            var code = e.keyCode || e.which;
+            if (code === 71) {
+                if (that.DRAWGRID) {
+                    that.DRAWGRID = false;
+                    that.drawer.drawTerrain();
+                } else {
+                    that.DRAWGRID = true;
+                    that.drawer.drawGrid();
+                }
+            } else if (code === 68) {
+                if (that.DEBUG) {
+                    that.DEBUG = false;
+                } else {
+                    that.DEBUG = true;
+                }
+            }
+            that.shifted = e.shiftKey;
+            return true;
+        });
+
+        this.peer.on("error", function (err) {
+            console.log("error connecting!");
+            console.log(err);
+        });
+
+        this.peer.on("open", function () {
+            console.log("peer is open!");
+
+            if (host) {
+                console.log("im initiating a connection");
+
+                that.conn = that.peer.connect(enemyId, { reliable: true });
+                that.conn.on("open", function () {
+                    that.conn.send("Hey from player: " + id);
+                    that.run();
+                });
+                that.conn.on("close", function () {
+                    console.log("connection closed!");
+                    that.end("Enemy Quit");
+                });
+                that.conn.on("data", function (data) {
+                    if (!(typeof (data.simTick) === "undefined")) {
+                        that.actionList[data.simTick] = data.actions;
+                    }
+                });
+            } else {
+                console.log("im waiting for a connection");
+
+                that.peer.on("connection", function (conn) {
+                    that.conn = conn;
+                    console.log("client " + conn);
+                    that.conn.on("open", function () {
+                        that.conn.send("Hey from player: " + id);
+                        that.run();
+                    });
+                    that.conn.on("close", function () {
+                        console.log("connection closed!");
+                        that.end("Enemy Quit");
+                    });
+                    that.conn.on("data", function (data) {
+                        if (!(typeof (data.simTick) === "undefined")) {
+                            that.myGame.applyActions(data.actions, data.simTick);
+                            if (data.actions.length > 0) {
+                                that.actionHistory[data.simTick] = data.actions;
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
+    NetworkedGameRunner.prototype.run = function () {
+        this.myGame.setup();
+        this.drawer.drawTerrain();
+
+        var oldTime = new Date().getTime();
+        var diffTime = 0;
+        var newTime = 0;
+        var oldTime2 = new Date().getTime();
+        var diffTime2 = 0;
+        var newTime2 = 0;
+
+        var that = this;
+        setInterval(function () {
+            that.drawer.interpolate();
+            that.drawer.drawUnits(Game.getUnits());
+            that.drawSelect();
+            diffTime = newTime - oldTime;
+            oldTime = newTime;
+            newTime = new Date().getTime();
+        }, 1000 / this.FPS);
+
+        var fpsOut = document.getElementById("fps");
+        var intervalId = setInterval(function () {
+            if (that.myGame.isOver()) {
+                that.end("Game is over!");
+                clearInterval(intervalId);
+            }
+
+            var currentSimTick = that.myGame.getSimTick();
+            that.myGame.update();
+            that.getSelection();
+
+            if (!that.host) {
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.actions = new Array();
+            } else if (that.host && that.actionList[currentSimTick]) {
+                that.actions = that.actions.concat(that.actionList[currentSimTick]);
+                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.myGame.applyActions(that.actions, currentSimTick);
+                if (that.actions.length > 0) {
+                    that.actionHistory[currentSimTick] = that.actions;
+                }
+                that.actions = new Array();
+            }
+
+            diffTime2 = newTime2 - oldTime2;
+            oldTime2 = newTime2;
+            newTime2 = new Date().getTime();
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+        }, 1000 / (that.updateFPS));
+    };
+
+    NetworkedGameRunner.prototype.drawSelect = function () {
+        if ($(document).data("mousedown")) {
+            this.drawer.drawSelect(this.selection);
+        }
+    };
+
+    NetworkedGameRunner.prototype.setSelection = function (coords) {
+        this.selection = new SelectionObject(coords.x, coords.y);
+    };
+
+    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
+        selection.x = Math.min(selection.sX, eX);
+        selection.y = Math.min(selection.sY, eY);
+        selection.w = Math.abs(selection.sX - eX);
+        selection.h = Math.abs(selection.sY - eY);
+        return selection;
+    };
+
+    NetworkedGameRunner.prototype.end = function (message) {
+        this.sendGameReportToServer();
+        window.location.href = "/lobby";
+    };
+
+    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
+        console.log(this.actionHistory);
+
+        var that = this;
+        $.ajax({
+            url: "/gameEnd",
+            type: "POST",
+            data: {
+                gameId: that.gameId,
+                reporter: that.myId,
+                winner: that.myGame.winner,
+                actions: JSON.stringify(that.actionHistory)
+            },
+            success: function (data, textStatus, jqXHR) {
+                alert("SUCCESS");
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert("ERR");
+            }
+        });
+    };
+
+    NetworkedGameRunner.prototype.getSelection = function () {
+        var that = this;
+        if ($(document).data("mousedown")) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id != null) {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
+        }
+    };
+    return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
     function ReplayGameRunner(actions) {
@@ -2076,10 +2040,8 @@ var ReplayGameRunner = (function () {
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
-        this.RealFPS = this.FPS;
+        this.REAL_FPS = this.FPS;
         this.updateFPS = 10;
-        this.actionList = new Array();
-        console.log(actions);
         this.actions = actions;
 
         var id = "test";
@@ -2091,7 +2053,6 @@ var ReplayGameRunner = (function () {
         this.run();
 
         var that = this;
-
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
@@ -2127,20 +2088,22 @@ var ReplayGameRunner = (function () {
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
 
-            that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+            if (typeof that.actions[currentSimTick] === "undefined") {
+                that.myGame.applyActions(new Array(), currentSimTick);
+            } else {
+                that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+            }
 
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.RealFPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            that.REAL_FPS = Math.round(1000 / diffTime);
+            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
     ReplayGameRunner.prototype.end = function (message) {
-        alert(message);
         window.location.href = "/lobby";
     };
-    ReplayGameRunner.updateFPS = 10;
     return ReplayGameRunner;
 })();

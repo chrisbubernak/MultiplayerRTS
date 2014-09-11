@@ -7,17 +7,16 @@
 class StripesMap implements IMap {
   constructor() {
     if (this.GetGridSize() !== this.GetTerrain().length) {
-      alert('INVALID MAP DETECTED!');
+      alert("INVALID MAP DETECTED!");
     }
   }
 
   public GetTerrain(): TerrainTile[] {
-    var terrain = [];
-    for (var i = 0; i < 5000; i++) {
+    var terrain: TerrainTile[] = Array();
+    for (var i: number = 0; i < 5000; i++) {
       if (i % 10 <= 5) {
         terrain.push(new DirtTile());
-      }
-      else {
+      } else {
         terrain.push(new GrassTile());
       }
     }
@@ -25,15 +24,15 @@ class StripesMap implements IMap {
   }
 
   public GetUnits(): Unit[] {
-    var u1 = new Knight(15, 1);
-    var u2 = new Knight(315, 1);
-    var u3 = new Knight(615, 1);
-    var u4 = new Knight(915, 1);
+    var u1: Unit = new Knight(15, 1);
+    var u2: Unit = new Knight(315, 1);
+    var u3: Unit = new Knight(615, 1);
+    var u4: Unit = new Knight(915, 1);
 
-    var u5 = new Orc(80, 2);
-    var u6 = new Orc(380, 2);
-    var u7 = new Orc(680, 2);
-    var u8 = new Orc(980, 2);
+    var u5: Unit = new Orc(80, 2);
+    var u6: Unit = new Orc(380, 2);
+    var u7: Unit = new Orc(680, 2);
+    var u8: Unit = new Orc(980, 2);
     return [u1, u2, u3, u4, u5, u6, u7, u8];
   }
 

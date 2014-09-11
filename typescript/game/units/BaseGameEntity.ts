@@ -3,14 +3,14 @@
 
 class BaseGameEntity {
   id: number;
-  static NextValidId: number = 0; 
+  static nextValidId: number = 0;
 
   constructor() {
-    this.id = BaseGameEntity.NextValidId;
-    BaseGameEntity.NextValidId++;
+    this.id = BaseGameEntity.nextValidId;
+    BaseGameEntity.nextValidId++;
   }
 
-  public Update() {
-    alert('update not implemented!!!');
+  public Update(): void {
+    alert("update not implemented!!!");
   }
 }

@@ -1,44 +1,21 @@
-﻿/// <reference path="GameRunner.ts" />
+﻿/// <reference path="IGameRunner.ts" />
 
-class ReplayGameRunner implements GameRunner {
+class ReplayGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
 
   private myGame: Game;
-  private interval;
-  private actions = new Array();
-  private static updateFPS: number = 10;
+  private actions: any[] = new Array(); // todo: we should use our action type here
   private FPS: number = 60;
-  private RealFPS: number = this.FPS;
-  private actionList = new Array();
-  private shifted: boolean;
-  private selection: SelectionObject;
+  private REAL_FPS: number = this.FPS;
   private drawer: Drawer;
+  private updateFPS: number = 10;
 
-  constructor(actions) {
-    console.log(actions);
+  constructor(actions: any[]) {
     this.actions = actions;
-    /*for (var i = 0; i < 10000; i++) {
-      this.actions.push([]);
-    }
-    var action1 = new Action(20, 0, false);
-    var action2 = new Action(500, 1, false);
-    var action3 = new Action(120, 2, false);
-    var action4 = new Action(1000, 3, false);
-    var action5 = new Action(589, 1, false);
-    var action6 = new Action(400, 3, false);
-    var action7 = new Action(2000, 2, false);
 
-    this.actions[100].push(action1);
-    this.actions[50].push(action3);
-    this.actions[120].push(action2);
-    this.actions[130].push(action4);
-    this.actions[135].push(action5);
-    this.actions[136].push(action6);
-    this.actions[200].push(action7);*/
-
-    var id = "test";
+    var id: string = "test";
 
     this.myGame = new Game(true, id, "enemyId", "gameId");
 
@@ -51,29 +28,28 @@ class ReplayGameRunner implements GameRunner {
 
     this.run();
 
-
-    var that = this;
-    $(window).resize(function () {
+    var that: ReplayGameRunner = this;
+    $(window).resize(function (): void {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
   }
 
-  public run() {
+  public run(): void {
     this.myGame.setup();
     this.drawer.drawTerrain();
 
-    //timing stuff
-    var oldTime = new Date().getTime();
-    var diffTime = 0;
-    var newTime = 0;
-    var oldTime2 = new Date().getTime();
-    var diffTime2 = 0;
-    var newTime2 = 0;
+    // timing stuff
+    var oldTime: number = new Date().getTime();
+    var diffTime: number = 0;
+    var newTime: number = 0;
+    var oldTime2: number = new Date().getTime();
+    var diffTime2: number = 0;
+    var newTime2: number = 0;
 
-    //loop that runs at 60 fps...aka drawing & selection stuff
-    var that = this;
-    setInterval(function () {
+    // loop that runs at 60 fps...aka drawing & selection stuff
+    var that: ReplayGameRunner = this;
+    setInterval(function (): void {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
       diffTime = newTime - oldTime;
@@ -81,31 +57,34 @@ class ReplayGameRunner implements GameRunner {
       newTime = new Date().getTime();
     }, 1000 / this.FPS);
 
-    //loop that runs much less frequently (10 fps)
-    //and handles physics/updating the game state/networking 
-    var fpsOut = document.getElementById("fps");
-    //var conn = Game.conn;
-    setInterval(function () {
+    // loop that runs much less frequently (10 fps)
+    // and handles physics/updating the game state/networking 
+    var fpsOut: any = document.getElementById("fps");
+    // var conn = Game.conn;
+    setInterval(function (): void {
       if (that.myGame.isOver()) {
         that.end("Game is over!");
         return;
       }
 
-      var currentSimTick = that.myGame.getSimTick();
+      var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
 
-      that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+      if (typeof that.actions[currentSimTick] === "undefined") {
+        that.myGame.applyActions(new Array(), currentSimTick);
+      } else {
+        that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+      }
 
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      that.RealFPS = Math.round(1000 / diffTime);
-      fpsOut.innerHTML = that.RealFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      that.REAL_FPS = Math.round(1000 / diffTime);
+      fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 
-  public end(message: string) {
-    alert(message);
+  public end(message: string): void {
     window.location.href = "/lobby";
   }
 }
