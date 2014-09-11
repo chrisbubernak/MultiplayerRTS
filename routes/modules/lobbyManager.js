@@ -18,6 +18,15 @@
     });
   }
 
+  this.removeStaleClients = function () {
+    sql.query( conn_str, "exec LobbyUser_RemoveAll", function ( err, results) {
+      if ( err ) {
+        console.log( err );
+        return;
+      }
+    });
+  }
+
 
   function broadcastClientList() {
     sql.query( conn_str, "exec dbo.User_GetAllInLobby", function ( err, results ) {
