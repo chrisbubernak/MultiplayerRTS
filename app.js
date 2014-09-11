@@ -49,6 +49,9 @@ var LM = require('./routes/modules/lobbyManager')(io);
 var GM = require('./routes/modules/gameManager');
 
 //TODO: remove all stale clients from lobby
+LM.removeStaleClients();
+
+
 io.sockets.on('connection', function (client) {
     client.emit('ClientJoined', { userId: client.id });
 

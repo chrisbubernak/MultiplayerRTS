@@ -27,7 +27,13 @@ class WalkingState extends State {
     var doneWalking: boolean = (unit.path.length === 0 && unit.moveTimer >= unit.moveSpeed);
     // the second half makes sure the unit has finished walking into the current grid location (otherwise graphics look werid)
     if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
-      unit.ChangeState(WaitingState.Instance());
+      // if we recieve have a walk command, transition to walking
+      if (unit.command && unit.command.ToString() === "walk") {
+        unit.ChangeState(WalkingState.Instance());
+      } else if (unit.command && (unit.command.ToString() === "attack" || unit.command.ToString() === "engage")) {
+        // if we have an attack command, transition to pursuing
+        unit.ChangeState(PursuingState.Instance());
+      }
     } else if (doneWalking) {
       unit.command = null;
       unit.ChangeState(WaitingState.Instance());
@@ -38,6 +44,7 @@ class WalkingState extends State {
 
   public Exit(unit: Unit): void {
     unit.prevLoc = unit.loc;
+    unit.newCommand = false;
   }
 
   private static move(unit: Unit): void {

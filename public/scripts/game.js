@@ -102,7 +102,11 @@ var WalkingState = (function (_super) {
         var doneWalking = (unit.path.length === 0 && unit.moveTimer >= unit.moveSpeed);
 
         if (unit.newCommand && unit.moveTimer >= unit.moveSpeed) {
-            unit.ChangeState(WaitingState.Instance());
+            if (unit.command && unit.command.ToString() === "walk") {
+                unit.ChangeState(WalkingState.Instance());
+            } else if (unit.command && (unit.command.ToString() === "attack" || unit.command.ToString() === "engage")) {
+                unit.ChangeState(PursuingState.Instance());
+            }
         } else if (doneWalking) {
             unit.command = null;
             unit.ChangeState(WaitingState.Instance());
@@ -113,6 +117,7 @@ var WalkingState = (function (_super) {
 
     WalkingState.prototype.Exit = function (unit) {
         unit.prevLoc = unit.loc;
+        unit.newCommand = false;
     };
 
     WalkingState.move = function (unit) {
