@@ -118,6 +118,7 @@ class LocalGameRunner implements IGameRunner {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
+      that.drawer.drawLowerMenu();
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();

@@ -351,4 +351,29 @@ class Drawer {
     this.unitContext.fillStyle = "red";
     this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
   }
+
+  public drawLowerMenu(): void {
+    var selectedUnits: Unit[] = Array();
+
+    var allUnits: Unit[] = Game.getUnits();
+
+    for (var u: number = 0; u < allUnits.length; u++) {
+      if (allUnits[u].selected && (allUnits[u].player === this.playerNumber)) {
+        selectedUnits.push(allUnits[u]);
+      }
+    }
+    if (selectedUnits.length <= 0) {
+      return;
+    } else {
+      for (var i: number = 0; i < selectedUnits.length; i++) {
+        var unit: Unit = selectedUnits[i];
+        console.log("\tRace: " + typeof unit);
+        console.log("\tHealth: " + unit.health + "/" + unit.totalHealth);
+        console.log("\tKills: " + 0);
+        console.log("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg");
+        console.log("\tAttackSpeed: " + (this.UPDATE_FPS / unit.attackSpeed) + "dmg/sec");
+      }
+    }
+  }
+
 }

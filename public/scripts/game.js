@@ -1,4 +1,58 @@
-﻿var BaseGameEntity = (function () {
+﻿var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var TerrainTile = (function () {
+    function TerrainTile() {
+        this.imageW = 224;
+        this.imageH = 224;
+        this.imageY = 0;
+        this.walkable = true;
+    }
+    TerrainTile.src = "/images/terrain.jpg";
+    return TerrainTile;
+})();
+
+var WaterTile = (function (_super) {
+    __extends(WaterTile, _super);
+    function WaterTile() {
+        _super.call(this);
+        this.type = "water";
+        this.walkable = false;
+        this.imageX = 448;
+    }
+    return WaterTile;
+})(TerrainTile);
+
+var GrassTile = (function (_super) {
+    __extends(GrassTile, _super);
+    function GrassTile() {
+        _super.call(this);
+        this.type = "grass";
+        this.imageX = 224;
+    }
+    return GrassTile;
+})(TerrainTile);
+
+var DirtTile = (function (_super) {
+    __extends(DirtTile, _super);
+    function DirtTile() {
+        _super.call(this);
+        this.type = "dirt";
+        this.imageX = 0;
+    }
+    return DirtTile;
+})(TerrainTile);
+var Coords = (function () {
+    function Coords(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    return Coords;
+})();
+var BaseGameEntity = (function () {
     function BaseGameEntity() {
         this.id = BaseGameEntity.nextValidId;
         BaseGameEntity.nextValidId++;
@@ -71,12 +125,6 @@ var State = (function () {
     };
     return State;
 })();
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var WalkingState = (function (_super) {
     __extends(WalkingState, _super);
     function WalkingState() {
@@ -382,13 +430,6 @@ var WaitingState = (function (_super) {
     };
     return WaitingState;
 })(State);
-var Coords = (function () {
-    function Coords(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    return Coords;
-})();
 var Unit = (function (_super) {
     __extends(Unit, _super);
     function Unit(loc, player) {
@@ -476,79 +517,6 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
-var Knight = (function (_super) {
-    __extends(Knight, _super);
-    function Knight() {
-        _super.apply(this, arguments);
-        this.w = 30;
-        this.h = 30;
-        this.gridWidth = 2;
-        this.gridHeight = 2;
-        this.imageX = 0;
-        this.imageY = 512;
-        this.imageW = 64;
-        this.imageH = 64;
-        this.attackMax = 10;
-        this.attackMin = 5;
-        this.totalHealth = 100;
-        this.health = this.totalHealth;
-        this.attackSpeed = 10;
-        this.src = "/images/knight.png";
-    }
-    Knight.prototype.getImage = function () {
-        if (Knight.image) {
-            return Knight.image;
-        } else {
-            Knight.image = new Image();
-            Knight.image.onload = function () {
-                return Knight.image;
-            };
-            Knight.image.src = this.src;
-        }
-    };
-    return Knight;
-})(Unit);
-var TerrainTile = (function () {
-    function TerrainTile() {
-        this.imageW = 224;
-        this.imageH = 224;
-        this.imageY = 0;
-        this.walkable = true;
-    }
-    TerrainTile.src = "/images/terrain.jpg";
-    return TerrainTile;
-})();
-
-var WaterTile = (function (_super) {
-    __extends(WaterTile, _super);
-    function WaterTile() {
-        _super.call(this);
-        this.type = "water";
-        this.walkable = false;
-        this.imageX = 448;
-    }
-    return WaterTile;
-})(TerrainTile);
-
-var GrassTile = (function (_super) {
-    __extends(GrassTile, _super);
-    function GrassTile() {
-        _super.call(this);
-        this.type = "grass";
-        this.imageX = 224;
-    }
-    return GrassTile;
-})(TerrainTile);
-
-var DirtTile = (function (_super) {
-    __extends(DirtTile, _super);
-    function DirtTile() {
-        _super.call(this);
-        this.type = "dirt";
-        this.imageX = 0;
-    }
-    return DirtTile;
-})(TerrainTile);
 var Drawer = (function () {
     function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
@@ -820,8 +788,64 @@ var Drawer = (function () {
         this.unitContext.fillStyle = "red";
         this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
     };
+
+    Drawer.prototype.drawLowerMenu = function () {
+        var selectedUnits = Array();
+
+        var allUnits = Game.getUnits();
+
+        for (var u = 0; u < allUnits.length; u++) {
+            if (allUnits[u].selected && (allUnits[u].player === this.playerNumber)) {
+                selectedUnits.push(allUnits[u]);
+            }
+        }
+        if (selectedUnits.length <= 0) {
+            return;
+        } else {
+            for (var i = 0; i < selectedUnits.length; i++) {
+                var unit = selectedUnits[i];
+                console.log("\tRace: " + typeof unit);
+                console.log("\tHealth: " + unit.health + "/" + unit.totalHealth);
+                console.log("\tKills: " + 0);
+                console.log("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg");
+                console.log("\tAttackSpeed: " + (this.UPDATE_FPS / unit.attackSpeed) + "dmg/sec");
+            }
+        }
+    };
     return Drawer;
 })();
+var Knight = (function (_super) {
+    __extends(Knight, _super);
+    function Knight() {
+        _super.apply(this, arguments);
+        this.w = 30;
+        this.h = 30;
+        this.gridWidth = 2;
+        this.gridHeight = 2;
+        this.imageX = 0;
+        this.imageY = 512;
+        this.imageW = 64;
+        this.imageH = 64;
+        this.attackMax = 10;
+        this.attackMin = 5;
+        this.totalHealth = 100;
+        this.health = this.totalHealth;
+        this.attackSpeed = 10;
+        this.src = "/images/knight.png";
+    }
+    Knight.prototype.getImage = function () {
+        if (Knight.image) {
+            return Knight.image;
+        } else {
+            Knight.image = new Image();
+            Knight.image.onload = function () {
+                return Knight.image;
+            };
+            Knight.image.src = this.src;
+        }
+    };
+    return Knight;
+})(Unit);
 var Orc = (function (_super) {
     __extends(Orc, _super);
     function Orc() {
@@ -921,7 +945,7 @@ var Game = (function () {
     function Game(host, id, enemyId, gameId) {
         this.simTick = 0;
         this.winner = null;
-        Game.map = new StripesMap();
+        Game.map = new SmallMap();
         this.gameId = gameId;
         this.id = id;
         this.enemyId = enemyId;
@@ -1575,6 +1599,42 @@ var Map1 = (function () {
     };
     return Map1;
 })();
+var SmallMap = (function () {
+    function SmallMap() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    SmallMap.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < 500; i++) {
+            terrain.push(new GrassTile());
+        }
+        return terrain;
+    };
+
+    SmallMap.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Orc(315, 1);
+
+        var u3 = new Orc(80, 2);
+        var u4 = new Orc(380, 2);
+        return [u1, u2, u3, u4];
+    };
+
+    SmallMap.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    SmallMap.prototype.GetNumberOfCols = function () {
+        return 50;
+    };
+
+    SmallMap.prototype.GetNumberOfRows = function () {
+        return 10;
+    };
+    return SmallMap;
+})();
 var StripesMap = (function () {
     function StripesMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
@@ -1723,6 +1783,7 @@ var LocalGameRunner = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
