@@ -52,7 +52,7 @@ class NetworkedGameRunner implements IGameRunner {
       // on left click...
       if (e.which === 1) {
         $(this).data("mousedown", true);
-        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
         that.setSelection(coords);
         that.myGame.unselectAll();
       } else if (e.which === 3) {
@@ -61,7 +61,7 @@ class NetworkedGameRunner implements IGameRunner {
         for (var u: number = 0; u < units.length; u++) {
           if (units[u].selected) {
             // todo: create a custom class for the return of getMousePos
-            var tar: any = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+            var tar: any = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
             var a: Action = new Action(that.drawer.coordsToBox(tar.x, tar.y),
               Game.getUnits()[u].id,
               that.shifted);
@@ -81,7 +81,7 @@ class NetworkedGameRunner implements IGameRunner {
 
     $(document).mousemove(function (e: any): void {
       if ($(this).data("mousedown")) {
-        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });

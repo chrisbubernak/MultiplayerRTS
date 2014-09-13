@@ -49,5 +49,6 @@ module.exports = function (grunt) {
   
 
     grunt.registerTask('default', ['tslint', 'typescript', 'express:server', 'open', 'watch']);
- 
+    grunt.registerTask('dev', ['typescript', 'express:server', 'open', 'watch']);
+
 }

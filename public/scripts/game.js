@@ -566,16 +566,14 @@ var Drawer = (function () {
     Drawer.prototype.updateDimensions = function (width, height) {
         var winWidth = $(window).width();
         var winHeight = $(window).height();
-        var calculatedWidth = $(window).height() * Game.getRatio();
-        var calculatedHeight = $(window).width() / Game.getRatio();
 
-        if (calculatedWidth > winWidth) {
-            width = winWidth;
-            height = calculatedHeight;
-        } else if (calculatedHeight > winHeight) {
-            width = calculatedWidth;
-            height = winHeight;
-        }
+        height = winHeight;
+        width = winWidth;
+        this.gameHeight = height * 0.7;
+        this.gameWidth = width * 1.0;
+        this.menuHeight = height * 0.3;
+        this.menuWidth = width * 1.0;
+
         this.boxSize = width / Game.getNumOfCols();
 
         this.terrainCanvas.width = width;
@@ -645,6 +643,8 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawTerrain = function () {
+        this.terrainContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+
         var src = TerrainTile.src;
         var image = new Image();
         var that = this;
@@ -716,7 +716,6 @@ var Drawer = (function () {
             var unitCoords = this.boxToCoords(unit.loc);
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
-            console.log(unit.loc);
         }
         x = unit.x;
         y = unit.y;
@@ -789,9 +788,26 @@ var Drawer = (function () {
         this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
     };
 
-    Drawer.prototype.drawLowerMenu = function () {
-        var selectedUnits = Array();
+    Drawer.prototype.getMousePos = function (canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    };
 
+    Drawer.prototype.drawLowerMenu = function () {
+        var xOffset = 20;
+        this.selectionContext.fillStyle = "black";
+        this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+        this.selectionContext.strokeStyle = "red";
+        this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+        this.selectionContext.stroke();
+        var fontSize = 12;
+        var textHeight = fontSize * 1.5;
+        this.selectionContext.font = fontSize + "px helvetica";
+        this.selectionContext.fillStyle = "white";
+        var selectedUnits = Array();
         var allUnits = Game.getUnits();
 
         for (var u = 0; u < allUnits.length; u++) {
@@ -804,13 +820,19 @@ var Drawer = (function () {
         } else {
             for (var i = 0; i < selectedUnits.length; i++) {
                 var unit = selectedUnits[i];
-                console.log("\tRace: " + typeof unit);
-                console.log("\tHealth: " + unit.health + "/" + unit.totalHealth);
-                console.log("\tKills: " + 0);
-                console.log("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg");
-                console.log("\tAttackSpeed: " + (this.UPDATE_FPS / unit.attackSpeed) + "dmg/sec");
+                var coords = unit.getDrawCoordinates();
+                this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, 0, this.gameHeight + 5 * i * fontSize, this.unitWidth(), this.unitHeight());
+                this.writeText("\tRace: " + typeof unit, xOffset, this.gameHeight + textHeight + 5 * i * fontSize);
+                this.writeText("\tHealth: " + unit.health + "/" + unit.totalHealth, xOffset, this.gameHeight + textHeight + (1 + 5 * i) * fontSize);
+                this.writeText("\tKills: " + 0, xOffset, this.gameHeight + textHeight + (2 + i * 5) * fontSize);
+                this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, this.gameHeight + textHeight + (3 + 5 * i) * fontSize);
+                this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, this.gameHeight + textHeight + (4 + 5 * i) * fontSize);
             }
         }
+    };
+
+    Drawer.prototype.writeText = function (text, x, y) {
+        this.selectionContext.fillText(text, x, y);
     };
     return Drawer;
 })();
@@ -1114,14 +1136,6 @@ var Game = (function () {
         for (var i = Game.units.length - 1; i >= 0; i--) {
             Game.units[i].update();
         }
-    };
-
-    Game.prototype.getMousePos = function (canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
     };
 
     Game.prototype.unselectAll = function () {
@@ -1607,7 +1621,7 @@ var SmallMap = (function () {
     }
     SmallMap.prototype.GetTerrain = function () {
         var terrain = Array();
-        for (var i = 0; i < 500; i++) {
+        for (var i = 0; i < 10000; i++) {
             terrain.push(new GrassTile());
         }
         return terrain;
@@ -1627,11 +1641,11 @@ var SmallMap = (function () {
     };
 
     SmallMap.prototype.GetNumberOfCols = function () {
-        return 50;
+        return 100;
     };
 
     SmallMap.prototype.GetNumberOfRows = function () {
-        return 10;
+        return 100;
     };
     return SmallMap;
 })();
@@ -1710,14 +1724,14 @@ var LocalGameRunner = (function () {
         $(document).mousedown(function (e) {
             if (e.which === 1) {
                 $(this).data("mousedown", true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
             } else if (e.which === 3) {
                 var units = Game.getUnits();
                 for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var tar = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
                     }
@@ -1735,7 +1749,7 @@ var LocalGameRunner = (function () {
 
         $(document).mousemove(function (e) {
             if ($(this).data("mousedown")) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
@@ -1881,14 +1895,14 @@ var NetworkedGameRunner = (function () {
         $(document).mousedown(function (e) {
             if (e.which === 1) {
                 $(this).data("mousedown", true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
             } else if (e.which === 3) {
                 var units = Game.getUnits();
                 for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var tar = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
                     }
@@ -1906,7 +1920,7 @@ var NetworkedGameRunner = (function () {
 
         $(document).mousemove(function (e) {
             if ($(this).data("mousedown")) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });

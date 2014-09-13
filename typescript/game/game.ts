@@ -215,14 +215,6 @@ class Game {
     }
   }
 
-  public getMousePos(canvas: any, evt: any): any {
-    var rect: any = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
-  }
-
   public unselectAll(): void {
     for (var u: number = 0; u < Game.getUnits().length; u++) {
       Game.units[u].selected = false;

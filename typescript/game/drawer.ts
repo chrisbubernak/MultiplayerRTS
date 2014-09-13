@@ -20,6 +20,10 @@ class Drawer {
   private boxSize: number;
   private canvasWidth: number;
   private canvasHeight: number;
+  private gameHeight: number;
+  private gameWidth: number;
+  private menuHeight: number;
+  private menuWidth: number;
   private terrainCanvas: any;
   private unitCanvas: any;
   private fogCanvas: any;
@@ -30,7 +34,7 @@ class Drawer {
   private selectionContext: any;
   private playerNumber: number;
   private gameRunner: IGameRunner;
-
+  
   constructor(
     playerNumber: number,
     terrainCanvas: any,
@@ -80,16 +84,25 @@ class Drawer {
   public updateDimensions(width: number, height: number): void {
     var winWidth: number = $(window).width();
     var winHeight: number = $(window).height();
-    var calculatedWidth: number = $(window).height() * Game.getRatio();
+    /*var calculatedWidth: number = $(window).height() * Game.getRatio();
     var calculatedHeight: number = $(window).width() / Game.getRatio();
 
-    if (calculatedWidth > winWidth) {
+    this.gameWidth = winWidth;
+    this.gameHeight = height * 0.7;
+     if (calculatedWidth > winWidth) {
       width = winWidth;
       height = calculatedHeight;
     } else if (calculatedHeight > winHeight) {
       width = calculatedWidth;
       height = winHeight;
-    }
+    } */
+    height = winHeight;
+    width = winWidth;
+    this.gameHeight = height * 0.7;
+    this.gameWidth = width * 1.0;
+    this.menuHeight = height * 0.3;
+    this.menuWidth = width * 1.0;
+
     this.boxSize = width / Game.getNumOfCols();
 
     this.terrainCanvas.width = width;
@@ -165,6 +178,8 @@ class Drawer {
   }
 
   public drawTerrain(): void {
+    this.terrainContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+
     var src: string = TerrainTile.src;
     var image: any = new Image();
     var that: Drawer = this;
@@ -266,7 +281,6 @@ class Drawer {
       var unitCoords: Coords = this.boxToCoords(unit.loc);
       unit.x = unitCoords.x;
       unit.y = unitCoords.y;
-      console.log(unit.loc);
     }
     x = unit.x;
     y = unit.y;
@@ -352,9 +366,26 @@ class Drawer {
     this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
   }
 
-  public drawLowerMenu(): void {
-    var selectedUnits: Unit[] = Array();
+  public getMousePos(canvas: any, evt: any): any {
+    var rect: any = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
 
+  public drawLowerMenu(): void {
+    var xOffset: number = 20;
+    this.selectionContext.fillStyle = "black";
+    this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+    this.selectionContext.strokeStyle = "red";
+    this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+    this.selectionContext.stroke();
+    var fontSize = 12;
+    var textHeight = fontSize * 1.5;
+    this.selectionContext.font= fontSize + "px helvetica";
+    this.selectionContext.fillStyle="white";
+    var selectedUnits: Unit[] = Array();
     var allUnits: Unit[] = Game.getUnits();
 
     for (var u: number = 0; u < allUnits.length; u++) {
@@ -367,13 +398,19 @@ class Drawer {
     } else {
       for (var i: number = 0; i < selectedUnits.length; i++) {
         var unit: Unit = selectedUnits[i];
-        console.log("\tRace: " + typeof unit);
-        console.log("\tHealth: " + unit.health + "/" + unit.totalHealth);
-        console.log("\tKills: " + 0);
-        console.log("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg");
-        console.log("\tAttackSpeed: " + (this.UPDATE_FPS / unit.attackSpeed) + "dmg/sec");
+        var coords: Coords = unit.getDrawCoordinates();
+        this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, 0, this.gameHeight + 5*i*fontSize , this.unitWidth(), this.unitHeight());
+        this.writeText("\tRace: " + typeof unit, xOffset, this.gameHeight + textHeight + 5*i*fontSize);
+        this.writeText("\tHealth: " + unit.health + "/" + unit.totalHealth, xOffset, this.gameHeight + textHeight + (1+5*i)*fontSize);
+        this.writeText("\tKills: " + 0, xOffset, this.gameHeight + textHeight + (2+i*5)*fontSize);
+        this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, this.gameHeight + textHeight + (3+5*i)*fontSize);
+        this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, this.gameHeight + textHeight + (4+5*i)*fontSize);
       }
     }
   }
+
+  private writeText(text: string, x: number, y: number): void {
+    this.selectionContext.fillText(text, x, y);
+  } 
 
 }
