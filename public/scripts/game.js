@@ -434,6 +434,7 @@ var Unit = (function (_super) {
     __extends(Unit, _super);
     function Unit(loc, player) {
         _super.call(this);
+        this.name = "Unit";
         this.path = new Array();
         this.sightRange = 8;
         this.targetAquireRange = 4;
@@ -452,6 +453,10 @@ var Unit = (function (_super) {
         this.animateTimer = 0;
         this.attackArtTimer = 0;
     }
+    Unit.prototype.getName = function () {
+        return this.name;
+    };
+
     Unit.prototype.getImage = function () {
         alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
     };
@@ -476,6 +481,10 @@ var Unit = (function (_super) {
 
     Unit.prototype.setDirection = function (direction) {
         this.direction = direction;
+    };
+
+    Unit.prototype.getMenuDrawCoordinates = function () {
+        return new Coords(this.imageX, this.imageY + this.imageH * 2);
     };
 
     Unit.prototype.getDrawCoordinates = function () {
@@ -517,6 +526,38 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
+var Rectangle = (function () {
+    function Rectangle(left, right, top, bottom) {
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
+    }
+    Rectangle.prototype.getLeft = function () {
+        return this.left;
+    };
+
+    Rectangle.prototype.getRight = function () {
+        return this.right;
+    };
+
+    Rectangle.prototype.getTop = function () {
+        return this.top;
+    };
+
+    Rectangle.prototype.getBottom = function () {
+        return this.bottom;
+    };
+
+    Rectangle.prototype.getWidth = function () {
+        return Math.abs(this.left - this.right);
+    };
+
+    Rectangle.prototype.getHeight = function () {
+        return Math.abs(this.top - this.bottom);
+    };
+    return Rectangle;
+})();
 var Drawer = (function () {
     function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
@@ -797,16 +838,14 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawLowerMenu = function () {
-        var xOffset = 20;
         this.selectionContext.fillStyle = "black";
         this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
         this.selectionContext.strokeStyle = "red";
         this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+        this.selectionContext.moveTo(this.menuHeight, this.gameHeight);
+        this.selectionContext.lineTo(this.menuHeight, this.gameHeight + this.menuHeight);
         this.selectionContext.stroke();
-        var fontSize = 12;
-        var textHeight = fontSize * 1.5;
-        this.selectionContext.font = fontSize + "px helvetica";
-        this.selectionContext.fillStyle = "white";
+
         var selectedUnits = Array();
         var allUnits = Game.getUnits();
 
@@ -818,21 +857,46 @@ var Drawer = (function () {
         if (selectedUnits.length <= 0) {
             return;
         } else {
-            for (var i = 0; i < selectedUnits.length; i++) {
-                var unit = selectedUnits[i];
-                var coords = unit.getDrawCoordinates();
-                this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, 0, this.gameHeight + 5 * i * fontSize, this.unitWidth(), this.unitHeight());
-                this.writeText("\tRace: " + typeof unit, xOffset, this.gameHeight + textHeight + 5 * i * fontSize);
-                this.writeText("\tHealth: " + unit.health + "/" + unit.totalHealth, xOffset, this.gameHeight + textHeight + (1 + 5 * i) * fontSize);
-                this.writeText("\tKills: " + 0, xOffset, this.gameHeight + textHeight + (2 + i * 5) * fontSize);
-                this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, this.gameHeight + textHeight + (3 + 5 * i) * fontSize);
-                this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, this.gameHeight + textHeight + (4 + 5 * i) * fontSize);
-            }
+            var x1 = 0;
+            var x2 = this.menuHeight;
+            var x3 = this.menuHeight * 2;
+            var y1 = this.gameHeight;
+            var y2 = this.gameHeight + this.menuHeight;
+
+            this.drawFirstSelectedUnit(selectedUnits[0], new Rectangle(x1, x2, y1, y2));
+
+            this.drawAllSelectedUnits(selectedUnits, new Rectangle(x2, x3, y1, y2));
         }
     };
 
     Drawer.prototype.writeText = function (text, x, y) {
         this.selectionContext.fillText(text, x, y);
+    };
+
+    Drawer.prototype.drawAllSelectedUnits = function (selectedUnits, rect) {
+        for (var i = 0; i < selectedUnits.length; i++) {
+            var unit = selectedUnits[i];
+            var coords = unit.getMenuDrawCoordinates();
+            this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
+        }
+    };
+
+    Drawer.prototype.drawFirstSelectedUnit = function (unit, rect) {
+        var coords = unit.getMenuDrawCoordinates();
+        this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2, rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
+
+        var xOffset = rect.getLeft();
+        var yOffset = rect.getTop() + rect.getHeight() / 2;
+        var fontSize = 12;
+        var textHeight = fontSize * 1.5;
+        this.selectionContext.font = fontSize + "px helvetica";
+        this.selectionContext.fillStyle = "white";
+
+        this.writeText("\tRace: " + unit.getName(), xOffset, yOffset + textHeight);
+        this.writeText("\tHealth: " + (Math.round(100 * unit.health) / 100) + "/" + unit.totalHealth, xOffset, yOffset + textHeight * 2);
+        this.writeText("\tKills: " + 0, xOffset, yOffset + textHeight * 3);
+        this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, yOffset + textHeight * 4);
+        this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, yOffset + textHeight * 5);
     };
     return Drawer;
 })();
@@ -842,6 +906,7 @@ var Knight = (function (_super) {
         _super.apply(this, arguments);
         this.w = 30;
         this.h = 30;
+        this.name = "Knight";
         this.gridWidth = 2;
         this.gridHeight = 2;
         this.imageX = 0;
@@ -876,6 +941,7 @@ var Orc = (function (_super) {
         this.h = 30;
         this.gridWidth = 2;
         this.gridHeight = 2;
+        this.name = "Orc";
         this.imageX = 0;
         this.imageY = 512;
         this.imageW = 64;

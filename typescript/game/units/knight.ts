@@ -3,6 +3,7 @@
 class Knight extends Unit {
   w = 30;
   h = 30;
+  name = "Knight";
   gridWidth = 2;
   gridHeight = 2;
   imageX = 0;

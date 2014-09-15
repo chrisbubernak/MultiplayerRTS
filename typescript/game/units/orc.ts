@@ -4,7 +4,7 @@ class Orc extends Unit {
   h = 30;
   gridWidth = 2;
   gridHeight = 2;
-
+  name = "Orc";
   imageX = 0;
   imageY = 512;
   imageW = 64;

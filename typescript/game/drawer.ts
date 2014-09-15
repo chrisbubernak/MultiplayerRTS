@@ -1,5 +1,6 @@
 /// <reference path="coords.ts" />
 /// <reference path="units/unit.ts" />
+/// <reference path="rectangle.ts" />
 /// <reference path="../gameRunners/IGameRunner.ts" />
 
 class Drawer {
@@ -34,7 +35,7 @@ class Drawer {
   private selectionContext: any;
   private playerNumber: number;
   private gameRunner: IGameRunner;
-  
+
   constructor(
     playerNumber: number,
     terrainCanvas: any,
@@ -375,16 +376,15 @@ class Drawer {
   }
 
   public drawLowerMenu(): void {
-    var xOffset: number = 20;
+    // draw the bottom console
     this.selectionContext.fillStyle = "black";
     this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
     this.selectionContext.strokeStyle = "red";
     this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
+    this.selectionContext.moveTo(this.menuHeight, this.gameHeight);
+    this.selectionContext.lineTo(this.menuHeight, this.gameHeight + this.menuHeight);
     this.selectionContext.stroke();
-    var fontSize = 12;
-    var textHeight = fontSize * 1.5;
-    this.selectionContext.font= fontSize + "px helvetica";
-    this.selectionContext.fillStyle="white";
+
     var selectedUnits: Unit[] = Array();
     var allUnits: Unit[] = Game.getUnits();
 
@@ -396,21 +396,53 @@ class Drawer {
     if (selectedUnits.length <= 0) {
       return;
     } else {
-      for (var i: number = 0; i < selectedUnits.length; i++) {
-        var unit: Unit = selectedUnits[i];
-        var coords: Coords = unit.getDrawCoordinates();
-        this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, 0, this.gameHeight + 5*i*fontSize , this.unitWidth(), this.unitHeight());
-        this.writeText("\tRace: " + typeof unit, xOffset, this.gameHeight + textHeight + 5*i*fontSize);
-        this.writeText("\tHealth: " + unit.health + "/" + unit.totalHealth, xOffset, this.gameHeight + textHeight + (1+5*i)*fontSize);
-        this.writeText("\tKills: " + 0, xOffset, this.gameHeight + textHeight + (2+i*5)*fontSize);
-        this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, this.gameHeight + textHeight + (3+5*i)*fontSize);
-        this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, this.gameHeight + textHeight + (4+5*i)*fontSize);
-      }
+      var x1: number = 0;
+      var x2: number = this.menuHeight;
+      var x3: number = this.menuHeight * 2;
+      var y1: number = this.gameHeight;
+      var y2: number = this.gameHeight + this.menuHeight;
+
+      // draw the first/most selected unit
+      this.drawFirstSelectedUnit(selectedUnits[0], new Rectangle(x1, x2, y1, y2));
+
+      // draw little icons for all of the selected units
+      this.drawAllSelectedUnits(selectedUnits, new Rectangle(x2, x3, y1, y2));
     }
   }
 
   private writeText(text: string, x: number, y: number): void {
     this.selectionContext.fillText(text, x, y);
-  } 
+  }
+
+  private drawAllSelectedUnits(selectedUnits: Unit[], rect: Rectangle): void {
+    // then draw all the units in our selected group
+    for (var i: number = 0; i < selectedUnits.length; i++) {
+      var unit: Unit = selectedUnits[i];
+      var coords: Coords = unit.getMenuDrawCoordinates();
+      this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH,
+        rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
+    }
+  }
+
+  private drawFirstSelectedUnit(unit: Unit, rect: Rectangle): void {
+    var coords: Coords = unit.getMenuDrawCoordinates();
+    this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2,
+      rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
+
+    var xOffset: number = rect.getLeft();
+    var yOffset: number = rect.getTop() + rect.getHeight() / 2;
+    var fontSize: number = 12;
+    var textHeight: number = fontSize * 1.5;
+    this.selectionContext.font = fontSize + "px helvetica";
+    this.selectionContext.fillStyle = "white";
+
+    this.writeText("\tRace: " + unit.getName(), xOffset, yOffset + textHeight);
+    this.writeText("\tHealth: " + (Math.round(100 * unit.health) / 100) + "/" + unit.totalHealth, xOffset, yOffset + textHeight * 2);
+    this.writeText("\tKills: " + 0, xOffset, yOffset + textHeight * 3);
+    this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, yOffset + textHeight * 4);
+    this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec",
+      xOffset,
+      yOffset + textHeight * 5);
+  }
 
 }

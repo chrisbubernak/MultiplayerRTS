@@ -10,6 +10,7 @@ class Unit extends BaseGameEntity {
 
   loc: number;
   prevLoc: number;
+  name: string = "Unit";
   x: number;
   y: number;
   w: number; // refers to size of image...refactor me!!
@@ -56,6 +57,10 @@ class Unit extends BaseGameEntity {
     this.attackArtTimer = 0;
   }
 
+  public getName(): string {
+    return this.name;
+  }
+
   public getImage(): void {
     alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
   }
@@ -90,6 +95,10 @@ class Unit extends BaseGameEntity {
 
   public setDirection(direction: string): void {
     this.direction = direction;
+  }
+
+  public getMenuDrawCoordinates(): Coords {
+    return new Coords(this.imageX, this.imageY + this.imageH * 2);
   }
 
   public getDrawCoordinates(): Coords {
