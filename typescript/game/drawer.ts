@@ -18,9 +18,10 @@ class Drawer {
 
 
   // globals
-  private boxSize: number;
-  private canvasWidth: number;
-  private canvasHeight: number;
+  private boxWidth: number;
+  private boxHeight: number;
+  private winWidth: number;
+  private winHeight: number;
   private gameHeight: number;
   private gameWidth: number;
   private menuHeight: number;
@@ -28,8 +29,10 @@ class Drawer {
   private terrainCanvas: any;
   private unitCanvas: any;
   private fogCanvas: any;
+  private menuCanvas: any;
   private selectionCanvas: any;
   private terrainContext: any;
+  private menuContext: any;
   private unitContext: any;
   private fogContext: any;
   private selectionContext: any;
@@ -42,6 +45,7 @@ class Drawer {
     unitCanvas: any,
     fogCanvas: any,
     selectionCanvas: any,
+    menuCanvas: any,
     gameRunner: IGameRunner) {
 
     this.playerNumber = playerNumber;
@@ -50,13 +54,14 @@ class Drawer {
     this.unitCanvas = unitCanvas;
     this.fogCanvas = fogCanvas;
     this.selectionCanvas = selectionCanvas;
+    this.menuCanvas = menuCanvas;
     this.updateDimensions(1, 1);
 
     this.terrainContext = terrainCanvas.getContext("2d");
     this.unitContext = unitCanvas.getContext("2d");
     this.fogContext = fogCanvas.getContext("2d");
     this.selectionContext = selectionCanvas.getContext("2d");
-
+    this.menuContext = menuCanvas.getContext("2d");
     Drawer.context = this;
   }
 
@@ -83,8 +88,8 @@ class Drawer {
   }
 
   public updateDimensions(width: number, height: number): void {
-    var winWidth: number = $(window).width();
-    var winHeight: number = $(window).height();
+    this.winWidth = $(window).width();
+    this.winHeight = $(window).height();
     /*var calculatedWidth: number = $(window).height() * Game.getRatio();
     var calculatedHeight: number = $(window).width() / Game.getRatio();
 
@@ -97,28 +102,28 @@ class Drawer {
       width = calculatedWidth;
       height = winHeight;
     } */
-    height = winHeight;
-    width = winWidth;
-    this.gameHeight = height * 0.7;
-    this.gameWidth = width * 1.0;
-    this.menuHeight = height * 0.3;
-    this.menuWidth = width * 1.0;
 
-    this.boxSize = width / Game.getNumOfCols();
+    this.gameHeight = this.winHeight * 0.7;
+    this.gameWidth = this.winWidth * 1.0;
+    this.menuHeight = this.winHeight * 0.3;
+    this.menuWidth = this.winWidth * 1.0;
 
-    this.terrainCanvas.width = width;
-    this.terrainCanvas.height = height;
-    this.unitCanvas.width = width;
-    this.unitCanvas.height = height;
-    this.fogCanvas.width = width;
-    this.fogCanvas.height = height;
-    this.selectionCanvas.width = width;
-    this.selectionCanvas.height = height;
+    this.boxWidth = this.gameWidth / Game.getNumOfCols();
+    this.boxHeight = this.gameHeight / Game.getNumOfRows();
 
-    this.canvasHeight = height;
-    this.canvasWidth = width;
+    this.terrainCanvas.width = this.gameWidth;
+    this.terrainCanvas.height = this.gameHeight;
+    this.unitCanvas.width = this.gameWidth;
+    this.unitCanvas.height = this.gameHeight;
+    this.fogCanvas.width = this.gameWidth;
+    this.fogCanvas.height = this.gameHeight;
+    this.selectionCanvas.width = this.gameWidth;
+    this.selectionCanvas.height = this.gameHeight;
 
-    this.boxSize = this.canvasWidth / Game.getNumOfCols();
+    this.menuCanvas.style.top = this.gameHeight + "px";
+    this.menuCanvas.width = this.menuWidth;
+    this.menuCanvas.height = this.menuHeight;
+
     // don't want to draw it before it exists
     if (typeof (Game.getTerrainLoc(0)) !== "undefined") {
       this.drawTerrain();
@@ -126,19 +131,19 @@ class Drawer {
   }
 
   public getBoxWidth(): number {
-    return this.boxSize;
+    return this.boxWidth;
   }
 
   public getBoxHeight(): number {
-    return this.boxSize;
+    return this.boxHeight;
   }
 
   public drawUnits(units: Unit[]): void {
     this.fogContext.globalCompositeOperation = "source-over";
-    this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.fogContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
     this.fogContext.fillStyle = this.FOG;
-    this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
-    this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.fogContext.fillRect(0, 0, this.gameWidth, this.gameHeight);
+    this.unitContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
     for (var i: number = 0; i < units.length; i++) {
 
       if (this.gameRunner.STATEDEBUG) {
@@ -151,7 +156,7 @@ class Drawer {
         var x: number = coords.x;
         var y: number = coords.y;
         // this stuff does the "sight" circles in the fog
-        var r1: number = units[i].sightRange * this.boxSize;
+        var r1: number = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
         var r2: number = r1 + 40;
         var density: number = 0.4;
 
@@ -175,11 +180,11 @@ class Drawer {
       }
       this.drawUnit(units[i]);
     }
-    this.selectionContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.selectionContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
   }
 
   public drawTerrain(): void {
-    this.terrainContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+    this.terrainContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
     var src: string = TerrainTile.src;
     var image: any = new Image();
@@ -196,8 +201,8 @@ class Drawer {
           tile.imageH,
           that.boxToCoords(i).x,
           that.boxToCoords(i).y,
-          that.boxSize,
-          that.boxSize);
+          that.getBoxWidth(),
+          that.getBoxHeight());
       }
     };
     image.src = src;
@@ -205,15 +210,15 @@ class Drawer {
 
   // returns the upper left corner of the box given its index
   public boxToCoords(i: number): any {
-    var y: number = Math.floor(i / Game.getNumOfCols()) * this.boxSize;
-    var x: number = i % Game.getNumOfCols() * this.boxSize;
+    var y: number = Math.floor(i / Game.getNumOfCols()) * this.getBoxHeight();
+    var x: number = i % Game.getNumOfCols() * this.getBoxWidth();
       return { x: x, y: y };
   }
 
   // given the row and col of a box this returns the box index
   public coordsToBox(x: number, y: number): number {
-    var newX: number = Math.floor((x % this.canvasWidth) / this.boxSize);
-    var newY: number = Math.floor((y % this.canvasHeight) / this.boxSize);
+    var newX: number = Math.floor((x % this.gameWidth) / this.getBoxWidth());
+    var newY: number = Math.floor((y % this.gameHeight) / this.getBoxHeight());
     var boxNumber: number = newX + Game.getNumOfCols() * newY;
     return boxNumber;
   }
@@ -224,13 +229,13 @@ class Drawer {
     this.fogContext.fillStyle = color;
     this.fogContext.fillRect(coords.x,
       coords.y,
-      this.boxSize,
-      this.boxSize);
+      this.getBoxWidth(),
+      this.getBoxHeight());
     this.unitContext.fillStyle = color;
     this.unitContext.fillRect(coords.x,
       coords.y,
-      this.boxSize,
-      this.boxSize);
+      this.getBoxWidth(),
+      this.getBoxHeight());
   }
 
   // used for debugging a* pathing
@@ -239,12 +244,12 @@ class Drawer {
     this.selectionContext.fillStyle = color;
     this.selectionContext.fillRect(coords.x,
       coords.y,
-      this.boxSize,
-      this.boxSize);
+      this.getBoxWidth(),
+      this.getBoxHeight());
     this.selectionContext.fillStyle = "black";
     this.selectionContext.fillText(Math.round(val),
       coords.x,
-      coords.y + this.boxSize / 2);
+      coords.y + this.getBoxHeight() / 2);
   }
 
   public drawSelect(selection: SelectionObject): void {
@@ -261,13 +266,13 @@ class Drawer {
     this.drawTerrain();
     this.terrainContext.strokeStyle = this.GREEN;
     for (var i: number = 0; i <= Game.getNumOfCols(); i++) {
-      this.terrainContext.moveTo(i * this.boxSize, 0);
-      this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
+      this.terrainContext.moveTo(i * this.getBoxWidth(), 0);
+      this.terrainContext.lineTo(i * this.getBoxWidth(), this.gameHeight);
       this.terrainContext.stroke();
     }
     for (var j: number = 0; j <= Game.getNumOfRows(); j++) {
-      this.terrainContext.moveTo(0, j * this.boxSize);
-      this.terrainContext.lineTo(this.canvasWidth, j * this.boxSize);
+      this.terrainContext.moveTo(0, j * this.getBoxHeight());
+      this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
       this.terrainContext.stroke();
     }
   }
@@ -334,10 +339,10 @@ class Drawer {
   }
 
   private unitWidth(): number {
-    return this.boxSize * 2;
+    return this.getBoxWidth() * 2;
   }
   private unitHeight(): number {
-    return this.boxSize * 2;
+    return this.getBoxHeight() * 2;
   }
 
   private drawUnitAquireTargetRange(unit: Unit): void {
@@ -377,13 +382,13 @@ class Drawer {
 
   public drawLowerMenu(): void {
     // draw the bottom console
-    this.selectionContext.fillStyle = "black";
-    this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
-    this.selectionContext.strokeStyle = "red";
-    this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
-    this.selectionContext.moveTo(this.menuHeight, this.gameHeight);
-    this.selectionContext.lineTo(this.menuHeight, this.gameHeight + this.menuHeight);
-    this.selectionContext.stroke();
+    this.menuContext.fillStyle = "black";
+    this.menuContext.fillRect(0, 0, this.menuWidth, this.menuHeight);
+    this.menuContext.strokeStyle = "red";
+    this.menuContext.rect(0, 0, this.menuWidth, this.menuHeight);
+    this.menuContext.moveTo(this.menuHeight, 0);
+    this.menuContext.lineTo(this.menuHeight, this.gameHeight);
+    this.menuContext.stroke();
 
     var selectedUnits: Unit[] = Array();
     var allUnits: Unit[] = Game.getUnits();
@@ -399,8 +404,8 @@ class Drawer {
       var x1: number = 0;
       var x2: number = this.menuHeight;
       var x3: number = this.menuHeight * 2;
-      var y1: number = this.gameHeight;
-      var y2: number = this.gameHeight + this.menuHeight;
+      var y1: number = 0;
+      var y2: number = this.menuHeight;
 
       // draw the first/most selected unit
       this.drawFirstSelectedUnit(selectedUnits[0], new Rectangle(x1, x2, y1, y2));
@@ -411,7 +416,7 @@ class Drawer {
   }
 
   private writeText(text: string, x: number, y: number): void {
-    this.selectionContext.fillText(text, x, y);
+    this.menuContext.fillText(text, x, y);
   }
 
   private drawAllSelectedUnits(selectedUnits: Unit[], rect: Rectangle): void {
@@ -419,22 +424,22 @@ class Drawer {
     for (var i: number = 0; i < selectedUnits.length; i++) {
       var unit: Unit = selectedUnits[i];
       var coords: Coords = unit.getMenuDrawCoordinates();
-      this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH,
+      this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH,
         rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
     }
   }
 
   private drawFirstSelectedUnit(unit: Unit, rect: Rectangle): void {
     var coords: Coords = unit.getMenuDrawCoordinates();
-    this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2,
+    this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2,
       rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
 
     var xOffset: number = rect.getLeft();
     var yOffset: number = rect.getTop() + rect.getHeight() / 2;
     var fontSize: number = 12;
     var textHeight: number = fontSize * 1.5;
-    this.selectionContext.font = fontSize + "px helvetica";
-    this.selectionContext.fillStyle = "white";
+    this.menuContext.font = fontSize + "px helvetica";
+    this.menuContext.fillStyle = "white";
 
     this.writeText("\tRace: " + unit.getName(), xOffset, yOffset + textHeight);
     this.writeText("\tHealth: " + (Math.round(100 * unit.health) / 100) + "/" + unit.totalHealth, xOffset, yOffset + textHeight * 2);

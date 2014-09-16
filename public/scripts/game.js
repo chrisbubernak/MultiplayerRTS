@@ -559,7 +559,7 @@ var Rectangle = (function () {
     return Rectangle;
 })();
 var Drawer = (function () {
-    function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
+    function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, menuCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
         this.FPS = 60;
         this.GREEN = "#39FF14";
@@ -573,13 +573,14 @@ var Drawer = (function () {
         this.unitCanvas = unitCanvas;
         this.fogCanvas = fogCanvas;
         this.selectionCanvas = selectionCanvas;
+        this.menuCanvas = menuCanvas;
         this.updateDimensions(1, 1);
 
         this.terrainContext = terrainCanvas.getContext("2d");
         this.unitContext = unitCanvas.getContext("2d");
         this.fogContext = fogCanvas.getContext("2d");
         this.selectionContext = selectionCanvas.getContext("2d");
-
+        this.menuContext = menuCanvas.getContext("2d");
         Drawer.context = this;
     }
     Drawer.drawSquare = function (loc, color) {
@@ -605,31 +606,29 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.updateDimensions = function (width, height) {
-        var winWidth = $(window).width();
-        var winHeight = $(window).height();
+        this.winWidth = $(window).width();
+        this.winHeight = $(window).height();
 
-        height = winHeight;
-        width = winWidth;
-        this.gameHeight = height * 0.7;
-        this.gameWidth = width * 1.0;
-        this.menuHeight = height * 0.3;
-        this.menuWidth = width * 1.0;
+        this.gameHeight = this.winHeight * 0.7;
+        this.gameWidth = this.winWidth * 1.0;
+        this.menuHeight = this.winHeight * 0.3;
+        this.menuWidth = this.winWidth * 1.0;
 
-        this.boxSize = width / Game.getNumOfCols();
+        this.boxWidth = this.gameWidth / Game.getNumOfCols();
+        this.boxHeight = this.gameHeight / Game.getNumOfRows();
 
-        this.terrainCanvas.width = width;
-        this.terrainCanvas.height = height;
-        this.unitCanvas.width = width;
-        this.unitCanvas.height = height;
-        this.fogCanvas.width = width;
-        this.fogCanvas.height = height;
-        this.selectionCanvas.width = width;
-        this.selectionCanvas.height = height;
+        this.terrainCanvas.width = this.gameWidth;
+        this.terrainCanvas.height = this.gameHeight;
+        this.unitCanvas.width = this.gameWidth;
+        this.unitCanvas.height = this.gameHeight;
+        this.fogCanvas.width = this.gameWidth;
+        this.fogCanvas.height = this.gameHeight;
+        this.selectionCanvas.width = this.gameWidth;
+        this.selectionCanvas.height = this.gameHeight;
 
-        this.canvasHeight = height;
-        this.canvasWidth = width;
-
-        this.boxSize = this.canvasWidth / Game.getNumOfCols();
+        this.menuCanvas.style.top = this.gameHeight + "px";
+        this.menuCanvas.width = this.menuWidth;
+        this.menuCanvas.height = this.menuHeight;
 
         if (typeof (Game.getTerrainLoc(0)) !== "undefined") {
             this.drawTerrain();
@@ -637,19 +636,19 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.getBoxWidth = function () {
-        return this.boxSize;
+        return this.boxWidth;
     };
 
     Drawer.prototype.getBoxHeight = function () {
-        return this.boxSize;
+        return this.boxHeight;
     };
 
     Drawer.prototype.drawUnits = function (units) {
         this.fogContext.globalCompositeOperation = "source-over";
-        this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.fogContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
         this.fogContext.fillStyle = this.FOG;
-        this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
-        this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.fogContext.fillRect(0, 0, this.gameWidth, this.gameHeight);
+        this.unitContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
         for (var i = 0; i < units.length; i++) {
             if (this.gameRunner.STATEDEBUG) {
                 this.drawStateText(units[i]);
@@ -660,7 +659,7 @@ var Drawer = (function () {
                 var x = coords.x;
                 var y = coords.y;
 
-                var r1 = units[i].sightRange * this.boxSize;
+                var r1 = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
                 var r2 = r1 + 40;
                 var density = 0.4;
 
@@ -680,11 +679,11 @@ var Drawer = (function () {
             }
             this.drawUnit(units[i]);
         }
-        this.selectionContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.selectionContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
     };
 
     Drawer.prototype.drawTerrain = function () {
-        this.terrainContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.terrainContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
 
         var src = TerrainTile.src;
         var image = new Image();
@@ -693,21 +692,21 @@ var Drawer = (function () {
             var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
             for (var i = 0; i < gridSize; i++) {
                 var tile = Game.getTerrainLoc(i);
-                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x, that.boxToCoords(i).y, that.boxSize, that.boxSize);
+                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x, that.boxToCoords(i).y, that.getBoxWidth(), that.getBoxHeight());
             }
         };
         image.src = src;
     };
 
     Drawer.prototype.boxToCoords = function (i) {
-        var y = Math.floor(i / Game.getNumOfCols()) * this.boxSize;
-        var x = i % Game.getNumOfCols() * this.boxSize;
+        var y = Math.floor(i / Game.getNumOfCols()) * this.getBoxHeight();
+        var x = i % Game.getNumOfCols() * this.getBoxWidth();
         return { x: x, y: y };
     };
 
     Drawer.prototype.coordsToBox = function (x, y) {
-        var newX = Math.floor((x % this.canvasWidth) / this.boxSize);
-        var newY = Math.floor((y % this.canvasHeight) / this.boxSize);
+        var newX = Math.floor((x % this.gameWidth) / this.getBoxWidth());
+        var newY = Math.floor((y % this.gameHeight) / this.getBoxHeight());
         var boxNumber = newX + Game.getNumOfCols() * newY;
         return boxNumber;
     };
@@ -715,17 +714,17 @@ var Drawer = (function () {
     Drawer.prototype.drawSquare = function (loc, color) {
         var coords = this.boxToCoords(loc);
         this.fogContext.fillStyle = color;
-        this.fogContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.fogContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
         this.unitContext.fillStyle = color;
-        this.unitContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.unitContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
     };
 
     Drawer.prototype.drawPathing = function (loc, color, val) {
         var coords = this.boxToCoords(loc);
         this.selectionContext.fillStyle = color;
-        this.selectionContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.selectionContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
         this.selectionContext.fillStyle = "black";
-        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.boxSize / 2);
+        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.getBoxHeight() / 2);
     };
 
     Drawer.prototype.drawSelect = function (selection) {
@@ -739,13 +738,13 @@ var Drawer = (function () {
         this.drawTerrain();
         this.terrainContext.strokeStyle = this.GREEN;
         for (var i = 0; i <= Game.getNumOfCols(); i++) {
-            this.terrainContext.moveTo(i * this.boxSize, 0);
-            this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
+            this.terrainContext.moveTo(i * this.getBoxWidth(), 0);
+            this.terrainContext.lineTo(i * this.getBoxWidth(), this.gameHeight);
             this.terrainContext.stroke();
         }
         for (var j = 0; j <= Game.getNumOfRows(); j++) {
-            this.terrainContext.moveTo(0, j * this.boxSize);
-            this.terrainContext.lineTo(this.canvasWidth, j * this.boxSize);
+            this.terrainContext.moveTo(0, j * this.getBoxHeight());
+            this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
             this.terrainContext.stroke();
         }
     };
@@ -796,10 +795,10 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.unitWidth = function () {
-        return this.boxSize * 2;
+        return this.getBoxWidth() * 2;
     };
     Drawer.prototype.unitHeight = function () {
-        return this.boxSize * 2;
+        return this.getBoxHeight() * 2;
     };
 
     Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
@@ -838,13 +837,13 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawLowerMenu = function () {
-        this.selectionContext.fillStyle = "black";
-        this.selectionContext.fillRect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
-        this.selectionContext.strokeStyle = "red";
-        this.selectionContext.rect(0, this.gameHeight, this.canvasWidth, this.menuHeight);
-        this.selectionContext.moveTo(this.menuHeight, this.gameHeight);
-        this.selectionContext.lineTo(this.menuHeight, this.gameHeight + this.menuHeight);
-        this.selectionContext.stroke();
+        this.menuContext.fillStyle = "black";
+        this.menuContext.fillRect(0, 0, this.menuWidth, this.menuHeight);
+        this.menuContext.strokeStyle = "red";
+        this.menuContext.rect(0, 0, this.menuWidth, this.menuHeight);
+        this.menuContext.moveTo(this.menuHeight, 0);
+        this.menuContext.lineTo(this.menuHeight, this.gameHeight);
+        this.menuContext.stroke();
 
         var selectedUnits = Array();
         var allUnits = Game.getUnits();
@@ -860,8 +859,8 @@ var Drawer = (function () {
             var x1 = 0;
             var x2 = this.menuHeight;
             var x3 = this.menuHeight * 2;
-            var y1 = this.gameHeight;
-            var y2 = this.gameHeight + this.menuHeight;
+            var y1 = 0;
+            var y2 = this.menuHeight;
 
             this.drawFirstSelectedUnit(selectedUnits[0], new Rectangle(x1, x2, y1, y2));
 
@@ -870,27 +869,27 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.writeText = function (text, x, y) {
-        this.selectionContext.fillText(text, x, y);
+        this.menuContext.fillText(text, x, y);
     };
 
     Drawer.prototype.drawAllSelectedUnits = function (selectedUnits, rect) {
         for (var i = 0; i < selectedUnits.length; i++) {
             var unit = selectedUnits[i];
             var coords = unit.getMenuDrawCoordinates();
-            this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
+            this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
         }
     };
 
     Drawer.prototype.drawFirstSelectedUnit = function (unit, rect) {
         var coords = unit.getMenuDrawCoordinates();
-        this.selectionContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2, rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
+        this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2, rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
 
         var xOffset = rect.getLeft();
         var yOffset = rect.getTop() + rect.getHeight() / 2;
         var fontSize = 12;
         var textHeight = fontSize * 1.5;
-        this.selectionContext.font = fontSize + "px helvetica";
-        this.selectionContext.fillStyle = "white";
+        this.menuContext.font = fontSize + "px helvetica";
+        this.menuContext.fillStyle = "white";
 
         this.writeText("\tRace: " + unit.getName(), xOffset, yOffset + textHeight);
         this.writeText("\tHealth: " + (Math.round(100 * unit.health) / 100) + "/" + unit.totalHealth, xOffset, yOffset + textHeight * 2);
@@ -1687,8 +1686,12 @@ var SmallMap = (function () {
     }
     SmallMap.prototype.GetTerrain = function () {
         var terrain = Array();
-        for (var i = 0; i < 10000; i++) {
-            terrain.push(new GrassTile());
+        for (var i = 0; i < 2000; i++) {
+            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0)) {
+                terrain.push(new DirtTile());
+            } else {
+                terrain.push(new GrassTile());
+            }
         }
         return terrain;
     };
@@ -1711,7 +1714,7 @@ var SmallMap = (function () {
     };
 
     SmallMap.prototype.GetNumberOfRows = function () {
-        return 100;
+        return 20;
     };
     return SmallMap;
 })();
@@ -1781,7 +1784,7 @@ var LocalGameRunner = (function () {
 
         this.myGame = new Game(true, id, enemyId, gameId);
 
-        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         this.run();
 
@@ -1954,7 +1957,7 @@ var NetworkedGameRunner = (function () {
         } else {
             playerNumber = 2;
         }
-        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         var that = this;
 
@@ -2194,7 +2197,7 @@ var ReplayGameRunner = (function () {
 
         this.myGame = new Game(true, id, "enemyId", "gameId");
 
-        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         this.run();
 

@@ -24,6 +24,7 @@ class ReplayGameRunner implements IGameRunner {
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"),
+      document.getElementById("menuCanvas"),
       this);
 
     this.run();

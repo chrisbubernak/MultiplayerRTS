@@ -14,8 +14,16 @@ class SmallMap implements IMap {
 
   public GetTerrain(): TerrainTile[] {
     var terrain: TerrainTile[] = Array();
-    for (var i: number = 0; i < 10000; i++) {
-      terrain.push(new GrassTile());
+    for (var i: number = 0; i < 2000; i++) {
+      if ( 
+        (i % this.GetNumberOfCols() === 0) || 
+        ((i + 1) % (this.GetNumberOfCols()) === 0) || 
+        (Math.floor( i / this.GetNumberOfCols()) === 0) 
+        ) {
+        terrain.push(new DirtTile())
+      } else {
+        terrain.push(new GrassTile());
+      }
     }
     return terrain;
   }
@@ -38,6 +46,6 @@ class SmallMap implements IMap {
   }
 
   public GetNumberOfRows(): number {
-    return 100;
+    return 20;
   }
 }
