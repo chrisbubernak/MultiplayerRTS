@@ -322,6 +322,7 @@ class Drawer {
       }
 
     }
+
     // draw the health bar above the unit...todo: move this elsewhere
     var percent: number = unit.health / unit.totalHealth;
     this.unitContext.fillStyle = "red";
@@ -420,12 +421,15 @@ class Drawer {
   }
 
   private drawAllSelectedUnits(selectedUnits: Unit[], rect: Rectangle): void {
+    var unitsPerCol: number = Math.floor(rect.getHeight()/this.unitHeight());
     // then draw all the units in our selected group
     for (var i: number = 0; i < selectedUnits.length; i++) {
       var unit: Unit = selectedUnits[i];
       var coords: Coords = unit.getMenuDrawCoordinates();
+      var x: number = rect.getLeft() + this.unitWidth() * Math.floor(i / unitsPerCol);
+      var y: number = rect.getTop() + (i % unitsPerCol) * this.unitHeight();
       this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH,
-        rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
+        x, y, this.unitWidth(), this.unitHeight());
     }
   }
 

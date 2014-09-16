@@ -873,10 +873,14 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawAllSelectedUnits = function (selectedUnits, rect) {
+        var unitsPerCol = Math.floor(rect.getHeight() / this.unitHeight());
+
         for (var i = 0; i < selectedUnits.length; i++) {
             var unit = selectedUnits[i];
             var coords = unit.getMenuDrawCoordinates();
-            this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, rect.getLeft(), rect.getTop() + i * this.unitHeight(), this.unitWidth(), this.unitHeight());
+            var x = rect.getLeft() + this.unitWidth() * Math.floor(i / unitsPerCol);
+            var y = rect.getTop() + (i % unitsPerCol) * this.unitHeight();
+            this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
         }
     };
 
@@ -1686,8 +1690,8 @@ var SmallMap = (function () {
     }
     SmallMap.prototype.GetTerrain = function () {
         var terrain = Array();
-        for (var i = 0; i < 2000; i++) {
-            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0)) {
+        for (var i = 0; i < this.GetGridSize(); i++) {
+            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0) || (Math.ceil(i / this.GetNumberOfCols()) === this.GetNumberOfRows())) {
                 terrain.push(new DirtTile());
             } else {
                 terrain.push(new GrassTile());
@@ -1699,10 +1703,14 @@ var SmallMap = (function () {
     SmallMap.prototype.GetUnits = function () {
         var u1 = new Knight(15, 1);
         var u2 = new Orc(315, 1);
+        var u3 = new Knight(35, 1);
+        var u4 = new Orc(320, 1);
+        var u5 = new Knight(322, 1);
+        var u6 = new Orc(40, 1);
 
-        var u3 = new Orc(80, 2);
-        var u4 = new Orc(380, 2);
-        return [u1, u2, u3, u4];
+        var u7 = new Orc(80, 2);
+        var u8 = new Orc(380, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
     };
 
     SmallMap.prototype.GetGridSize = function () {
@@ -1714,7 +1722,7 @@ var SmallMap = (function () {
     };
 
     SmallMap.prototype.GetNumberOfRows = function () {
-        return 20;
+        return 30;
     };
     return SmallMap;
 })();
