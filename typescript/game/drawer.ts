@@ -8,13 +8,13 @@ class Drawer {
 
   // consts
   private UPDATE_FPS: number = 10;
-  private FPS: number = 60;
   private GREEN: string = "#39FF14";
   private RED: string = "#FF0000";
   private HEALTH_BAR_OFFSET: number = 10;
   private HEALTH_BAR_HEIGHT: number = 5;
   private FOG: string = "black";
 
+  public REAL_FPS: number = 60;
 
 
   // globals
@@ -78,8 +78,8 @@ class Drawer {
     for (var i: number = 0; i < units.length; i++) {
       var oldCoords:  Coords = this.boxToCoords(units[i].prevLoc);
       var coords: Coords = this.boxToCoords(units[i].loc);
-      units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
-      units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
+      units[i].x -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
+      units[i].y -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
       if (units[i].prevLoc === units[i].loc) {
         units[i].x = coords.x;
         units[i].y = coords.y;
@@ -421,7 +421,7 @@ class Drawer {
   }
 
   private drawAllSelectedUnits(selectedUnits: Unit[], rect: Rectangle): void {
-    var unitsPerCol: number = Math.floor(rect.getHeight()/this.unitHeight());
+    var unitsPerCol: number = Math.floor(rect.getHeight() / this.unitHeight());
     // then draw all the units in our selected group
     for (var i: number = 0; i < selectedUnits.length; i++) {
       var unit: Unit = selectedUnits[i];

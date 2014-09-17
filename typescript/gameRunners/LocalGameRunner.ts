@@ -9,7 +9,6 @@ class LocalGameRunner implements IGameRunner {
   private actions: any [] = new Array();
   private updateFPS: number = 10;
   private FPS: number = 60;
-  private REAL_FPS: number = this.FPS;
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
@@ -56,8 +55,8 @@ class LocalGameRunner implements IGameRunner {
       }
     });
 
-    window.addEventListener('mousemove', function(e){ 
-      event = event || window.event; // IE-ism
+    window.addEventListener("mousemove", function(e: any): void{
+      event = event || window.event;
       that.mouseX = event.clientX;
       that.mouseY = event.clientY;
     });
@@ -166,8 +165,9 @@ class LocalGameRunner implements IGameRunner {
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      that.REAL_FPS = Math.round(1000 / diffTime);
-      fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      var realFPS: number = Math.round(1000 / diffTime);
+      that.drawer.REAL_FPS = realFPS;
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 

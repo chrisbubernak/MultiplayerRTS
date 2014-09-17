@@ -561,12 +561,12 @@ var Rectangle = (function () {
 var Drawer = (function () {
     function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, menuCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
-        this.FPS = 60;
         this.GREEN = "#39FF14";
         this.RED = "#FF0000";
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
+        this.REAL_FPS = 60;
         this.playerNumber = playerNumber;
         this.gameRunner = gameRunner;
         this.terrainCanvas = terrainCanvas;
@@ -596,8 +596,8 @@ var Drawer = (function () {
         for (var i = 0; i < units.length; i++) {
             var oldCoords = this.boxToCoords(units[i].prevLoc);
             var coords = this.boxToCoords(units[i].loc);
-            units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
-            units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
+            units[i].x -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
+            units[i].y -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
             if (units[i].prevLoc === units[i].loc) {
                 units[i].x = coords.x;
                 units[i].y = coords.y;
@@ -1785,7 +1785,6 @@ var LocalGameRunner = (function () {
         this.actions = new Array();
         this.updateFPS = 10;
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         var id = "Human";
         var enemyId = "Computer";
         var gameId = "LocalGame";
@@ -1816,7 +1815,7 @@ var LocalGameRunner = (function () {
             }
         });
 
-        window.addEventListener('mousemove', function (e) {
+        window.addEventListener("mousemove", function (e) {
             event = event || window.event;
             that.mouseX = event.clientX;
             that.mouseY = event.clientY;
@@ -1838,7 +1837,6 @@ var LocalGameRunner = (function () {
                     }
                 }
             }
-
             $(this).data("mousedown", false);
         });
 
@@ -1915,8 +1913,9 @@ var LocalGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -1941,23 +1940,6 @@ var LocalGameRunner = (function () {
     LocalGameRunner.prototype.end = function (message) {
         window.location.href = "/lobby";
     };
-
-    LocalGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data("mousedown")) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o = 0; o < occupied.length; o++) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id !== null && typeof id !== "undefined") {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
     return LocalGameRunner;
 })();
 var NetworkedGameRunner = (function () {
@@ -1968,7 +1950,6 @@ var NetworkedGameRunner = (function () {
         this.actions = new Array();
         this.updateFPS = 10;
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         this.actionList = new Array();
         this.actionHistory = {};
         this.myId = id;
@@ -2009,6 +1990,17 @@ var NetworkedGameRunner = (function () {
         });
 
         $(document).mouseup(function (e) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id !== null && typeof id !== "undefined") {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
             $(this).data("mousedown", false);
         });
 
@@ -2107,6 +2099,7 @@ var NetworkedGameRunner = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -2121,7 +2114,6 @@ var NetworkedGameRunner = (function () {
 
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
-            that.getSelection();
 
             if (!that.host) {
                 that.conn.send({ actions: that.actions, simTick: currentSimTick });
@@ -2139,8 +2131,9 @@ var NetworkedGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2188,23 +2181,6 @@ var NetworkedGameRunner = (function () {
             }
         });
     };
-
-    NetworkedGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data("mousedown")) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o = 0; o < occupied.length; o++) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id != null) {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
     return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
@@ -2214,7 +2190,6 @@ var ReplayGameRunner = (function () {
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         this.updateFPS = 10;
         this.actions = actions;
 
@@ -2246,6 +2221,7 @@ var ReplayGameRunner = (function () {
         setInterval(function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -2271,8 +2247,9 @@ var ReplayGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
