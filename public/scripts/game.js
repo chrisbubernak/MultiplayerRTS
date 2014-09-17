@@ -1816,11 +1816,29 @@ var LocalGameRunner = (function () {
             }
         });
 
+        window.addEventListener('mousemove', function (e) {
+            event = event || window.event;
+            that.mouseX = event.clientX;
+            that.mouseY = event.clientY;
+        });
+
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
 
         $(document).mouseup(function (e) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id !== null && typeof id !== "undefined") {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
+
             $(this).data("mousedown", false);
         });
 
@@ -1890,7 +1908,6 @@ var LocalGameRunner = (function () {
 
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
-            that.getSelection();
 
             that.myGame.applyActions(that.actions, currentSimTick);
             that.actions = new Array();

@@ -13,6 +13,8 @@ class LocalGameRunner implements IGameRunner {
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
+  private mouseX: number;
+  private mouseY: number;
 
   constructor() {
     var id: string = "Human";
@@ -54,11 +56,31 @@ class LocalGameRunner implements IGameRunner {
       }
     });
 
+    window.addEventListener('mousemove', function(e){ 
+      event = event || window.event; // IE-ism
+      that.mouseX = event.clientX;
+      that.mouseY = event.clientY;
+    });
+
     $(window).resize(function (): void {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
     $(document).mouseup(function (e: any): void {
+      // when we catch a mouse up event see what is in our selection
+      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
+        that.selection.w / that.drawer.getBoxWidth(),
+        that.selection.h / that.drawer.getBoxHeight());
+        for (var o: number = 0; o < occupied.length; o++) {
+          var id: number = Game.getGridLoc(occupied[o]);
+          if (id !== null && typeof id !== "undefined") {
+            var unit: Unit = Utilities.findUnit(id, Game.getUnits());
+            if (unit.player === that.myGame.getPlayerNumber()) {
+              unit.selected = true;
+            }
+          }
+        }
       $(this).data("mousedown", false);
     });
 
@@ -137,7 +159,6 @@ class LocalGameRunner implements IGameRunner {
 
       var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
-      that.getSelection();
 
       that.myGame.applyActions(that.actions, currentSimTick);
       that.actions = new Array();
@@ -170,25 +191,5 @@ class LocalGameRunner implements IGameRunner {
 
   public end(message: string): void {
     window.location.href = "/lobby";
-  }
-
-  public getSelection(): void {
-    var that: LocalGameRunner = this;
-    if ($(document).data("mousedown")) {
-      // create the selection
-      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
-        that.selection.w / that.drawer.getBoxWidth(),
-        that.selection.h / that.drawer.getBoxHeight());
-      for (var o: number = 0; o < occupied.length; o++) {
-        var id: number = Game.getGridLoc(occupied[o]);
-        if (id !== null && typeof id !== "undefined") {
-          var unit: Unit = Utilities.findUnit(id, Game.getUnits());
-          if (unit.player === that.myGame.getPlayerNumber()) {
-            unit.selected = true;
-          }
-        }
-      }
-    }
   }
 }
