@@ -8,7 +8,6 @@ class ReplayGameRunner implements IGameRunner {
   private myGame: Game;
   private actions: any[] = new Array(); // todo: we should use our action type here
   private FPS: number = 60;
-  private REAL_FPS: number = this.FPS;
   private drawer: Drawer;
   private updateFPS: number = 10;
 
@@ -24,6 +23,7 @@ class ReplayGameRunner implements IGameRunner {
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"),
+      document.getElementById("menuCanvas"),
       this);
 
     this.run();
@@ -52,6 +52,7 @@ class ReplayGameRunner implements IGameRunner {
     setInterval(function (): void {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
+      that.drawer.drawLowerMenu();
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();
@@ -79,8 +80,9 @@ class ReplayGameRunner implements IGameRunner {
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      that.REAL_FPS = Math.round(1000 / diffTime);
-      fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      var realFPS: number = Math.round(1000 / diffTime);
+      that.drawer.REAL_FPS = realFPS;
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 

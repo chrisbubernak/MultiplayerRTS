@@ -1,4 +1,3 @@
-/// <reference path="../../_references.ts" />
 /// <reference path="terrainTile.ts" />
 /// <reference path="drawer.ts" />
 /// <reference path="units/knight.ts" />
@@ -34,7 +33,7 @@ class Game {
 
   // public Methods:
   constructor(host: boolean, id: string, enemyId: string, gameId: string) {
-    Game.map = new StripesMap();
+    Game.map = new SmallMap();
     this.gameId = gameId;
     this.id = id; // this players id
     this.enemyId = enemyId;
@@ -214,14 +213,6 @@ class Game {
     for (var i: number = Game.units.length - 1; i >= 0; i--) {
       Game.units[i].update();
     }
-  }
-
-  public getMousePos(canvas: any, evt: any): any {
-    var rect: any = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
   }
 
   public unselectAll(): void {

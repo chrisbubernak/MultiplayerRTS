@@ -1,5 +1,4 @@
-﻿/// <reference path="../../_references.ts" />
-class TerrainTile {
+﻿class TerrainTile {
   imageX: number;
   imageW: number = 224;
   imageH: number = 224;

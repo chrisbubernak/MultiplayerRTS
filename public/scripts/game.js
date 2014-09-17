@@ -1,4 +1,58 @@
-﻿var BaseGameEntity = (function () {
+﻿var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+var TerrainTile = (function () {
+    function TerrainTile() {
+        this.imageW = 224;
+        this.imageH = 224;
+        this.imageY = 0;
+        this.walkable = true;
+    }
+    TerrainTile.src = "/images/terrain.jpg";
+    return TerrainTile;
+})();
+
+var WaterTile = (function (_super) {
+    __extends(WaterTile, _super);
+    function WaterTile() {
+        _super.call(this);
+        this.type = "water";
+        this.walkable = false;
+        this.imageX = 448;
+    }
+    return WaterTile;
+})(TerrainTile);
+
+var GrassTile = (function (_super) {
+    __extends(GrassTile, _super);
+    function GrassTile() {
+        _super.call(this);
+        this.type = "grass";
+        this.imageX = 224;
+    }
+    return GrassTile;
+})(TerrainTile);
+
+var DirtTile = (function (_super) {
+    __extends(DirtTile, _super);
+    function DirtTile() {
+        _super.call(this);
+        this.type = "dirt";
+        this.imageX = 0;
+    }
+    return DirtTile;
+})(TerrainTile);
+var Coords = (function () {
+    function Coords(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    return Coords;
+})();
+var BaseGameEntity = (function () {
     function BaseGameEntity() {
         this.id = BaseGameEntity.nextValidId;
         BaseGameEntity.nextValidId++;
@@ -71,12 +125,6 @@ var State = (function () {
     };
     return State;
 })();
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
 var WalkingState = (function (_super) {
     __extends(WalkingState, _super);
     function WalkingState() {
@@ -382,17 +430,11 @@ var WaitingState = (function (_super) {
     };
     return WaitingState;
 })(State);
-var Coords = (function () {
-    function Coords(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-    return Coords;
-})();
 var Unit = (function (_super) {
     __extends(Unit, _super);
     function Unit(loc, player) {
         _super.call(this);
+        this.name = "Unit";
         this.path = new Array();
         this.sightRange = 8;
         this.targetAquireRange = 4;
@@ -411,6 +453,10 @@ var Unit = (function (_super) {
         this.animateTimer = 0;
         this.attackArtTimer = 0;
     }
+    Unit.prototype.getName = function () {
+        return this.name;
+    };
+
     Unit.prototype.getImage = function () {
         alert("CANT CALL getIMAGE ON UNIT SUPERTYPE");
     };
@@ -435,6 +481,10 @@ var Unit = (function (_super) {
 
     Unit.prototype.setDirection = function (direction) {
         this.direction = direction;
+    };
+
+    Unit.prototype.getMenuDrawCoordinates = function () {
+        return new Coords(this.imageX, this.imageY + this.imageH * 2);
     };
 
     Unit.prototype.getDrawCoordinates = function () {
@@ -476,101 +526,61 @@ var Unit = (function (_super) {
     Unit.attackAnimationIncrememt = .2;
     return Unit;
 })(BaseGameEntity);
-var Knight = (function (_super) {
-    __extends(Knight, _super);
-    function Knight() {
-        _super.apply(this, arguments);
-        this.w = 30;
-        this.h = 30;
-        this.gridWidth = 2;
-        this.gridHeight = 2;
-        this.imageX = 0;
-        this.imageY = 512;
-        this.imageW = 64;
-        this.imageH = 64;
-        this.attackMax = 10;
-        this.attackMin = 5;
-        this.totalHealth = 100;
-        this.health = this.totalHealth;
-        this.attackSpeed = 10;
-        this.src = "/images/knight.png";
+var Rectangle = (function () {
+    function Rectangle(left, right, top, bottom) {
+        this.left = left;
+        this.right = right;
+        this.top = top;
+        this.bottom = bottom;
     }
-    Knight.prototype.getImage = function () {
-        if (Knight.image) {
-            return Knight.image;
-        } else {
-            Knight.image = new Image();
-            Knight.image.onload = function () {
-                return Knight.image;
-            };
-            Knight.image.src = this.src;
-        }
+    Rectangle.prototype.getLeft = function () {
+        return this.left;
     };
-    return Knight;
-})(Unit);
-var TerrainTile = (function () {
-    function TerrainTile() {
-        this.imageW = 224;
-        this.imageH = 224;
-        this.imageY = 0;
-        this.walkable = true;
-    }
-    TerrainTile.src = "/images/terrain.jpg";
-    return TerrainTile;
+
+    Rectangle.prototype.getRight = function () {
+        return this.right;
+    };
+
+    Rectangle.prototype.getTop = function () {
+        return this.top;
+    };
+
+    Rectangle.prototype.getBottom = function () {
+        return this.bottom;
+    };
+
+    Rectangle.prototype.getWidth = function () {
+        return Math.abs(this.left - this.right);
+    };
+
+    Rectangle.prototype.getHeight = function () {
+        return Math.abs(this.top - this.bottom);
+    };
+    return Rectangle;
 })();
-
-var WaterTile = (function (_super) {
-    __extends(WaterTile, _super);
-    function WaterTile() {
-        _super.call(this);
-        this.type = "water";
-        this.walkable = false;
-        this.imageX = 448;
-    }
-    return WaterTile;
-})(TerrainTile);
-
-var GrassTile = (function (_super) {
-    __extends(GrassTile, _super);
-    function GrassTile() {
-        _super.call(this);
-        this.type = "grass";
-        this.imageX = 224;
-    }
-    return GrassTile;
-})(TerrainTile);
-
-var DirtTile = (function (_super) {
-    __extends(DirtTile, _super);
-    function DirtTile() {
-        _super.call(this);
-        this.type = "dirt";
-        this.imageX = 0;
-    }
-    return DirtTile;
-})(TerrainTile);
 var Drawer = (function () {
-    function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, gameRunner) {
+    function Drawer(playerNumber, terrainCanvas, unitCanvas, fogCanvas, selectionCanvas, menuCanvas, gameRunner) {
         this.UPDATE_FPS = 10;
-        this.FPS = 60;
         this.GREEN = "#39FF14";
         this.RED = "#FF0000";
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
+        this.REAL_FPS = 60;
         this.playerNumber = playerNumber;
         this.gameRunner = gameRunner;
         this.terrainCanvas = terrainCanvas;
         this.unitCanvas = unitCanvas;
         this.fogCanvas = fogCanvas;
         this.selectionCanvas = selectionCanvas;
+        this.menuCanvas = menuCanvas;
         this.updateDimensions(1, 1);
 
         this.terrainContext = terrainCanvas.getContext("2d");
         this.unitContext = unitCanvas.getContext("2d");
         this.fogContext = fogCanvas.getContext("2d");
         this.selectionContext = selectionCanvas.getContext("2d");
-
+        this.menuContext = menuCanvas.getContext("2d");
         Drawer.context = this;
     }
     Drawer.drawSquare = function (loc, color) {
@@ -586,8 +596,8 @@ var Drawer = (function () {
         for (var i = 0; i < units.length; i++) {
             var oldCoords = this.boxToCoords(units[i].prevLoc);
             var coords = this.boxToCoords(units[i].loc);
-            units[i].x -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
-            units[i].y -= ((1 / (this.FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
+            units[i].x -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
+            units[i].y -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
             if (units[i].prevLoc === units[i].loc) {
                 units[i].x = coords.x;
                 units[i].y = coords.y;
@@ -596,33 +606,29 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.updateDimensions = function (width, height) {
-        var winWidth = $(window).width();
-        var winHeight = $(window).height();
-        var calculatedWidth = $(window).height() * Game.getRatio();
-        var calculatedHeight = $(window).width() / Game.getRatio();
+        this.winWidth = $(window).width();
+        this.winHeight = $(window).height();
 
-        if (calculatedWidth > winWidth) {
-            width = winWidth;
-            height = calculatedHeight;
-        } else if (calculatedHeight > winHeight) {
-            width = calculatedWidth;
-            height = winHeight;
-        }
-        this.boxSize = width / Game.getNumOfCols();
+        this.gameHeight = this.winHeight * 0.7;
+        this.gameWidth = this.winWidth * 1.0;
+        this.menuHeight = this.winHeight * 0.3;
+        this.menuWidth = this.winWidth * 1.0;
 
-        this.terrainCanvas.width = width;
-        this.terrainCanvas.height = height;
-        this.unitCanvas.width = width;
-        this.unitCanvas.height = height;
-        this.fogCanvas.width = width;
-        this.fogCanvas.height = height;
-        this.selectionCanvas.width = width;
-        this.selectionCanvas.height = height;
+        this.boxWidth = this.gameWidth / Game.getNumOfCols();
+        this.boxHeight = this.gameHeight / Game.getNumOfRows();
 
-        this.canvasHeight = height;
-        this.canvasWidth = width;
+        this.terrainCanvas.width = this.gameWidth;
+        this.terrainCanvas.height = this.gameHeight;
+        this.unitCanvas.width = this.gameWidth;
+        this.unitCanvas.height = this.gameHeight;
+        this.fogCanvas.width = this.gameWidth;
+        this.fogCanvas.height = this.gameHeight;
+        this.selectionCanvas.width = this.gameWidth;
+        this.selectionCanvas.height = this.gameHeight;
 
-        this.boxSize = this.canvasWidth / Game.getNumOfCols();
+        this.menuCanvas.style.top = this.gameHeight + "px";
+        this.menuCanvas.width = this.menuWidth;
+        this.menuCanvas.height = this.menuHeight;
 
         if (typeof (Game.getTerrainLoc(0)) !== "undefined") {
             this.drawTerrain();
@@ -630,19 +636,19 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.getBoxWidth = function () {
-        return this.boxSize;
+        return this.boxWidth;
     };
 
     Drawer.prototype.getBoxHeight = function () {
-        return this.boxSize;
+        return this.boxHeight;
     };
 
     Drawer.prototype.drawUnits = function (units) {
         this.fogContext.globalCompositeOperation = "source-over";
-        this.fogContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.fogContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
         this.fogContext.fillStyle = this.FOG;
-        this.fogContext.fillRect(0, 0, this.canvasWidth, this.canvasHeight);
-        this.unitContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.fogContext.fillRect(0, 0, this.gameWidth, this.gameHeight);
+        this.unitContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
         for (var i = 0; i < units.length; i++) {
             if (this.gameRunner.STATEDEBUG) {
                 this.drawStateText(units[i]);
@@ -653,7 +659,7 @@ var Drawer = (function () {
                 var x = coords.x;
                 var y = coords.y;
 
-                var r1 = units[i].sightRange * this.boxSize;
+                var r1 = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
                 var r2 = r1 + 40;
                 var density = 0.4;
 
@@ -673,10 +679,12 @@ var Drawer = (function () {
             }
             this.drawUnit(units[i]);
         }
-        this.selectionContext.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+        this.selectionContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
     };
 
     Drawer.prototype.drawTerrain = function () {
+        this.terrainContext.clearRect(0, 0, this.gameWidth, this.gameHeight);
+
         var src = TerrainTile.src;
         var image = new Image();
         var that = this;
@@ -684,21 +692,21 @@ var Drawer = (function () {
             var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
             for (var i = 0; i < gridSize; i++) {
                 var tile = Game.getTerrainLoc(i);
-                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x, that.boxToCoords(i).y, that.boxSize, that.boxSize);
+                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x, that.boxToCoords(i).y, that.getBoxWidth(), that.getBoxHeight());
             }
         };
         image.src = src;
     };
 
     Drawer.prototype.boxToCoords = function (i) {
-        var y = Math.floor(i / Game.getNumOfCols()) * this.boxSize;
-        var x = i % Game.getNumOfCols() * this.boxSize;
+        var y = Math.floor(i / Game.getNumOfCols()) * this.getBoxHeight();
+        var x = i % Game.getNumOfCols() * this.getBoxWidth();
         return { x: x, y: y };
     };
 
     Drawer.prototype.coordsToBox = function (x, y) {
-        var newX = Math.floor((x % this.canvasWidth) / this.boxSize);
-        var newY = Math.floor((y % this.canvasHeight) / this.boxSize);
+        var newX = Math.floor((x % this.gameWidth) / this.getBoxWidth());
+        var newY = Math.floor((y % this.gameHeight) / this.getBoxHeight());
         var boxNumber = newX + Game.getNumOfCols() * newY;
         return boxNumber;
     };
@@ -706,17 +714,17 @@ var Drawer = (function () {
     Drawer.prototype.drawSquare = function (loc, color) {
         var coords = this.boxToCoords(loc);
         this.fogContext.fillStyle = color;
-        this.fogContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.fogContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
         this.unitContext.fillStyle = color;
-        this.unitContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.unitContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
     };
 
     Drawer.prototype.drawPathing = function (loc, color, val) {
         var coords = this.boxToCoords(loc);
         this.selectionContext.fillStyle = color;
-        this.selectionContext.fillRect(coords.x, coords.y, this.boxSize, this.boxSize);
+        this.selectionContext.fillRect(coords.x, coords.y, this.getBoxWidth(), this.getBoxHeight());
         this.selectionContext.fillStyle = "black";
-        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.boxSize / 2);
+        this.selectionContext.fillText(Math.round(val), coords.x, coords.y + this.getBoxHeight() / 2);
     };
 
     Drawer.prototype.drawSelect = function (selection) {
@@ -730,13 +738,13 @@ var Drawer = (function () {
         this.drawTerrain();
         this.terrainContext.strokeStyle = this.GREEN;
         for (var i = 0; i <= Game.getNumOfCols(); i++) {
-            this.terrainContext.moveTo(i * this.boxSize, 0);
-            this.terrainContext.lineTo(i * this.boxSize, this.canvasHeight);
+            this.terrainContext.moveTo(i * this.getBoxWidth(), 0);
+            this.terrainContext.lineTo(i * this.getBoxWidth(), this.gameHeight);
             this.terrainContext.stroke();
         }
         for (var j = 0; j <= Game.getNumOfRows(); j++) {
-            this.terrainContext.moveTo(0, j * this.boxSize);
-            this.terrainContext.lineTo(this.canvasWidth, j * this.boxSize);
+            this.terrainContext.moveTo(0, j * this.getBoxHeight());
+            this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
             this.terrainContext.stroke();
         }
     };
@@ -748,7 +756,6 @@ var Drawer = (function () {
             var unitCoords = this.boxToCoords(unit.loc);
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
-            console.log(unit.loc);
         }
         x = unit.x;
         y = unit.y;
@@ -788,10 +795,10 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.unitWidth = function () {
-        return this.boxSize * 2;
+        return this.getBoxWidth() * 2;
     };
     Drawer.prototype.unitHeight = function () {
-        return this.boxSize * 2;
+        return this.getBoxHeight() * 2;
     };
 
     Drawer.prototype.drawUnitAquireTargetRange = function (unit) {
@@ -820,8 +827,115 @@ var Drawer = (function () {
         this.unitContext.fillStyle = "red";
         this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
     };
+
+    Drawer.prototype.getMousePos = function (canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    };
+
+    Drawer.prototype.drawLowerMenu = function () {
+        this.menuContext.fillStyle = "black";
+        this.menuContext.fillRect(0, 0, this.menuWidth, this.menuHeight);
+        this.menuContext.strokeStyle = "red";
+        this.menuContext.rect(0, 0, this.menuWidth, this.menuHeight);
+        this.menuContext.moveTo(this.menuHeight, 0);
+        this.menuContext.lineTo(this.menuHeight, this.gameHeight);
+        this.menuContext.stroke();
+
+        var selectedUnits = Array();
+        var allUnits = Game.getUnits();
+
+        for (var u = 0; u < allUnits.length; u++) {
+            if (allUnits[u].selected && (allUnits[u].player === this.playerNumber)) {
+                selectedUnits.push(allUnits[u]);
+            }
+        }
+        if (selectedUnits.length <= 0) {
+            return;
+        } else {
+            var x1 = 0;
+            var x2 = this.menuHeight;
+            var x3 = this.menuHeight * 2;
+            var y1 = 0;
+            var y2 = this.menuHeight;
+
+            this.drawFirstSelectedUnit(selectedUnits[0], new Rectangle(x1, x2, y1, y2));
+
+            this.drawAllSelectedUnits(selectedUnits, new Rectangle(x2, x3, y1, y2));
+        }
+    };
+
+    Drawer.prototype.writeText = function (text, x, y) {
+        this.menuContext.fillText(text, x, y);
+    };
+
+    Drawer.prototype.drawAllSelectedUnits = function (selectedUnits, rect) {
+        var unitsPerCol = Math.floor(rect.getHeight() / this.unitHeight());
+
+        for (var i = 0; i < selectedUnits.length; i++) {
+            var unit = selectedUnits[i];
+            var coords = unit.getMenuDrawCoordinates();
+            var x = rect.getLeft() + this.unitWidth() * Math.floor(i / unitsPerCol);
+            var y = rect.getTop() + (i % unitsPerCol) * this.unitHeight();
+            this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
+        }
+    };
+
+    Drawer.prototype.drawFirstSelectedUnit = function (unit, rect) {
+        var coords = unit.getMenuDrawCoordinates();
+        this.menuContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH / 2, rect.getLeft(), rect.getTop(), rect.getWidth(), rect.getHeight() / 2);
+
+        var xOffset = rect.getLeft();
+        var yOffset = rect.getTop() + rect.getHeight() / 2;
+        var fontSize = 12;
+        var textHeight = fontSize * 1.5;
+        this.menuContext.font = fontSize + "px helvetica";
+        this.menuContext.fillStyle = "white";
+
+        this.writeText("\tRace: " + unit.getName(), xOffset, yOffset + textHeight);
+        this.writeText("\tHealth: " + (Math.round(100 * unit.health) / 100) + "/" + unit.totalHealth, xOffset, yOffset + textHeight * 2);
+        this.writeText("\tKills: " + 0, xOffset, yOffset + textHeight * 3);
+        this.writeText("\tAttack: " + unit.attackMin + "-" + unit.attackMax + "dmg", xOffset, yOffset + textHeight * 4);
+        this.writeText("\tAttackSpeed: " + Math.round((this.UPDATE_FPS / unit.attackSpeed) * 100) / 100 + "/sec", xOffset, yOffset + textHeight * 5);
+    };
     return Drawer;
 })();
+var Knight = (function (_super) {
+    __extends(Knight, _super);
+    function Knight() {
+        _super.apply(this, arguments);
+        this.w = 30;
+        this.h = 30;
+        this.name = "Knight";
+        this.gridWidth = 2;
+        this.gridHeight = 2;
+        this.imageX = 0;
+        this.imageY = 512;
+        this.imageW = 64;
+        this.imageH = 64;
+        this.attackMax = 10;
+        this.attackMin = 5;
+        this.totalHealth = 100;
+        this.health = this.totalHealth;
+        this.attackSpeed = 10;
+        this.src = "/images/knight.png";
+    }
+    Knight.prototype.getImage = function () {
+        if (Knight.image) {
+            return Knight.image;
+        } else {
+            Knight.image = new Image();
+            Knight.image.onload = function () {
+                return Knight.image;
+            };
+            Knight.image.src = this.src;
+        }
+    };
+    return Knight;
+})(Unit);
 var Orc = (function (_super) {
     __extends(Orc, _super);
     function Orc() {
@@ -830,6 +944,7 @@ var Orc = (function (_super) {
         this.h = 30;
         this.gridWidth = 2;
         this.gridHeight = 2;
+        this.name = "Orc";
         this.imageX = 0;
         this.imageY = 512;
         this.imageW = 64;
@@ -921,7 +1036,7 @@ var Game = (function () {
     function Game(host, id, enemyId, gameId) {
         this.simTick = 0;
         this.winner = null;
-        Game.map = new StripesMap();
+        Game.map = new SmallMap();
         this.gameId = gameId;
         this.id = id;
         this.enemyId = enemyId;
@@ -1090,14 +1205,6 @@ var Game = (function () {
         for (var i = Game.units.length - 1; i >= 0; i--) {
             Game.units[i].update();
         }
-    };
-
-    Game.prototype.getMousePos = function (canvas, evt) {
-        var rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
     };
 
     Game.prototype.unselectAll = function () {
@@ -1575,6 +1682,50 @@ var Map1 = (function () {
     };
     return Map1;
 })();
+var SmallMap = (function () {
+    function SmallMap() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    SmallMap.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < this.GetGridSize(); i++) {
+            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0) || (Math.ceil(i / this.GetNumberOfCols()) === this.GetNumberOfRows())) {
+                terrain.push(new DirtTile());
+            } else {
+                terrain.push(new GrassTile());
+            }
+        }
+        return terrain;
+    };
+
+    SmallMap.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Orc(315, 1);
+        var u3 = new Knight(35, 1);
+        var u4 = new Orc(320, 1);
+        var u5 = new Knight(322, 1);
+        var u6 = new Orc(40, 1);
+
+        var u7 = new Orc(80, 2);
+        var u8 = new Orc(380, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
+    };
+
+    SmallMap.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    SmallMap.prototype.GetNumberOfCols = function () {
+        return 100;
+    };
+
+    SmallMap.prototype.GetNumberOfRows = function () {
+        return 30;
+    };
+    return SmallMap;
+})();
 var StripesMap = (function () {
     function StripesMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
@@ -1634,14 +1785,13 @@ var LocalGameRunner = (function () {
         this.actions = new Array();
         this.updateFPS = 10;
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         var id = "Human";
         var enemyId = "Computer";
         var gameId = "LocalGame";
 
         this.myGame = new Game(true, id, enemyId, gameId);
 
-        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         this.run();
 
@@ -1650,14 +1800,14 @@ var LocalGameRunner = (function () {
         $(document).mousedown(function (e) {
             if (e.which === 1) {
                 $(this).data("mousedown", true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
             } else if (e.which === 3) {
                 var units = Game.getUnits();
                 for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var tar = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
                     }
@@ -1665,17 +1815,34 @@ var LocalGameRunner = (function () {
             }
         });
 
+        window.addEventListener("mousemove", function (e) {
+            event = event || window.event;
+            that.mouseX = event.clientX;
+            that.mouseY = event.clientY;
+        });
+
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
 
         $(document).mouseup(function (e) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id !== null && typeof id !== "undefined") {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
             $(this).data("mousedown", false);
         });
 
         $(document).mousemove(function (e) {
             if ($(this).data("mousedown")) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
@@ -1723,6 +1890,7 @@ var LocalGameRunner = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -1738,7 +1906,6 @@ var LocalGameRunner = (function () {
 
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
-            that.getSelection();
 
             that.myGame.applyActions(that.actions, currentSimTick);
             that.actions = new Array();
@@ -1746,8 +1913,9 @@ var LocalGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -1772,23 +1940,6 @@ var LocalGameRunner = (function () {
     LocalGameRunner.prototype.end = function (message) {
         window.location.href = "/lobby";
     };
-
-    LocalGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data("mousedown")) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o = 0; o < occupied.length; o++) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id !== null && typeof id !== "undefined") {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
     return LocalGameRunner;
 })();
 var NetworkedGameRunner = (function () {
@@ -1799,7 +1950,6 @@ var NetworkedGameRunner = (function () {
         this.actions = new Array();
         this.updateFPS = 10;
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         this.actionList = new Array();
         this.actionHistory = {};
         this.myId = id;
@@ -1813,21 +1963,21 @@ var NetworkedGameRunner = (function () {
         } else {
             playerNumber = 2;
         }
-        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         var that = this;
 
         $(document).mousedown(function (e) {
             if (e.which === 1) {
                 $(this).data("mousedown", true);
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.setSelection(coords);
                 that.myGame.unselectAll();
             } else if (e.which === 3) {
                 var units = Game.getUnits();
                 for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
-                        var tar = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                        var tar = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                         var a = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
                     }
@@ -1840,12 +1990,23 @@ var NetworkedGameRunner = (function () {
         });
 
         $(document).mouseup(function (e) {
+            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
+            for (var o = 0; o < occupied.length; o++) {
+                var id = Game.getGridLoc(occupied[o]);
+                if (id !== null && typeof id !== "undefined") {
+                    var unit = Utilities.findUnit(id, Game.getUnits());
+                    if (unit.player === that.myGame.getPlayerNumber()) {
+                        unit.selected = true;
+                    }
+                }
+            }
             $(this).data("mousedown", false);
         });
 
         $(document).mousemove(function (e) {
             if ($(this).data("mousedown")) {
-                var coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+                var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
             }
         });
@@ -1938,6 +2099,7 @@ var NetworkedGameRunner = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -1952,7 +2114,6 @@ var NetworkedGameRunner = (function () {
 
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
-            that.getSelection();
 
             if (!that.host) {
                 that.conn.send({ actions: that.actions, simTick: currentSimTick });
@@ -1970,8 +2131,9 @@ var NetworkedGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2019,23 +2181,6 @@ var NetworkedGameRunner = (function () {
             }
         });
     };
-
-    NetworkedGameRunner.prototype.getSelection = function () {
-        var that = this;
-        if ($(document).data("mousedown")) {
-            var selectionLoc = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o = 0; o < occupied.length; o++) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id != null) {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-        }
-    };
     return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
@@ -2045,7 +2190,6 @@ var ReplayGameRunner = (function () {
         this.DRAWGRID = false;
         this.actions = new Array();
         this.FPS = 60;
-        this.REAL_FPS = this.FPS;
         this.updateFPS = 10;
         this.actions = actions;
 
@@ -2053,7 +2197,7 @@ var ReplayGameRunner = (function () {
 
         this.myGame = new Game(true, id, "enemyId", "gameId");
 
-        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), this);
+        this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
         this.run();
 
@@ -2077,6 +2221,7 @@ var ReplayGameRunner = (function () {
         setInterval(function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
+            that.drawer.drawLowerMenu();
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -2102,8 +2247,9 @@ var ReplayGameRunner = (function () {
             diffTime2 = newTime2 - oldTime2;
             oldTime2 = newTime2;
             newTime2 = new Date().getTime();
-            that.REAL_FPS = Math.round(1000 / diffTime);
-            fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            var realFPS = Math.round(1000 / diffTime);
+            that.drawer.REAL_FPS = realFPS;
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 

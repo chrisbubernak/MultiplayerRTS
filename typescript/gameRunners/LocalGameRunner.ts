@@ -9,10 +9,11 @@ class LocalGameRunner implements IGameRunner {
   private actions: any [] = new Array();
   private updateFPS: number = 10;
   private FPS: number = 60;
-  private REAL_FPS: number = this.FPS;
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
+  private mouseX: number;
+  private mouseY: number;
 
   constructor() {
     var id: string = "Human";
@@ -26,6 +27,7 @@ class LocalGameRunner implements IGameRunner {
       document.getElementById("unitCanvas"),
       document.getElementById("fogCanvas"),
       document.getElementById("selectionCanvas"),
+      document.getElementById("menuCanvas"),
       this);
 
     this.run();
@@ -37,7 +39,7 @@ class LocalGameRunner implements IGameRunner {
       // on left click...
       if (e.which === 1) {
         $(this).data("mousedown", true);
-        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
         that.setSelection(coords);
         that.myGame.unselectAll();
       } else if (e.which === 3) {
@@ -45,7 +47,7 @@ class LocalGameRunner implements IGameRunner {
         var units: Unit[] = Game.getUnits();
         for (var u: number = 0;  u < units.length; u++) {
           if (units[u].selected) {
-            var tar: any = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+            var tar: any = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
             var a: Action = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
           }
@@ -53,17 +55,37 @@ class LocalGameRunner implements IGameRunner {
       }
     });
 
+    window.addEventListener("mousemove", function(e: any): void{
+      event = event || window.event;
+      that.mouseX = event.clientX;
+      that.mouseY = event.clientY;
+    });
+
     $(window).resize(function (): void {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
     $(document).mouseup(function (e: any): void {
+      // when we catch a mouse up event see what is in our selection
+      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
+        that.selection.w / that.drawer.getBoxWidth(),
+        that.selection.h / that.drawer.getBoxHeight());
+        for (var o: number = 0; o < occupied.length; o++) {
+          var id: number = Game.getGridLoc(occupied[o]);
+          if (id !== null && typeof id !== "undefined") {
+            var unit: Unit = Utilities.findUnit(id, Game.getUnits());
+            if (unit.player === that.myGame.getPlayerNumber()) {
+              unit.selected = true;
+            }
+          }
+        }
       $(this).data("mousedown", false);
     });
 
     $(document).mousemove(function (e: any): void {
       if ($(this).data("mousedown")) {
-        var coords: Coords = that.myGame.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
@@ -118,6 +140,7 @@ class LocalGameRunner implements IGameRunner {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
+      that.drawer.drawLowerMenu();
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();
@@ -135,7 +158,6 @@ class LocalGameRunner implements IGameRunner {
 
       var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
-      that.getSelection();
 
       that.myGame.applyActions(that.actions, currentSimTick);
       that.actions = new Array();
@@ -143,8 +165,9 @@ class LocalGameRunner implements IGameRunner {
       diffTime2 = newTime2 - oldTime2;
       oldTime2 = newTime2;
       newTime2 = new Date().getTime();
-      that.REAL_FPS = Math.round(1000 / diffTime);
-      fpsOut.innerHTML = that.REAL_FPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      var realFPS: number = Math.round(1000 / diffTime);
+      that.drawer.REAL_FPS = realFPS;
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 
@@ -168,25 +191,5 @@ class LocalGameRunner implements IGameRunner {
 
   public end(message: string): void {
     window.location.href = "/lobby";
-  }
-
-  public getSelection(): void {
-    var that: LocalGameRunner = this;
-    if ($(document).data("mousedown")) {
-      // create the selection
-      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
-      var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
-        that.selection.w / that.drawer.getBoxWidth(),
-        that.selection.h / that.drawer.getBoxHeight());
-      for (var o: number = 0; o < occupied.length; o++) {
-        var id: number = Game.getGridLoc(occupied[o]);
-        if (id !== null && typeof id !== "undefined") {
-          var unit: Unit = Utilities.findUnit(id, Game.getUnits());
-          if (unit.player === that.myGame.getPlayerNumber()) {
-            unit.selected = true;
-          }
-        }
-      }
-    }
   }
 }
