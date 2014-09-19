@@ -13,11 +13,11 @@ class Drawer {
   private HEALTH_BAR_OFFSET: number = 10;
   private HEALTH_BAR_HEIGHT: number = 5;
   private FOG: string = "black";
-
-  public REAL_FPS: number = 60;
-
+  private SCREEN_MOVE_DIST: number = 20;
+  private DIST_TO_TRIGGER_SCREEN_MOVE: number = 20;
 
   // globals
+  public REAL_FPS: number = 60;
   private boxWidth: number;
   private boxHeight: number;
   private winWidth: number;
@@ -38,6 +38,8 @@ class Drawer {
   private selectionContext: any;
   private playerNumber: number;
   private gameRunner: IGameRunner;
+  private viewPort: Rectangle;
+  
 
   constructor(
     playerNumber: number,
@@ -103,24 +105,27 @@ class Drawer {
       height = winHeight;
     } */
 
-    this.gameHeight = this.winHeight * 0.7;
-    this.gameWidth = this.winWidth * 1.0;
+    this.boxWidth = 30;//this.gameWidth / Game.getNumOfCols();
+    this.boxHeight = 30;//this.gameHeight / Game.getNumOfRows();
+
+    this.gameHeight = Game.getNumOfRows() * this.boxHeight; // this.winHeight * 0.7;
+    this.gameWidth = Game.getNumOfCols() * this.boxWidth; // this.winWidth * 1.0;
     this.menuHeight = this.winHeight * 0.3;
     this.menuWidth = this.winWidth * 1.0;
 
-    this.boxWidth = this.gameWidth / Game.getNumOfCols();
-    this.boxHeight = this.gameHeight / Game.getNumOfRows();
+    this.viewPort = new Rectangle(0, this.winWidth, 0, this.winHeight - this.menuHeight);
 
-    this.terrainCanvas.width = this.gameWidth;
-    this.terrainCanvas.height = this.gameHeight;
-    this.unitCanvas.width = this.gameWidth;
-    this.unitCanvas.height = this.gameHeight;
-    this.fogCanvas.width = this.gameWidth;
-    this.fogCanvas.height = this.gameHeight;
-    this.selectionCanvas.width = this.gameWidth;
-    this.selectionCanvas.height = this.gameHeight;
 
-    this.menuCanvas.style.top = this.gameHeight + "px";
+    this.terrainCanvas.width = this.winWidth;
+    this.terrainCanvas.height = this.winHeight;
+    this.unitCanvas.width = this.winWidth;
+    this.unitCanvas.height = this.winHeight;
+    this.fogCanvas.width = this.winWidth;
+    this.fogCanvas.height = this.winHeight;
+    this.selectionCanvas.width = this.winWidth;
+    this.selectionCanvas.height = this.winHeight;
+
+    this.menuCanvas.style.top = (this.winHeight - this.menuHeight) + "px";
     this.menuCanvas.width = this.menuWidth;
     this.menuCanvas.height = this.menuHeight;
 
@@ -153,8 +158,8 @@ class Drawer {
 
       if (units[i].player === this.playerNumber) {
         var coords: Coords = this.boxToCoords(units[i].loc);
-        var x: number = coords.x;
-        var y: number = coords.y;
+        var x: number = coords.x - this.viewPort.getLeft();
+        var y: number = coords.y - this.viewPort.getTop();
         // this stuff does the "sight" circles in the fog
         var r1: number = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
         var r2: number = r1 + 40;
@@ -199,8 +204,8 @@ class Drawer {
           tile.imageY,
           tile.imageW,
           tile.imageH,
-          that.boxToCoords(i).x,
-          that.boxToCoords(i).y,
+          that.boxToCoords(i).x - that.viewPort.getLeft(),
+          that.boxToCoords(i).y - that.viewPort.getTop(),
           that.getBoxWidth(),
           that.getBoxHeight());
       }
@@ -215,10 +220,10 @@ class Drawer {
       return { x: x, y: y };
   }
 
-  // given the row and col of a box this returns the box index
+  // given x and a y this returns the box index
   public coordsToBox(x: number, y: number): number {
-    var newX: number = Math.floor((x % this.gameWidth) / this.getBoxWidth());
-    var newY: number = Math.floor((y % this.gameHeight) / this.getBoxHeight());
+    var newX: number = Math.floor(x % this.gameWidth / this.getBoxWidth());
+    var newY: number = Math.floor(y % this.gameHeight / this.getBoxHeight());
     var boxNumber: number = newX + Game.getNumOfCols() * newY;
     return boxNumber;
   }
@@ -263,7 +268,7 @@ class Drawer {
   }
 
   public drawGrid(): void {
-    this.drawTerrain();
+    /* this.drawTerrain();
     this.terrainContext.strokeStyle = this.GREEN;
     for (var i: number = 0; i <= Game.getNumOfCols(); i++) {
       this.terrainContext.moveTo(i * this.getBoxWidth(), 0);
@@ -274,7 +279,8 @@ class Drawer {
       this.terrainContext.moveTo(0, j * this.getBoxHeight());
       this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
       this.terrainContext.stroke();
-    }
+    } */
+    alert("UNCOMMENT ME PLEASE!");
   }
 
   private drawUnit(unit: Unit): void {
@@ -288,8 +294,8 @@ class Drawer {
       unit.x = unitCoords.x;
       unit.y = unitCoords.y;
     }
-    x = unit.x;
-    y = unit.y;
+    x = unit.x - this.viewPort.getLeft();
+    y = unit.y - this.viewPort.getTop();
     var coords: Coords = unit.getDrawCoordinates();
     if (typeof unit.getImage() !== "undefined") {
       this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
@@ -375,10 +381,42 @@ class Drawer {
 
   public getMousePos(canvas: any, evt: any): any {
     var rect: any = canvas.getBoundingClientRect();
-    return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
-    };
+    var x: number = evt.clientX - rect.left;
+    var y: number = evt.clientY - rect.top;
+    return {x: x, y: y};
+  }
+
+  public moveViewPort(x: number, y: number): void {
+    var oldViewPort: Rectangle = this.viewPort;
+    var left: number = oldViewPort.getLeft();
+    var right: number = oldViewPort.getRight();
+    var top: number = oldViewPort.getTop();
+    var bottom: number  = oldViewPort.getBottom();
+    var needsUpdate: boolean = false;
+    if (x < this.DIST_TO_TRIGGER_SCREEN_MOVE && left > 0) {
+      left-=this.SCREEN_MOVE_DIST;
+      right-=this.SCREEN_MOVE_DIST;
+      needsUpdate = true;
+    } if (x > (this.viewPort.getWidth() - this.DIST_TO_TRIGGER_SCREEN_MOVE) && right < this.gameWidth) {
+      left+=this.SCREEN_MOVE_DIST;
+      right+=this.SCREEN_MOVE_DIST;
+      needsUpdate = true;
+    } if (y < this.DIST_TO_TRIGGER_SCREEN_MOVE && top > 0) {
+      top-=this.SCREEN_MOVE_DIST;
+      bottom-=this.SCREEN_MOVE_DIST;
+      needsUpdate = true;
+    } if (y > this.viewPort.getHeight() - this.DIST_TO_TRIGGER_SCREEN_MOVE &&
+        (y < this.viewPort.getHeight()) && 
+        bottom < this.gameHeight) {
+      top+=this.SCREEN_MOVE_DIST;
+      bottom+=this.SCREEN_MOVE_DIST;
+      needsUpdate = true;
+    } 
+
+    if (needsUpdate) {
+      this.viewPort = new Rectangle(left, right, top, bottom);
+      this.drawTerrain();
+    }
   }
 
   public drawLowerMenu(): void {
@@ -388,7 +426,7 @@ class Drawer {
     this.menuContext.strokeStyle = "red";
     this.menuContext.rect(0, 0, this.menuWidth, this.menuHeight);
     this.menuContext.moveTo(this.menuHeight, 0);
-    this.menuContext.lineTo(this.menuHeight, this.gameHeight);
+    this.menuContext.lineTo(this.menuHeight, this.winHeight - this.menuHeight);
     this.menuContext.stroke();
 
     var selectedUnits: Unit[] = Array();

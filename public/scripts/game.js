@@ -566,6 +566,8 @@ var Drawer = (function () {
         this.HEALTH_BAR_OFFSET = 10;
         this.HEALTH_BAR_HEIGHT = 5;
         this.FOG = "black";
+        this.SCREEN_MOVE_DIST = 20;
+        this.DIST_TO_TRIGGER_SCREEN_MOVE = 20;
         this.REAL_FPS = 60;
         this.playerNumber = playerNumber;
         this.gameRunner = gameRunner;
@@ -609,24 +611,26 @@ var Drawer = (function () {
         this.winWidth = $(window).width();
         this.winHeight = $(window).height();
 
-        this.gameHeight = this.winHeight * 0.7;
-        this.gameWidth = this.winWidth * 1.0;
+        this.boxWidth = 30;
+        this.boxHeight = 30;
+
+        this.gameHeight = Game.getNumOfRows() * this.boxHeight;
+        this.gameWidth = Game.getNumOfCols() * this.boxWidth;
         this.menuHeight = this.winHeight * 0.3;
         this.menuWidth = this.winWidth * 1.0;
 
-        this.boxWidth = this.gameWidth / Game.getNumOfCols();
-        this.boxHeight = this.gameHeight / Game.getNumOfRows();
+        this.viewPort = new Rectangle(0, this.winWidth, 0, this.winHeight - this.menuHeight);
 
-        this.terrainCanvas.width = this.gameWidth;
-        this.terrainCanvas.height = this.gameHeight;
-        this.unitCanvas.width = this.gameWidth;
-        this.unitCanvas.height = this.gameHeight;
-        this.fogCanvas.width = this.gameWidth;
-        this.fogCanvas.height = this.gameHeight;
-        this.selectionCanvas.width = this.gameWidth;
-        this.selectionCanvas.height = this.gameHeight;
+        this.terrainCanvas.width = this.winWidth;
+        this.terrainCanvas.height = this.winHeight;
+        this.unitCanvas.width = this.winWidth;
+        this.unitCanvas.height = this.winHeight;
+        this.fogCanvas.width = this.winWidth;
+        this.fogCanvas.height = this.winHeight;
+        this.selectionCanvas.width = this.winWidth;
+        this.selectionCanvas.height = this.winHeight;
 
-        this.menuCanvas.style.top = this.gameHeight + "px";
+        this.menuCanvas.style.top = (this.winHeight - this.menuHeight) + "px";
         this.menuCanvas.width = this.menuWidth;
         this.menuCanvas.height = this.menuHeight;
 
@@ -656,8 +660,8 @@ var Drawer = (function () {
 
             if (units[i].player === this.playerNumber) {
                 var coords = this.boxToCoords(units[i].loc);
-                var x = coords.x;
-                var y = coords.y;
+                var x = coords.x - this.viewPort.getLeft();
+                var y = coords.y - this.viewPort.getTop();
 
                 var r1 = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
                 var r2 = r1 + 40;
@@ -692,7 +696,7 @@ var Drawer = (function () {
             var gridSize = Game.getNumOfRows() * Game.getNumOfCols();
             for (var i = 0; i < gridSize; i++) {
                 var tile = Game.getTerrainLoc(i);
-                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x, that.boxToCoords(i).y, that.getBoxWidth(), that.getBoxHeight());
+                that.terrainContext.drawImage(image, tile.imageX, tile.imageY, tile.imageW, tile.imageH, that.boxToCoords(i).x - that.viewPort.getLeft(), that.boxToCoords(i).y - that.viewPort.getTop(), that.getBoxWidth(), that.getBoxHeight());
             }
         };
         image.src = src;
@@ -705,8 +709,8 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.coordsToBox = function (x, y) {
-        var newX = Math.floor((x % this.gameWidth) / this.getBoxWidth());
-        var newY = Math.floor((y % this.gameHeight) / this.getBoxHeight());
+        var newX = Math.floor(x % this.gameWidth / this.getBoxWidth());
+        var newY = Math.floor(y % this.gameHeight / this.getBoxHeight());
         var boxNumber = newX + Game.getNumOfCols() * newY;
         return boxNumber;
     };
@@ -735,18 +739,7 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawGrid = function () {
-        this.drawTerrain();
-        this.terrainContext.strokeStyle = this.GREEN;
-        for (var i = 0; i <= Game.getNumOfCols(); i++) {
-            this.terrainContext.moveTo(i * this.getBoxWidth(), 0);
-            this.terrainContext.lineTo(i * this.getBoxWidth(), this.gameHeight);
-            this.terrainContext.stroke();
-        }
-        for (var j = 0; j <= Game.getNumOfRows(); j++) {
-            this.terrainContext.moveTo(0, j * this.getBoxHeight());
-            this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
-            this.terrainContext.stroke();
-        }
+        alert("UNCOMMENT ME PLEASE!");
     };
 
     Drawer.prototype.drawUnit = function (unit) {
@@ -757,8 +750,8 @@ var Drawer = (function () {
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
         }
-        x = unit.x;
-        y = unit.y;
+        x = unit.x - this.viewPort.getLeft();
+        y = unit.y - this.viewPort.getTop();
         var coords = unit.getDrawCoordinates();
         if (typeof unit.getImage() !== "undefined") {
             this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
@@ -830,10 +823,43 @@ var Drawer = (function () {
 
     Drawer.prototype.getMousePos = function (canvas, evt) {
         var rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top
-        };
+        var x = evt.clientX - rect.left;
+        var y = evt.clientY - rect.top;
+        return { x: x, y: y };
+    };
+
+    Drawer.prototype.moveViewPort = function (x, y) {
+        var oldViewPort = this.viewPort;
+        var left = oldViewPort.getLeft();
+        var right = oldViewPort.getRight();
+        var top = oldViewPort.getTop();
+        var bottom = oldViewPort.getBottom();
+        var needsUpdate = false;
+        if (x < this.DIST_TO_TRIGGER_SCREEN_MOVE && left > 0) {
+            left -= this.SCREEN_MOVE_DIST;
+            right -= this.SCREEN_MOVE_DIST;
+            needsUpdate = true;
+        }
+        if (x > (this.viewPort.getWidth() - this.DIST_TO_TRIGGER_SCREEN_MOVE) && right < this.gameWidth) {
+            left += this.SCREEN_MOVE_DIST;
+            right += this.SCREEN_MOVE_DIST;
+            needsUpdate = true;
+        }
+        if (y < this.DIST_TO_TRIGGER_SCREEN_MOVE && top > 0) {
+            top -= this.SCREEN_MOVE_DIST;
+            bottom -= this.SCREEN_MOVE_DIST;
+            needsUpdate = true;
+        }
+        if (y > this.viewPort.getHeight() - this.DIST_TO_TRIGGER_SCREEN_MOVE && (y < this.viewPort.getHeight()) && bottom < this.gameHeight) {
+            top += this.SCREEN_MOVE_DIST;
+            bottom += this.SCREEN_MOVE_DIST;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+            this.viewPort = new Rectangle(left, right, top, bottom);
+            this.drawTerrain();
+        }
     };
 
     Drawer.prototype.drawLowerMenu = function () {
@@ -842,7 +868,7 @@ var Drawer = (function () {
         this.menuContext.strokeStyle = "red";
         this.menuContext.rect(0, 0, this.menuWidth, this.menuHeight);
         this.menuContext.moveTo(this.menuHeight, 0);
-        this.menuContext.lineTo(this.menuHeight, this.gameHeight);
+        this.menuContext.lineTo(this.menuHeight, this.winHeight - this.menuHeight);
         this.menuContext.stroke();
 
         var selectedUnits = Array();
@@ -1815,12 +1841,6 @@ var LocalGameRunner = (function () {
             }
         });
 
-        window.addEventListener("mousemove", function (e) {
-            event = event || window.event;
-            that.mouseX = event.clientX;
-            that.mouseY = event.clientY;
-        });
-
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
@@ -1841,6 +1861,8 @@ var LocalGameRunner = (function () {
         });
 
         $(document).mousemove(function (e) {
+            that.mouseX = e.clientX;
+            that.mouseY = e.clientY;
             if ($(this).data("mousedown")) {
                 var coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
                 that.updateSelection(that.selection, coords.x, coords.y);
@@ -1891,6 +1913,7 @@ var LocalGameRunner = (function () {
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
             that.drawer.drawLowerMenu();
+            that.drawer.moveViewPort(that.mouseX, that.mouseY);
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();

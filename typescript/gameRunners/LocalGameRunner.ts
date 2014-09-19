@@ -55,12 +55,6 @@ class LocalGameRunner implements IGameRunner {
       }
     });
 
-    window.addEventListener("mousemove", function(e: any): void{
-      event = event || window.event;
-      that.mouseX = event.clientX;
-      that.mouseY = event.clientY;
-    });
-
     $(window).resize(function (): void {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
@@ -84,6 +78,8 @@ class LocalGameRunner implements IGameRunner {
     });
 
     $(document).mousemove(function (e: any): void {
+      that.mouseX = e.clientX;
+      that.mouseY = e.clientY;
       if ($(this).data("mousedown")) {
         var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
         that.updateSelection(that.selection, coords.x, coords.y);
@@ -141,6 +137,7 @@ class LocalGameRunner implements IGameRunner {
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
       that.drawer.drawLowerMenu();
+      that.drawer.moveViewPort(that.mouseX, that.mouseY);
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();
