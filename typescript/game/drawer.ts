@@ -39,7 +39,6 @@ class Drawer {
   private playerNumber: number;
   private gameRunner: IGameRunner;
   private viewPort: Rectangle;
-  
 
   constructor(
     playerNumber: number,
@@ -78,8 +77,8 @@ class Drawer {
   public interpolate(): void {
     var units: Unit[] = Game.getUnits();
     for (var i: number = 0; i < units.length; i++) {
-      var oldCoords:  Coords = this.boxToCoords(units[i].prevLoc);
-      var coords: Coords = this.boxToCoords(units[i].loc);
+      var oldCoords:  Coords = this.mapLocToMapCoords(units[i].prevLoc);
+      var coords: Coords = this.mapLocToMapCoords(units[i].loc);
       units[i].x -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.x - coords.x)) / (units[i].moveSpeed + 1);
       units[i].y -= ((1 / (this.REAL_FPS / this.UPDATE_FPS)) * (oldCoords.y - coords.y)) / (units[i].moveSpeed + 1);
       if (units[i].prevLoc === units[i].loc) {
@@ -105,8 +104,8 @@ class Drawer {
       height = winHeight;
     } */
 
-    this.boxWidth = 30;//this.gameWidth / Game.getNumOfCols();
-    this.boxHeight = 30;//this.gameHeight / Game.getNumOfRows();
+    this.boxWidth = 30;
+    this.boxHeight = 30;
 
     this.gameHeight = Game.getNumOfRows() * this.boxHeight; // this.winHeight * 0.7;
     this.gameWidth = Game.getNumOfCols() * this.boxWidth; // this.winWidth * 1.0;
@@ -157,9 +156,9 @@ class Drawer {
 
 
       if (units[i].player === this.playerNumber) {
-        var coords: Coords = this.boxToCoords(units[i].loc);
-        var x: number = coords.x - this.viewPort.getLeft();
-        var y: number = coords.y - this.viewPort.getTop();
+        var coords: Coords = this.mapLocToScreenCoords(units[i].loc);
+        var x: number = coords.x;
+        var y: number = coords.y;
         // this stuff does the "sight" circles in the fog
         var r1: number = units[i].sightRange * Math.max(this.getBoxWidth(), this.getBoxHeight());
         var r2: number = r1 + 40;
@@ -204,8 +203,8 @@ class Drawer {
           tile.imageY,
           tile.imageW,
           tile.imageH,
-          that.boxToCoords(i).x - that.viewPort.getLeft(),
-          that.boxToCoords(i).y - that.viewPort.getTop(),
+          that.mapLocToScreenCoords(i).x,
+          that.mapLocToScreenCoords(i).y,
           that.getBoxWidth(),
           that.getBoxHeight());
       }
@@ -213,24 +212,37 @@ class Drawer {
     image.src = src;
   }
 
-  // returns the upper left corner of the box given its index
-  public boxToCoords(i: number): any {
-    var y: number = Math.floor(i / Game.getNumOfCols()) * this.getBoxHeight();
-    var x: number = i % Game.getNumOfCols() * this.getBoxWidth();
-      return { x: x, y: y };
+  public mapCoordsToMapLoc(coords: Coords): number {
+    var newX: number = Math.floor((coords.x % this.gameWidth / this.getBoxWidth()));
+    var newY: number = Math.floor((coords.y % this.gameHeight / this.getBoxHeight()));
+    return newX + Game.getNumOfCols() * newY;
   }
 
-  // given x and a y this returns the box index
-  public coordsToBox(x: number, y: number): number {
-    var newX: number = Math.floor(x % this.gameWidth / this.getBoxWidth());
-    var newY: number = Math.floor(y % this.gameHeight / this.getBoxHeight());
-    var boxNumber: number = newX + Game.getNumOfCols() * newY;
-    return boxNumber;
+  public screenCoordsToMapCoords(coords: Coords): Coords {
+    return new Coords(coords.x + this.viewPort.getLeft(), coords.y + this.viewPort.getTop());
+  }
+
+  public mapCoordsToScreenCoords(coords: Coords): Coords {
+    return new Coords(coords.x - this.viewPort.getLeft(), coords.y - this.viewPort.getTop());
+  }
+
+  public screenCoordsToMapLoc(coords: Coords): number {
+    return this.mapCoordsToMapLoc(this.screenCoordsToMapCoords(coords));
+  }
+
+  public mapLocToMapCoords(loc: number): Coords {
+    var y: number = Math.floor(loc / Game.getNumOfCols()) * this.getBoxHeight();
+    var x: number = loc % Game.getNumOfCols() * this.getBoxWidth();
+    return new Coords(x, y);
+  }
+
+  public mapLocToScreenCoords(loc: number): Coords {
+    return this.mapCoordsToScreenCoords(this.mapLocToMapCoords(loc));
   }
 
   // debugging function...just colors a specified grid loc with a color
   public drawSquare(loc: number, color: string): void {
-    var coords: Coords = this.boxToCoords(loc);
+    var coords: Coords = this.mapLocToScreenCoords(loc);
     this.fogContext.fillStyle = color;
     this.fogContext.fillRect(coords.x,
       coords.y,
@@ -245,7 +257,7 @@ class Drawer {
 
   // used for debugging a* pathing
   public drawPathing(loc: number, color: string, val: number): void {
-    var coords: Coords = this.boxToCoords(loc);
+    var coords: Coords = this.mapLocToScreenCoords(loc);
     this.selectionContext.fillStyle = color;
     this.selectionContext.fillRect(coords.x,
       coords.y,
@@ -290,12 +302,13 @@ class Drawer {
       // this is pretty hacky storing x & y info on units 
       // (which arean't supposed to know about this kind of info
       // ...but it will have to do for now)
-      var unitCoords: Coords = this.boxToCoords(unit.loc);
+      var unitCoords: Coords = this.mapLocToScreenCoords(unit.loc);
       unit.x = unitCoords.x;
       unit.y = unitCoords.y;
     }
-    x = unit.x - this.viewPort.getLeft();
-    y = unit.y - this.viewPort.getTop();
+    coords = this.mapCoordsToScreenCoords(new Coords(unit.x, unit.y));
+    x = coords.x;
+    y = coords.y;
     var coords: Coords = unit.getDrawCoordinates();
     if (typeof unit.getImage() !== "undefined") {
       this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
@@ -380,10 +393,9 @@ class Drawer {
   }
 
   public getMousePos(canvas: any, evt: any): any {
-    var rect: any = canvas.getBoundingClientRect();
-    var x: number = evt.clientX - rect.left;
-    var y: number = evt.clientY - rect.top;
-    return {x: x, y: y};
+    var x: number = evt.clientX - this.viewPort.getLeft();
+    var y: number = evt.clientY - this.viewPort.getTop();
+    return new Coords(x, y);
   }
 
   public moveViewPort(x: number, y: number): void {
@@ -394,25 +406,25 @@ class Drawer {
     var bottom: number  = oldViewPort.getBottom();
     var needsUpdate: boolean = false;
     if (x < this.DIST_TO_TRIGGER_SCREEN_MOVE && left > 0) {
-      left-=this.SCREEN_MOVE_DIST;
-      right-=this.SCREEN_MOVE_DIST;
+      left -= this.SCREEN_MOVE_DIST;
+      right -= this.SCREEN_MOVE_DIST;
       needsUpdate = true;
     } if (x > (this.viewPort.getWidth() - this.DIST_TO_TRIGGER_SCREEN_MOVE) && right < this.gameWidth) {
-      left+=this.SCREEN_MOVE_DIST;
-      right+=this.SCREEN_MOVE_DIST;
+      left += this.SCREEN_MOVE_DIST;
+      right += this.SCREEN_MOVE_DIST;
       needsUpdate = true;
     } if (y < this.DIST_TO_TRIGGER_SCREEN_MOVE && top > 0) {
-      top-=this.SCREEN_MOVE_DIST;
-      bottom-=this.SCREEN_MOVE_DIST;
+      top -= this.SCREEN_MOVE_DIST;
+      bottom -= this.SCREEN_MOVE_DIST;
       needsUpdate = true;
     } if (y > this.viewPort.getHeight() - this.DIST_TO_TRIGGER_SCREEN_MOVE &&
-        (y < this.viewPort.getHeight()) && 
+        (y < this.viewPort.getHeight()) &&
         bottom < this.gameHeight) {
-      top+=this.SCREEN_MOVE_DIST;
-      bottom+=this.SCREEN_MOVE_DIST;
+      top += this.SCREEN_MOVE_DIST;
+      bottom += this.SCREEN_MOVE_DIST;
       needsUpdate = true;
-    } 
-
+    }
+    console.log(left + " " + right + " " + x);
     if (needsUpdate) {
       this.viewPort = new Rectangle(left, right, top, bottom);
       this.drawTerrain();

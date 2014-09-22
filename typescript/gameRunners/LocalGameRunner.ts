@@ -39,7 +39,8 @@ class LocalGameRunner implements IGameRunner {
       // on left click...
       if (e.which === 1) {
         $(this).data("mousedown", true);
-        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.screenCoordsToMapCoords(
+          that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
         that.setSelection(coords);
         that.myGame.unselectAll();
       } else if (e.which === 3) {
@@ -47,8 +48,9 @@ class LocalGameRunner implements IGameRunner {
         var units: Unit[] = Game.getUnits();
         for (var u: number = 0;  u < units.length; u++) {
           if (units[u].selected) {
-            var tar: any = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
-            var a: Action = new Action(that.drawer.coordsToBox(tar.x, tar.y), Game.getUnits()[u].id, that.shifted);
+            var tar: Coords = that.drawer.screenCoordsToMapCoords(
+              that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
+            var a: Action = new Action(that.drawer.mapCoordsToMapLoc(tar), Game.getUnits()[u].id, that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
           }
         }
@@ -61,7 +63,7 @@ class LocalGameRunner implements IGameRunner {
 
     $(document).mouseup(function (e: any): void {
       // when we catch a mouse up event see what is in our selection
-      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var selectionLoc: number = that.drawer.mapCoordsToMapLoc(new Coords(that.selection.x, that.selection.y));
       var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
         that.selection.w / that.drawer.getBoxWidth(),
         that.selection.h / that.drawer.getBoxHeight());
@@ -81,7 +83,8 @@ class LocalGameRunner implements IGameRunner {
       that.mouseX = e.clientX;
       that.mouseY = e.clientY;
       if ($(this).data("mousedown")) {
-        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.screenCoordsToMapCoords(
+          that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
