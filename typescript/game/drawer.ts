@@ -38,7 +38,8 @@ class Drawer {
   private selectionContext: any;
   private playerNumber: number;
   private gameRunner: IGameRunner;
-  private viewPort: Rectangle;
+  
+  public viewPort: Rectangle;
 
   constructor(
     playerNumber: number,
@@ -213,8 +214,11 @@ class Drawer {
   }
 
   public mapCoordsToMapLoc(coords: Coords): number {
-    var newX: number = Math.floor((coords.x % this.gameWidth / this.getBoxWidth()));
-    var newY: number = Math.floor((coords.y % this.gameHeight / this.getBoxHeight()));
+    var newX: number = Math.floor(coords.x / this.getBoxWidth());
+    var newY: number = Math.floor(coords.y / this.getBoxHeight());
+    // var newX: number = Math.floor((coords.x % this.gameWidth / this.getBoxWidth()));
+    // var newY: number = Math.floor((coords.y % this.gameHeight / this.getBoxHeight()));
+
     return newX + Game.getNumOfCols() * newY;
   }
 
@@ -270,10 +274,11 @@ class Drawer {
   }
 
   public drawSelect(selection: SelectionObject): void {
+    var screenCoords = this.mapCoordsToScreenCoords(new Coords(selection.x, selection.y));
     this.selectionContext.globalAlpha = 0.3;
     this.selectionContext.fillStyle = this.GREEN;
-    this.selectionContext.fillRect(selection.x,
-      selection.y,
+    this.selectionContext.fillRect(screenCoords.x,
+      screenCoords.y,
       selection.w,
       selection.h);
     this.selectionContext.globalAlpha = 1;
@@ -392,9 +397,10 @@ class Drawer {
     this.unitContext.fillText(text, unit.x, unit.y + this.HEALTH_BAR_OFFSET);
   }
 
+  //  returns the mouse coordinates (relative to the screen)
   public getMousePos(canvas: any, evt: any): any {
-    var x: number = evt.clientX - this.viewPort.getLeft();
-    var y: number = evt.clientY - this.viewPort.getTop();
+    var x: number = evt.clientX;
+    var y: number = evt.clientY;
     return new Coords(x, y);
   }
 
@@ -424,7 +430,6 @@ class Drawer {
       bottom += this.SCREEN_MOVE_DIST;
       needsUpdate = true;
     }
-    console.log(left + " " + right + " " + x);
     if (needsUpdate) {
       this.viewPort = new Rectangle(left, right, top, bottom);
       this.drawTerrain();

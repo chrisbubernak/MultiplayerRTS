@@ -48,9 +48,9 @@ class LocalGameRunner implements IGameRunner {
         var units: Unit[] = Game.getUnits();
         for (var u: number = 0;  u < units.length; u++) {
           if (units[u].selected) {
-            var tar: Coords = that.drawer.screenCoordsToMapCoords(
+            var tar: number = that.drawer.screenCoordsToMapLoc(
               that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-            var a: Action = new Action(that.drawer.mapCoordsToMapLoc(tar), Game.getUnits()[u].id, that.shifted);
+            var a: Action = new Action(tar, Game.getUnits()[u].id, that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
           }
         }
@@ -167,7 +167,9 @@ class LocalGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>"
+        + that.drawer.viewPort.getLeft() + " " + that.drawer.viewPort.getRight() + "<br>" +
+        + that.drawer.viewPort.getTop() + " " + that.drawer.viewPort.getBottom();
     }, 1000 / (that.updateFPS));
   }
 

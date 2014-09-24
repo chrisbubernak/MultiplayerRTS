@@ -189,7 +189,7 @@ class Game {
             unit.command = new WalkCommand(unitTarget.loc);
           } else if (!isEnemy && isVisible) {
             // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
-            alert("issue a follow command");
+            alert("issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
           } else {
             alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
           }
