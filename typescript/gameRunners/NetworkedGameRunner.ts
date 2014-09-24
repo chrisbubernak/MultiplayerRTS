@@ -25,7 +25,9 @@ class NetworkedGameRunner implements IGameRunner {
   private drawer: Drawer;
   private gameId: string;
   private myId: string;
-
+  private mouseX: number;
+  private mouseY: number;
+  
   constructor(id: string, enemyId: string, host: boolean, gameId: string) {
     this.myId = id;
     this.gameId = gameId;
@@ -61,10 +63,9 @@ class NetworkedGameRunner implements IGameRunner {
         var units: Unit[] = Game.getUnits();
         for (var u: number = 0; u < units.length; u++) {
           if (units[u].selected) {
-            // todo: create a custom class for the return of getMousePos
-            var tar: Coords = that.drawer.screenCoordsToMapCoords(
+            var tar: number = that.drawer.screenCoordsToMapLoc(
               that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-            var a: Action = new Action(that.drawer.mapCoordsToMapLoc(tar),
+            var a: Action = new Action(tar,
               Game.getUnits()[u].id,
               that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
@@ -96,6 +97,8 @@ class NetworkedGameRunner implements IGameRunner {
     });
 
     $(document).mousemove(function (e: any): void {
+      that.mouseX = e.clientX;
+      that.mouseY = e.clientY;
       if ($(this).data("mousedown")) {
         var coords: Coords = that.drawer.screenCoordsToMapCoords(
           that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
@@ -204,6 +207,7 @@ class NetworkedGameRunner implements IGameRunner {
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
       that.drawer.drawLowerMenu();
+      that.drawer.moveViewPort(that.mouseX, that.mouseY);
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();

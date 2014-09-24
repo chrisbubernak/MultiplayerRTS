@@ -1954,7 +1954,7 @@ var LocalGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>" + that.drawer.viewPort.getLeft() + " " + that.drawer.viewPort.getRight() + "<br>" + +that.drawer.viewPort.getTop() + " " + that.drawer.viewPort.getBottom();
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2016,8 +2016,8 @@ var NetworkedGameRunner = (function () {
                 var units = Game.getUnits();
                 for (var u = 0; u < units.length; u++) {
                     if (units[u].selected) {
-                        var tar = that.drawer.screenCoordsToMapCoords(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-                        var a = new Action(that.drawer.mapCoordsToMapLoc(tar), Game.getUnits()[u].id, that.shifted);
+                        var tar = that.drawer.screenCoordsToMapLoc(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
+                        var a = new Action(tar, Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
                     }
                 }
@@ -2044,6 +2044,8 @@ var NetworkedGameRunner = (function () {
         });
 
         $(document).mousemove(function (e) {
+            that.mouseX = e.clientX;
+            that.mouseY = e.clientY;
             if ($(this).data("mousedown")) {
                 var coords = that.drawer.screenCoordsToMapCoords(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
                 that.updateSelection(that.selection, coords.x, coords.y);
@@ -2139,6 +2141,7 @@ var NetworkedGameRunner = (function () {
             that.drawer.drawUnits(Game.getUnits());
             that.drawSelect();
             that.drawer.drawLowerMenu();
+            that.drawer.moveViewPort(that.mouseX, that.mouseY);
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();
@@ -2244,6 +2247,11 @@ var ReplayGameRunner = (function () {
         $(window).resize(function () {
             that.drawer.updateDimensions($(window).width(), $(window).height());
         });
+
+        $(document).mousemove(function (e) {
+            that.mouseX = e.clientX;
+            that.mouseY = e.clientY;
+        });
     }
     ReplayGameRunner.prototype.run = function () {
         this.myGame.setup();
@@ -2261,6 +2269,7 @@ var ReplayGameRunner = (function () {
             that.drawer.interpolate();
             that.drawer.drawUnits(Game.getUnits());
             that.drawer.drawLowerMenu();
+            that.drawer.moveViewPort(that.mouseX, that.mouseY);
             diffTime = newTime - oldTime;
             oldTime = newTime;
             newTime = new Date().getTime();

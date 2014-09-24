@@ -38,8 +38,7 @@ class Drawer {
   private selectionContext: any;
   private playerNumber: number;
   private gameRunner: IGameRunner;
-  
-  public viewPort: Rectangle;
+  private viewPort: Rectangle;
 
   constructor(
     playerNumber: number,

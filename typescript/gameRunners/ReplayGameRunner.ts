@@ -10,6 +10,8 @@ class ReplayGameRunner implements IGameRunner {
   private FPS: number = 60;
   private drawer: Drawer;
   private updateFPS: number = 10;
+  private mouseX: number;
+  private mouseY: number;
 
   constructor(actions: any[]) {
     this.actions = actions;
@@ -33,6 +35,11 @@ class ReplayGameRunner implements IGameRunner {
       that.drawer.updateDimensions($(window).width(), $(window).height());
     });
 
+    $(document).mousemove(function (e: any): void {
+      that.mouseX = e.clientX;
+      that.mouseY = e.clientY;
+    });
+
   }
 
   public run(): void {
@@ -53,6 +60,7 @@ class ReplayGameRunner implements IGameRunner {
       that.drawer.interpolate();
       that.drawer.drawUnits(Game.getUnits());
       that.drawer.drawLowerMenu();
+      that.drawer.moveViewPort(that.mouseX, that.mouseY);
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();

@@ -167,9 +167,7 @@ class LocalGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>"
-        + that.drawer.viewPort.getLeft() + " " + that.drawer.viewPort.getRight() + "<br>" +
-        + that.drawer.viewPort.getTop() + " " + that.drawer.viewPort.getBottom();
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
     }, 1000 / (that.updateFPS));
   }
 
