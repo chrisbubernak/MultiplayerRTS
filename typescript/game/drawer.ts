@@ -273,7 +273,7 @@ class Drawer {
   }
 
   public drawSelect(selection: SelectionObject): void {
-    var screenCoords = this.mapCoordsToScreenCoords(new Coords(selection.x, selection.y));
+    var screenCoords: Coords = this.mapCoordsToScreenCoords(new Coords(selection.x, selection.y));
     this.selectionContext.globalAlpha = 0.3;
     this.selectionContext.fillStyle = this.GREEN;
     this.selectionContext.fillRect(screenCoords.x,
@@ -310,9 +310,9 @@ class Drawer {
       unit.x = unitCoords.x;
       unit.y = unitCoords.y;
     }
-    coords = this.mapCoordsToScreenCoords(new Coords(unit.x, unit.y));
-    x = coords.x;
-    y = coords.y;
+    var mapCoords: Coords = this.mapCoordsToScreenCoords(new Coords(unit.x, unit.y));
+    x = mapCoords.x;
+    y = mapCoords.y;
     var coords: Coords = unit.getDrawCoordinates();
     if (typeof unit.getImage() !== "undefined") {
       this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());

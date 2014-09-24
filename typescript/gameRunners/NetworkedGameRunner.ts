@@ -27,7 +27,7 @@ class NetworkedGameRunner implements IGameRunner {
   private myId: string;
   private mouseX: number;
   private mouseY: number;
-  
+
   constructor(id: string, enemyId: string, host: boolean, gameId: string) {
     this.myId = id;
     this.gameId = gameId;
