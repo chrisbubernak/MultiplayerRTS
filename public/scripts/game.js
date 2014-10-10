@@ -767,9 +767,9 @@ var Drawer = (function () {
             unit.x = unitCoords.x;
             unit.y = unitCoords.y;
         }
-        coords = this.mapCoordsToScreenCoords(new Coords(unit.x, unit.y));
-        x = coords.x;
-        y = coords.y;
+        var mapCoords = this.mapCoordsToScreenCoords(new Coords(unit.x, unit.y));
+        x = mapCoords.x;
+        y = mapCoords.y;
         var coords = unit.getDrawCoordinates();
         if (typeof unit.getImage() !== "undefined") {
             this.unitContext.drawImage(unit.getImage(), coords.x, coords.y, unit.imageW, unit.imageH, x, y, this.unitWidth(), this.unitHeight());
@@ -1954,7 +1954,7 @@ var LocalGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2175,7 +2175,7 @@ var NetworkedGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2297,7 +2297,7 @@ var ReplayGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
         }, 1000 / (that.updateFPS));
     };
 

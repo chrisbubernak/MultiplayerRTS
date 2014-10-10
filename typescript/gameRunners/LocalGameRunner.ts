@@ -1,4 +1,4 @@
-﻿/// <reference path="IGameRunner.ts" />
+/// <reference path="IGameRunner.ts" />
 
 class LocalGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
@@ -167,7 +167,8 @@ class LocalGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " +
+        Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
     }, 1000 / (that.updateFPS));
   }
 

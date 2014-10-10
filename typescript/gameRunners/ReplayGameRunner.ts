@@ -90,8 +90,9 @@ class ReplayGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
-    }, 1000 / (that.updateFPS));
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " +
+        Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
+      }, 1000 / (that.updateFPS));
   }
 
   public end(message: string): void {
