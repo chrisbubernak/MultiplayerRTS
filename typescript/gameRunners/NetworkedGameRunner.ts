@@ -25,6 +25,8 @@ class NetworkedGameRunner implements IGameRunner {
   private drawer: Drawer;
   private gameId: string;
   private myId: string;
+  private mouseX: number;
+  private mouseY: number;
 
   constructor(id: string, enemyId: string, host: boolean, gameId: string) {
     this.myId = id;
@@ -52,7 +54,8 @@ class NetworkedGameRunner implements IGameRunner {
       // on left click...
       if (e.which === 1) {
         $(this).data("mousedown", true);
-        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.screenCoordsToMapCoords(
+          that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
         that.setSelection(coords);
         that.myGame.unselectAll();
       } else if (e.which === 3) {
@@ -60,9 +63,9 @@ class NetworkedGameRunner implements IGameRunner {
         var units: Unit[] = Game.getUnits();
         for (var u: number = 0; u < units.length; u++) {
           if (units[u].selected) {
-            // todo: create a custom class for the return of getMousePos
-            var tar: any = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
-            var a: Action = new Action(that.drawer.coordsToBox(tar.x, tar.y),
+            var tar: number = that.drawer.screenCoordsToMapLoc(
+              that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
+            var a: Action = new Action(tar,
               Game.getUnits()[u].id,
               that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
@@ -77,7 +80,7 @@ class NetworkedGameRunner implements IGameRunner {
 
     $(document).mouseup(function (e: any): void {
       // when we catch a mouse up event see what is in our selection
-      var selectionLoc: number = that.drawer.coordsToBox(that.selection.x, that.selection.y);
+      var selectionLoc: number = that.drawer.mapCoordsToMapLoc(new Coords(that.selection.x, that.selection.y));
       var occupied: number[] = Utilities.getOccupiedSquares(selectionLoc,
         that.selection.w / that.drawer.getBoxWidth(),
         that.selection.h / that.drawer.getBoxHeight());
@@ -94,8 +97,11 @@ class NetworkedGameRunner implements IGameRunner {
     });
 
     $(document).mousemove(function (e: any): void {
+      that.mouseX = e.clientX;
+      that.mouseY = e.clientY;
       if ($(this).data("mousedown")) {
-        var coords: Coords = that.drawer.getMousePos(document.getElementById("selectionCanvas"), e);
+        var coords: Coords = that.drawer.screenCoordsToMapCoords(
+          that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
         that.updateSelection(that.selection, coords.x, coords.y);
       }
     });
@@ -201,6 +207,7 @@ class NetworkedGameRunner implements IGameRunner {
       that.drawer.drawUnits(Game.getUnits());
       that.drawSelect();
       that.drawer.drawLowerMenu();
+      that.drawer.moveViewPort(that.mouseX, that.mouseY);
       diffTime = newTime - oldTime;
       oldTime = newTime;
       newTime = new Date().getTime();
@@ -237,7 +244,8 @@ class NetworkedGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps";
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " +
+      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
     }, 1000 / (that.updateFPS));
   }
 
