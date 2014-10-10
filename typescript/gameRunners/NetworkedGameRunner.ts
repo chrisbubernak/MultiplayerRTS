@@ -244,8 +244,9 @@ class NetworkedGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " +
-      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
+      that.myGame.getHash() + "<br>heap usage: " +
+        Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
     }, 1000 / (that.updateFPS));
   }
 
@@ -283,7 +284,8 @@ class NetworkedGameRunner implements IGameRunner {
         gameId: that.gameId,
         reporter: that.myId,
         winner: that.myGame.winner,
-        actions: JSON.stringify(that.actionHistory)
+        actions: JSON.stringify(that.actionHistory),
+        gameHash: that.myGame.getHash()
       },
       // todo: get types for these callback func params
       success: function (data: any, textStatus: any, jqXHR: any): void {

@@ -1225,7 +1225,6 @@ var Game = (function () {
                     } else if (isEnemy && !isVisible) {
                         unit.command = new WalkCommand(unitTarget.loc);
                     } else if (!isEnemy && isVisible) {
-                        alert("issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
                     } else {
                         alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
                     }
@@ -1241,6 +1240,15 @@ var Game = (function () {
 
     Game.prototype.getSimTick = function () {
         return this.simTick;
+    };
+
+    Game.prototype.getHash = function () {
+        var hash = 0;
+        var units = Game.units;
+        for (var i = 0; i < units.length; i++) {
+            hash += Math.floor(Math.pow(((units[i].loc * units[i].id) % units[i].health), i));
+        }
+        return hash;
     };
 
     Game.prototype.update = function () {
@@ -2175,7 +2183,7 @@ var NetworkedGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
+            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " + that.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
         }, 1000 / (that.updateFPS));
     };
 
@@ -2213,7 +2221,8 @@ var NetworkedGameRunner = (function () {
                 gameId: that.gameId,
                 reporter: that.myId,
                 winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory)
+                actions: JSON.stringify(that.actionHistory),
+                gameHash: that.myGame.getHash()
             },
             success: function (data, textStatus, jqXHR) {
                 alert("SUCCESS");

@@ -189,7 +189,7 @@ class Game {
             unit.command = new WalkCommand(unitTarget.loc);
           } else if (!isEnemy && isVisible) {
             // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
-            alert("issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
+            // alert(issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
           } else {
             alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
           }
@@ -206,6 +206,16 @@ class Game {
   public getSimTick(): number {
     return this.simTick;
   }
+
+  public getHash(): number {
+    var hash: number = 0;
+    var units: Unit[] = Game.units;
+    for (var i: number = 0; i < units.length; i++) {
+      hash += Math.floor(Math.pow(((units[i].loc * units[i].id) % units[i].health), i));
+    }
+    return hash;
+  }
+
 
   public update(): void {
     // iterate backwards b/c we could be removing units from the unit list 
