@@ -244,8 +244,8 @@ class NetworkedGameRunner implements IGameRunner {
       newTime2 = new Date().getTime();
       var realFPS: number = Math.round(1000 / diffTime);
       that.drawer.REAL_FPS = realFPS;
-      console.log(that.myGame.getHash());
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " +
+      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
+      that.myGame.getHash() + "<br>heap usage: " +
         Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
     }, 1000 / (that.updateFPS));
   }
