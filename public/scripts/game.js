@@ -1243,6 +1243,15 @@ var Game = (function () {
         return this.simTick;
     };
 
+    Game.prototype.getHash = function () {
+        var hash = 0;
+        var units = Game.units;
+        for (var i = 0; i < units.length; i++) {
+            hash += Math.floor(Math.pow(((units[i].loc * units[i].id) % units[i].health), i) / this.simTick);
+        }
+        return hash;
+    };
+
     Game.prototype.update = function () {
         for (var i = Game.units.length - 1; i >= 0; i--) {
             Game.units[i].update();
@@ -2175,6 +2184,7 @@ var NetworkedGameRunner = (function () {
             newTime2 = new Date().getTime();
             var realFPS = Math.round(1000 / diffTime);
             that.drawer.REAL_FPS = realFPS;
+            console.log(that.myGame.getHash());
             fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
         }, 1000 / (that.updateFPS));
     };
@@ -2213,7 +2223,8 @@ var NetworkedGameRunner = (function () {
                 gameId: that.gameId,
                 reporter: that.myId,
                 winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory)
+                actions: JSON.stringify(that.actionHistory),
+                gameHash: that.myGame.getHash()
             },
             success: function (data, textStatus, jqXHR) {
                 alert("SUCCESS");

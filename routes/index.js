@@ -71,7 +71,8 @@ exports.gameEnd = function ( req, res ) {
   var reporter = req.param( 'reporter' );
   var winner = req.param( 'winner' );
   var actions = req.param('actions'); 
-  GM.reportGameEnd(game, reporter, winner, actions);
+  var gameHash = req.param('gameHash');
+  GM.reportGameEnd(game, reporter, winner, actions, gameHash);
 };
 
 

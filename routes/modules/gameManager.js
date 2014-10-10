@@ -17,8 +17,8 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
   });
 }
 
-  exports.reportGameEnd = function ( game, reporter, winner, actions ) {
-  sql.query( conn_str, "exec dbo.GameReport_Add '" + game + "', '" + reporter + "', '" + winner + "', '" + actions + "'", function ( err, results ) {
+  exports.reportGameEnd = function ( game, reporter, winner, actions, gameHash ) {
+  sql.query( conn_str, "exec dbo.GameReport_Add '" + game + "', '" + reporter + "', '" + winner + "', '" + actions + "', " + gameHash, function ( err, results ) {
     if ( err ) {
       console.log( err );
       return;
