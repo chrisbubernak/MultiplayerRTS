@@ -36,6 +36,7 @@ app.post('/signup', routes.signUpPost);
 app.get('/game', routes.game);
 app.get('/localGame', routes.localGame);
 app.get('/replay', routes.replay);
+app.get('/gameReports', routes.gameReports);
 
 module.exports = app;
 

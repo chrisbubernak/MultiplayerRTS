@@ -74,6 +74,18 @@ exports.gameEnd = function ( req, res ) {
   GM.reportGameEnd(game, reporter, winner, actions);
 };
 
+exports.gameReports = function ( req, res ) {
+  res.render( 'gameReports' );
+  GM.getGameReports(function (error, results) {
+    if (!results) {
+      res.send(error, 400);
+    }
+    else {
+      req.session.reports = reports;
+      res.redirect('gameReports');
+    }
+  });
+};
 
 exports.replay = function (req, res) {
   var game = req.param('gameId');

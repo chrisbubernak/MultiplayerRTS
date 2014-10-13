@@ -17,7 +17,7 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
   });
 }
 
-  exports.reportGameEnd = function ( game, reporter, winner, actions ) {
+exports.reportGameEnd = function ( game, reporter, winner, actions ) {
   sql.query( conn_str, "exec dbo.GameReport_Add '" + game + "', '" + reporter + "', '" + winner + "', '" + actions + "'", function ( err, results ) {
     if ( err ) {
       console.log( err );
@@ -25,7 +25,8 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
     }
   });
 }
-  exports.gameActionsGet = function ( gameGuid, callback ) {
+
+exports.gameActionsGet = function ( gameGuid, callback ) {
   sql.query( conn_str, "exec dbo.GameActions_Get '" + gameGuid + "'", function ( err, results ) {
     if ( err ) {
       callback( err, null );
@@ -35,3 +36,15 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
       return;
   });
 }
+
+exports.getGameReports = function (callback) {
+  sql.query(conn_str, "exec dbo.GameReports_Get", function (err, results) {
+    if(err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, results);
+    return;
+  });
+}
+
