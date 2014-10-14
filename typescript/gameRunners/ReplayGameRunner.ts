@@ -96,6 +96,6 @@ class ReplayGameRunner implements IGameRunner {
   }
 
   public end(message: string): void {
-    window.location.href = "/lobby";
+    window.location.href = "/gameReports";
   }
 }

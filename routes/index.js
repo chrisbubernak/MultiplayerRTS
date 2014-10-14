@@ -75,14 +75,16 @@ exports.gameEnd = function ( req, res ) {
 };
 
 exports.gameReports = function ( req, res ) {
-  res.render( 'gameReports' );
   GM.getGameReports(function (error, results) {
     if (!results) {
       res.send(error, 400);
     }
     else {
-      req.session.reports = reports;
-      res.redirect('gameReports');
+      console.log(results);
+      console.log('$$$$$$$$$');
+      res.render('gameReports', {
+        reports: results
+      });
     }
   });
 };
