@@ -2302,7 +2302,7 @@ var ReplayGameRunner = (function () {
     };
 
     ReplayGameRunner.prototype.end = function (message) {
-        window.location.href = "/lobby";
+        window.location.href = "/gameReports";
     };
     return ReplayGameRunner;
 })();

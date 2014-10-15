@@ -61,13 +61,15 @@ io.sockets.on('connection', function (client) {
 
     //when a client requests a game, try and start it
     client.on('RequestGame', function (data) {
-        var host = data.host;
-        var client = data.client;
+        var host = data.hostSocket;
+        var hostId = data.hostId;
+        var client = data.clientSocket;
+        var clientId = data.clientId;
         var gameId = uuid.v4();
-        io.sockets.socket(host).emit('StartGame', { host: host, client: client, gameId: gameId });
-        io.sockets.socket(client).emit('StartGame', { host: host, client: client, gameId: gameId });
+        io.sockets.socket(host).emit('StartGame', { host: hostId, client: clientId, gameId: gameId });
+        io.sockets.socket(client).emit('StartGame', { host: hostId, client: clientId, gameId: gameId });
 
-        GM.reportGameStart(host, client, gameId);
+        GM.reportGameStart(hostId, clientId, gameId);
     });
 
     client.on('disconnect', function () {

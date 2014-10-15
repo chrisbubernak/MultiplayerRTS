@@ -107,7 +107,7 @@ csx
 AppPackages/
 
 # Others
-sql/
+# DONT IGNORE THIS --> sql/
 *.Cache
 ClientBin/
 [Ss]tyle[Cc]op.*
