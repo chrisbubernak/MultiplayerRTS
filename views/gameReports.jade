@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  //div.white !{reports.toString()}
+  //- var rep = {reports}
+  //- console.log(reports)
+  - var rep = [1,2,3,4];
+  - for (var r = 0; r < reports.length; r++) 
+    div.white
+      a(href="replay?gameId=#{reports[r].Guid}") 
+        div GameId = #{reports[r].id}
+        div Guid = #{reports[r].Guid}
+        div Map = #{reports[r].Map}
+        div StartTime = #{reports[r].StarTime}
+        div Date = #{reports[r].Date}
+        div GameHash = #{reports[r].GameHash}
+        hr 

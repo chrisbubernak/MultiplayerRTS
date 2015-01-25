@@ -3,13 +3,7 @@ var conn_str = process.env.ConnectionString || "Driver={SQL Server Native Client
 
 
 exports.reportGameStart = function ( hostId, clientId, gameId ) {
-  var query = "INSERT INTO Game (Guid, Player1, Player2, StartTime) VALUES( '" +
-    gameId + "', '" +
-    hostId + "', '" +
-    clientId + "', " +
-    "GETUTCDATE())";
-
-  sql.query( conn_str, query, function ( err, results ) {
+  sql.query( conn_str, "exec dbo.Game_Add '" + gameId + "', " + hostId + ", " + clientId, function ( err, results ) {
     if ( err ) {
       console.log( err );
       return;
@@ -17,15 +11,18 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
   });
 }
 
-  exports.reportGameEnd = function ( game, reporter, winner, actions, gameHash ) {
-  sql.query( conn_str, "exec dbo.GameReport_Add '" + game + "', '" + reporter + "', '" + winner + "', '" + actions + "', " + gameHash, function ( err, results ) {
+exports.reportGameEnd = function ( game, reporter, winner, actions, gameHash ) {
+  sql.query( conn_str, "exec dbo.GameReport_Add '" + game + "', '" + reporter + "', '" + ( winner || null )+ "', '" + actions + "', " + gameHash, function ( err, results ) {
     if ( err ) {
+      console.log('ERROR')
+      console.log("exec dbo.GameReport_Add '" + game + "', " + reporter + ", " + winner + ", '" + actions + "'");
       console.log( err );
       return;
     }
   });
 }
-  exports.gameActionsGet = function ( gameGuid, callback ) {
+
+exports.gameActionsGet = function ( gameGuid, callback ) {
   sql.query( conn_str, "exec dbo.GameActions_Get '" + gameGuid + "'", function ( err, results ) {
     if ( err ) {
       callback( err, null );
@@ -35,3 +32,15 @@ exports.reportGameStart = function ( hostId, clientId, gameId ) {
       return;
   });
 }
+
+exports.getGameReports = function (callback) {
+  sql.query(conn_str, "exec dbo.GameReports_Get", function (err, results) {
+    if(err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, results);
+    return;
+  });
+}
+

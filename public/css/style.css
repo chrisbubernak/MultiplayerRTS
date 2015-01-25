@@ -4,6 +4,9 @@
   background-color: #272B30;
   color:#272B30;
 }
+.white {
+  color: white;
+}
 #login-container {
   width: 340px;
   margin: 160px auto;
