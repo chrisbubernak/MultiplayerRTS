@@ -11,6 +11,7 @@
 /// <reference path="commands/WalkCommand.ts" />
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
+/// <reference path="MapFactory.ts" />
 
 class Game {
   // static variables
@@ -32,8 +33,8 @@ class Game {
   public winner: string = null;
 
   // public Methods:
-  constructor(host: boolean, id: string, enemyId: string, gameId: string) {
-    Game.map = new SmallMap();
+  constructor(host: boolean, id: string, enemyId: string, gameId: string, mapId: string) {
+    Game.map = MapFactory.GetMap(mapId);
     this.gameId = gameId;
     this.id = id; // this players id
     this.enemyId = enemyId;

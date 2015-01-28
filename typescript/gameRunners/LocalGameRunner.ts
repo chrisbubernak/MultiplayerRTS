@@ -15,12 +15,12 @@ class LocalGameRunner implements IGameRunner {
   private mouseX: number;
   private mouseY: number;
 
-  constructor() {
+  constructor(mapId: string) {
     var id: string = "Human";
     var enemyId: string = "Computer";
     var gameId: string = "LocalGame";
 
-    this.myGame = new Game(true, id, enemyId, gameId);
+    this.myGame = new Game(true, id, enemyId, gameId, mapId);
 
     this.drawer = new Drawer(1,
       document.getElementById("terrainCanvas"),

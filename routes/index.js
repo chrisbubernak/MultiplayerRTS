@@ -45,7 +45,15 @@ exports.signup = function ( req, res ) {
 };
 
 exports.localGame = function ( req, res ) {
-  res.render( 'localGame' );
+  var mapId = req.param('mapId');
+  if ( !mapId ) {
+    res.send( "No mapId was supplied!", 400 );
+  }
+  else {
+    res.render( 'localGame', {
+      mapId: mapId
+    });
+  }
 };
 
 //signs up user and logs them in
@@ -98,7 +106,8 @@ exports.replay = function (req, res) {
     }
     else {
       res.render( 'replay', {
-        actions: actions
+        actions: actions,
+        mapId: "1" //todo: remove hardcoded value
       });
     }
   });

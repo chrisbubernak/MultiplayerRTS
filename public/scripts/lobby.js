@@ -6,8 +6,12 @@ var id;
 var mySocket;
 var startGame;
 function start(username) {
+  chooseMap = function() {
+    alert("Pick a map!");
+  }
   startGame = function (enemyId, enemySocket) {
-    socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket });
+    chooseMap();
+    // socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket });
   }
 
   var socket = io.connect('/');
@@ -50,7 +54,8 @@ function start(username) {
       host = false;
       console.log('Game started and I am the client');
     }
-    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId;
+    //todo: remove hard coded map id = 1
+    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + 1;
   });
 }
 
