@@ -17,5 +17,6 @@ block scripts
   script(src='/scripts/game.js')
   script.
     $(document).ready(function () {
-      var gameRunner = new LocalGameRunner();
+      var mapId = "!{mapId}";
+      var gameRunner = new LocalGameRunner(mapId);
     });

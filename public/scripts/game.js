@@ -1074,11 +1074,200 @@ var AttackCommand = (function () {
     };
     return AttackCommand;
 })();
+var Map1 = (function () {
+    function Map1() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    Map1.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < 5000; i++) {
+            terrain.push(new GrassTile());
+        }
+        return terrain;
+    };
+
+    Map1.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Knight(315, 1);
+        var u3 = new Knight(615, 1);
+        var u4 = new Knight(915, 1);
+
+        var u5 = new Orc(80, 2);
+        var u6 = new Orc(380, 2);
+        var u7 = new Orc(680, 2);
+        var u8 = new Orc(980, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
+    };
+
+    Map1.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    Map1.prototype.GetNumberOfCols = function () {
+        return 100;
+    };
+
+    Map1.prototype.GetNumberOfRows = function () {
+        return 50;
+    };
+    return Map1;
+})();
+var SmallMap = (function () {
+    function SmallMap() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    SmallMap.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < this.GetGridSize(); i++) {
+            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0) || (Math.ceil(i / this.GetNumberOfCols()) === this.GetNumberOfRows())) {
+                terrain.push(new DirtTile());
+            } else {
+                terrain.push(new GrassTile());
+            }
+        }
+        return terrain;
+    };
+
+    SmallMap.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Orc(315, 1);
+        var u3 = new Knight(35, 1);
+        var u4 = new Orc(320, 1);
+        var u5 = new Knight(322, 1);
+        var u6 = new Orc(40, 1);
+
+        var u7 = new Orc(80, 2);
+        var u8 = new Orc(380, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
+    };
+
+    SmallMap.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    SmallMap.prototype.GetNumberOfCols = function () {
+        return 100;
+    };
+
+    SmallMap.prototype.GetNumberOfRows = function () {
+        return 30;
+    };
+    return SmallMap;
+})();
+var StripesMap = (function () {
+    function StripesMap() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    StripesMap.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < 5000; i++) {
+            if (i % 10 <= 5) {
+                terrain.push(new DirtTile());
+            } else {
+                terrain.push(new GrassTile());
+            }
+        }
+        return terrain;
+    };
+
+    StripesMap.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Knight(315, 1);
+        var u3 = new Knight(615, 1);
+        var u4 = new Knight(915, 1);
+
+        var u5 = new Orc(80, 2);
+        var u6 = new Orc(380, 2);
+        var u7 = new Orc(680, 2);
+        var u8 = new Orc(980, 2);
+        return [u1, u2, u3, u4, u5, u6, u7, u8];
+    };
+
+    StripesMap.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    StripesMap.prototype.GetNumberOfCols = function () {
+        return 100;
+    };
+
+    StripesMap.prototype.GetNumberOfRows = function () {
+        return 50;
+    };
+    return StripesMap;
+})();
+var TinyMap = (function () {
+    function TinyMap() {
+        if (this.GetGridSize() !== this.GetTerrain().length) {
+            alert("INVALID MAP DETECTED!");
+        }
+    }
+    TinyMap.prototype.GetTerrain = function () {
+        var terrain = Array();
+        for (var i = 0; i < 1000; i++) {
+            if ((i > 100 && i < 110) || (i > 180 && i < 200) || (i > 230 && i < 236)) {
+                terrain.push(new WaterTile());
+            } else {
+                terrain.push(new GrassTile());
+            }
+        }
+        return terrain;
+    };
+
+    TinyMap.prototype.GetUnits = function () {
+        var u1 = new Knight(15, 1);
+        var u2 = new Knight(165, 1);
+        var u3 = new Knight(215, 1);
+
+        var u4 = new Orc(80, 2);
+        var u5 = new Orc(320, 2);
+        var u6 = new Orc(240, 2);
+
+        return [u1, u2, u3, u4, u5, u6];
+    };
+
+    TinyMap.prototype.GetGridSize = function () {
+        return this.GetNumberOfCols() * this.GetNumberOfRows();
+    };
+
+    TinyMap.prototype.GetNumberOfCols = function () {
+        return 50;
+    };
+
+    TinyMap.prototype.GetNumberOfRows = function () {
+        return 20;
+    };
+    return TinyMap;
+})();
+var MapFactory = (function () {
+    function MapFactory() {
+    }
+    MapFactory.GetMap = function (id) {
+        if (id === null || id === undefined) {
+            return undefined;
+        }
+
+        return MapFactory.dict[id];
+    };
+    MapFactory.dict = {
+        "0": new TinyMap(),
+        "1": new Map1(),
+        "2": new SmallMap(),
+        "3": new StripesMap()
+    };
+    return MapFactory;
+})();
 var Game = (function () {
-    function Game(host, id, enemyId, gameId) {
+    function Game(host, id, enemyId, gameId, mapId) {
         this.simTick = 0;
         this.winner = null;
-        Game.map = new SmallMap();
+        Game.map = MapFactory.GetMap(mapId);
         this.gameId = gameId;
         this.id = id;
         this.enemyId = enemyId;
@@ -1692,134 +1881,6 @@ var Pathing = (function () {
     };
     return Pathing;
 })();
-var Map1 = (function () {
-    function Map1() {
-        if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
-        }
-    }
-    Map1.prototype.GetTerrain = function () {
-        var terrain = Array();
-        for (var i = 0; i < 5000; i++) {
-            terrain.push(new GrassTile());
-        }
-        return terrain;
-    };
-
-    Map1.prototype.GetUnits = function () {
-        var u1 = new Knight(15, 1);
-        var u2 = new Knight(315, 1);
-        var u3 = new Knight(615, 1);
-        var u4 = new Knight(915, 1);
-
-        var u5 = new Orc(80, 2);
-        var u6 = new Orc(380, 2);
-        var u7 = new Orc(680, 2);
-        var u8 = new Orc(980, 2);
-        return [u1, u2, u3, u4, u5, u6, u7, u8];
-    };
-
-    Map1.prototype.GetGridSize = function () {
-        return this.GetNumberOfCols() * this.GetNumberOfRows();
-    };
-
-    Map1.prototype.GetNumberOfCols = function () {
-        return 100;
-    };
-
-    Map1.prototype.GetNumberOfRows = function () {
-        return 50;
-    };
-    return Map1;
-})();
-var SmallMap = (function () {
-    function SmallMap() {
-        if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
-        }
-    }
-    SmallMap.prototype.GetTerrain = function () {
-        var terrain = Array();
-        for (var i = 0; i < this.GetGridSize(); i++) {
-            if ((i % this.GetNumberOfCols() === 0) || ((i + 1) % (this.GetNumberOfCols()) === 0) || (Math.floor(i / this.GetNumberOfCols()) === 0) || (Math.ceil(i / this.GetNumberOfCols()) === this.GetNumberOfRows())) {
-                terrain.push(new DirtTile());
-            } else {
-                terrain.push(new GrassTile());
-            }
-        }
-        return terrain;
-    };
-
-    SmallMap.prototype.GetUnits = function () {
-        var u1 = new Knight(15, 1);
-        var u2 = new Orc(315, 1);
-        var u3 = new Knight(35, 1);
-        var u4 = new Orc(320, 1);
-        var u5 = new Knight(322, 1);
-        var u6 = new Orc(40, 1);
-
-        var u7 = new Orc(80, 2);
-        var u8 = new Orc(380, 2);
-        return [u1, u2, u3, u4, u5, u6, u7, u8];
-    };
-
-    SmallMap.prototype.GetGridSize = function () {
-        return this.GetNumberOfCols() * this.GetNumberOfRows();
-    };
-
-    SmallMap.prototype.GetNumberOfCols = function () {
-        return 100;
-    };
-
-    SmallMap.prototype.GetNumberOfRows = function () {
-        return 30;
-    };
-    return SmallMap;
-})();
-var StripesMap = (function () {
-    function StripesMap() {
-        if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
-        }
-    }
-    StripesMap.prototype.GetTerrain = function () {
-        var terrain = Array();
-        for (var i = 0; i < 5000; i++) {
-            if (i % 10 <= 5) {
-                terrain.push(new DirtTile());
-            } else {
-                terrain.push(new GrassTile());
-            }
-        }
-        return terrain;
-    };
-
-    StripesMap.prototype.GetUnits = function () {
-        var u1 = new Knight(15, 1);
-        var u2 = new Knight(315, 1);
-        var u3 = new Knight(615, 1);
-        var u4 = new Knight(915, 1);
-
-        var u5 = new Orc(80, 2);
-        var u6 = new Orc(380, 2);
-        var u7 = new Orc(680, 2);
-        var u8 = new Orc(980, 2);
-        return [u1, u2, u3, u4, u5, u6, u7, u8];
-    };
-
-    StripesMap.prototype.GetGridSize = function () {
-        return this.GetNumberOfCols() * this.GetNumberOfRows();
-    };
-
-    StripesMap.prototype.GetNumberOfCols = function () {
-        return 100;
-    };
-
-    StripesMap.prototype.GetNumberOfRows = function () {
-        return 50;
-    };
-    return StripesMap;
-})();
 var Mage = (function (_super) {
     __extends(Mage, _super);
     function Mage() {
@@ -1828,7 +1889,7 @@ var Mage = (function (_super) {
     return Mage;
 })(Unit);
 var LocalGameRunner = (function () {
-    function LocalGameRunner() {
+    function LocalGameRunner(mapId) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
@@ -1839,7 +1900,7 @@ var LocalGameRunner = (function () {
         var enemyId = "Computer";
         var gameId = "LocalGame";
 
-        this.myGame = new Game(true, id, enemyId, gameId);
+        this.myGame = new Game(true, id, enemyId, gameId, mapId);
 
         this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 
@@ -1990,7 +2051,7 @@ var LocalGameRunner = (function () {
     return LocalGameRunner;
 })();
 var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host, gameId) {
+    function NetworkedGameRunner(id, enemyId, host, gameId, mapId) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
@@ -2002,7 +2063,7 @@ var NetworkedGameRunner = (function () {
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
-        this.myGame = new Game(host, id, enemyId, gameId);
+        this.myGame = new Game(host, id, enemyId, gameId, mapId);
         this.host = host;
         var playerNumber;
         if (this.host) {
@@ -2235,7 +2296,7 @@ var NetworkedGameRunner = (function () {
     return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
-    function ReplayGameRunner(actions) {
+    function ReplayGameRunner(actions, mapId) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
@@ -2246,7 +2307,7 @@ var ReplayGameRunner = (function () {
 
         var id = "test";
 
-        this.myGame = new Game(true, id, "enemyId", "gameId");
+        this.myGame = new Game(true, id, "enemyId", "gameId", mapId);
 
         this.drawer = new Drawer(1, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
 

@@ -13,12 +13,12 @@ class ReplayGameRunner implements IGameRunner {
   private mouseX: number;
   private mouseY: number;
 
-  constructor(actions: any[]) {
+  constructor(actions: any[], mapId: string) {
     this.actions = actions;
 
     var id: string = "test";
 
-    this.myGame = new Game(true, id, "enemyId", "gameId");
+    this.myGame = new Game(true, id, "enemyId", "gameId", mapId);
 
     this.drawer = new Drawer(1,
       document.getElementById("terrainCanvas"),

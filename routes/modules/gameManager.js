@@ -2,8 +2,8 @@
 var conn_str = process.env.ConnectionString || "Driver={SQL Server Native Client 11.0};Server=.\\SQLEXPRESS;Database=RTS;Trusted_Connection={Yes}";
 
 
-exports.reportGameStart = function ( hostId, clientId, gameId ) {
-  sql.query( conn_str, "exec dbo.Game_Add '" + gameId + "', " + hostId + ", " + clientId, function ( err, results ) {
+exports.reportGameStart = function ( hostId, clientId, gameId, mapId ) {
+  sql.query( conn_str, "exec dbo.Game_Add '" + gameId + "', " + hostId + ", " + clientId + ", '" + mapId + "'", function ( err, results ) {
     if ( err ) {
       console.log( err );
       return;
@@ -28,7 +28,7 @@ exports.gameActionsGet = function ( gameGuid, callback ) {
       callback( err, null );
       return;
     }
-      callback( null, results[0].Actions );
+      callback( null, results[0].Actions, results[0].Map );
       return;
   });
 }

@@ -19,6 +19,6 @@ block scripts
   script.
     $(document).ready(function () {
       var actions = !{actions};
-
-      var gameRunner = new ReplayGameRunner(actions);
+      var mapId = '!{mapId}';
+      var gameRunner = new ReplayGameRunner(actions, mapId);
     });
