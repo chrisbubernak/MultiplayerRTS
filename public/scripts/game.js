@@ -52,13 +52,57 @@ var Coords = (function () {
     }
     return Coords;
 })();
+var Logger = (function () {
+    function Logger() {
+    }
+    Logger.LogInColor = function (text, color) {
+        var IS_DEBUG = true;
+        if (IS_DEBUG) {
+            var time = new Date();
+            var timeString = time.getHours() + ":" + time.getMinutes() + ":" + time.getSeconds();
+            var newMessage = document.createElement("div");
+            newMessage.innerHTML = timeString + " " + text;
+            newMessage.classList.add("debugMessage");
+            newMessage.style.color = color;
+
+            document.body.appendChild(newMessage);
+
+            Logger.Queue.push(newMessage);
+
+            if (Logger.Queue.length > Logger.MaxQueueLength) {
+                var stale = Logger.Queue.shift();
+                document.body.removeChild(stale);
+            }
+
+            for (var i = 0; i < Logger.Queue.length; i++) {
+                var cur = Logger.Queue[i];
+                cur.style.top = (cur.offsetTop - 18) + "px";
+            }
+        }
+    };
+
+    Logger.Log = function (text) {
+        Logger.LogInColor(text, "#7FFF00");
+    };
+
+    Logger.LogError = function (text) {
+        Logger.LogInColor(text, "red");
+    };
+
+    Logger.LogInfo = function (text) {
+        Logger.LogInColor(text, "yellow");
+    };
+    Logger.Queue = [];
+    Logger.MaxQueueLength = 12;
+    return Logger;
+})();
 var BaseGameEntity = (function () {
     function BaseGameEntity() {
         this.id = BaseGameEntity.nextValidId;
         BaseGameEntity.nextValidId++;
     }
     BaseGameEntity.prototype.Update = function () {
-        alert("update not implemented!!!");
+        Logger.LogError("update not implemented for BaseGameEntity");
     };
     BaseGameEntity.nextValidId = 0;
     return BaseGameEntity;
@@ -756,7 +800,7 @@ var Drawer = (function () {
     };
 
     Drawer.prototype.drawGrid = function () {
-        alert("UNCOMMENT ME PLEASE!");
+        Logger.LogInfo("Draw Grid is commented out");
     };
 
     Drawer.prototype.drawUnit = function (unit) {
@@ -1077,7 +1121,7 @@ var AttackCommand = (function () {
 var Map1 = (function () {
     function Map1() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
+            Logger.LogError("INVALID MAP DETECTED!");
         }
     }
     Map1.prototype.GetTerrain = function () {
@@ -1117,7 +1161,7 @@ var Map1 = (function () {
 var SmallMap = (function () {
     function SmallMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
+            Logger.LogError("INVALID MAP DETECTED!");
         }
     }
     SmallMap.prototype.GetTerrain = function () {
@@ -1161,7 +1205,7 @@ var SmallMap = (function () {
 var StripesMap = (function () {
     function StripesMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
+            Logger.LogError("INVALID MAP DETECTED!");
         }
     }
     StripesMap.prototype.GetTerrain = function () {
@@ -1205,7 +1249,7 @@ var StripesMap = (function () {
 var TinyMap = (function () {
     function TinyMap() {
         if (this.GetGridSize() !== this.GetTerrain().length) {
-            alert("INVALID MAP DETECTED!");
+            Logger.LogError("INVALID MAP DETECTED!");
         }
     }
     TinyMap.prototype.GetTerrain = function () {
@@ -1249,7 +1293,8 @@ var MapFactory = (function () {
     function MapFactory() {
     }
     MapFactory.GetMap = function (id) {
-        if (id === null || id === undefined) {
+        if (id === null || id === undefined || MapFactory.dict[id] === undefined) {
+            Logger.LogError("invalid mapid: " + id);
             return undefined;
         }
 
@@ -1415,7 +1460,7 @@ var Game = (function () {
                         unit.command = new WalkCommand(unitTarget.loc);
                     } else if (!isEnemy && isVisible) {
                     } else {
-                        alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
+                        Logger.LogError("unable to issue a command...logic error somewhere");
                     }
                 } else {
                     unit.command = new WalkCommand(targetLoc);
@@ -1496,7 +1541,7 @@ var Utilities = (function () {
     };
 
     Utilities.collides = function (i, j) {
-        alert("THIS IS BROKEN!!!!");
+        Logger.LogError("utilities.collides IS BROKEN!!!!");
         return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
     };
 
@@ -1529,7 +1574,7 @@ var Utilities = (function () {
             }
             return "left";
         }
-        console.log("ERROR: Utilities.getDirection() did not set a direction");
+        Logger.LogError("ERROR: Utilities.getDirection() did not set a direction");
     };
 
     Utilities.getGridLocsInSightRange = function (unit) {
@@ -1612,7 +1657,7 @@ var Utilities = (function () {
             return false;
         }
         if (id1 === id2) {
-            console.log("it worked? " + id1 + " " + id2);
+            Logger.LogInfo("areLocsOccupiedBySameUnit worked? " + id1 + " " + id2);
             return true;
         }
         return false;
@@ -2143,15 +2188,14 @@ var NetworkedGameRunner = (function () {
         });
 
         this.peer.on("error", function (err) {
-            console.log("error connecting!");
-            console.log(err);
+            Logger.LogError("error connecting!: " + err);
         });
 
         this.peer.on("open", function () {
-            console.log("peer is open!");
+            Logger.LogInfo("peer is open");
 
             if (host) {
-                console.log("im initiating a connection");
+                Logger.LogInfo("im initiating a connection");
 
                 that.conn = that.peer.connect(enemyId, { reliable: true });
                 that.conn.on("open", function () {
@@ -2159,7 +2203,7 @@ var NetworkedGameRunner = (function () {
                     that.run();
                 });
                 that.conn.on("close", function () {
-                    console.log("connection closed!");
+                    Logger.LogInfo("connection closed!");
                     that.end("Enemy Quit");
                 });
                 that.conn.on("data", function (data) {
@@ -2168,17 +2212,17 @@ var NetworkedGameRunner = (function () {
                     }
                 });
             } else {
-                console.log("im waiting for a connection");
+                Logger.LogInfo("im waiting for a connection");
 
                 that.peer.on("connection", function (conn) {
                     that.conn = conn;
-                    console.log("client " + conn);
+                    Logger.LogInfo("client " + conn);
                     that.conn.on("open", function () {
                         that.conn.send("Hey from player: " + id);
                         that.run();
                     });
                     that.conn.on("close", function () {
-                        console.log("connection closed!");
+                        Logger.LogInfo("connection closed!");
                         that.end("Enemy Quit");
                     });
                     that.conn.on("data", function (data) {
@@ -2272,8 +2316,6 @@ var NetworkedGameRunner = (function () {
     };
 
     NetworkedGameRunner.prototype.sendGameReportToServer = function () {
-        console.log(this.actionHistory);
-
         var that = this;
         $.ajax({
             url: "/gameEnd",
@@ -2286,10 +2328,10 @@ var NetworkedGameRunner = (function () {
                 gameHash: that.myGame.getHash()
             },
             success: function (data, textStatus, jqXHR) {
-                alert("SUCCESS");
+                Logger.LogInfo("SUCCESS sending game report");
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                alert("ERR");
+                Logger.LogError("Error sending game report");
             }
         });
     };

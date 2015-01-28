@@ -1,4 +1,6 @@
 /// <reference path="game.ts" />
+/// <reference path="logger.ts" />
+
 class Utilities {
   private static SEED: number = 3;
 
@@ -34,7 +36,7 @@ class Utilities {
 
   public static collides(i: Unit, j: Unit): boolean {
     // return i.loc == j.loc;
-    alert("THIS IS BROKEN!!!!");
+    Logger.LogError("utilities.collides IS BROKEN!!!!");
     return i.x < j.x + j.w && i.x + i.w > j.x && i.y < j.y + j.h && i.y + i.h > j.y;
   }
 
@@ -69,7 +71,7 @@ class Utilities {
       }
       return "left";
     }
-    console.log("ERROR: Utilities.getDirection() did not set a direction");
+    Logger.LogError("ERROR: Utilities.getDirection() did not set a direction");
   }
 
   public static getGridLocsInSightRange(unit: Unit): number[] {
@@ -157,7 +159,7 @@ class Utilities {
       return false;
     }
     if (id1 === id2) {
-      console.log("it worked? " + id1 + " " + id2);
+      Logger.LogInfo("areLocsOccupiedBySameUnit worked? " + id1 + " " + id2);
       return true;
     }
     return false;

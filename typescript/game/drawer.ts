@@ -2,6 +2,7 @@
 /// <reference path="units/unit.ts" />
 /// <reference path="rectangle.ts" />
 /// <reference path="../gameRunners/IGameRunner.ts" />
+/// <reference path="logger.ts" />
 
 class Drawer {
   private static context: Drawer;
@@ -296,7 +297,7 @@ class Drawer {
       this.terrainContext.lineTo(this.gameWidth, j * this.getBoxHeight());
       this.terrainContext.stroke();
     } */
-    alert("UNCOMMENT ME PLEASE!");
+    Logger.LogInfo("Draw Grid is commented out");
   }
 
   private drawUnit(unit: Unit): void {

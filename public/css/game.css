@@ -24,3 +24,12 @@ canvas {
   z-index:100;
   position: absolute;
 }
+
+.debugMessage {
+  position: absolute;
+  font-size: 1em;
+  top: 95vh;
+  left: 1vw;
+  z-index: 100;
+  background-color: black;
+}

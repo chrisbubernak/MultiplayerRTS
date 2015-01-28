@@ -1,4 +1,5 @@
 ﻿/// <reference path="units/BaseGameEntity.ts" />
+/// <reference path="logger.ts" />
 
 class State {
   public ToString(): string {

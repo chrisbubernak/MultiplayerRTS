@@ -3,11 +3,12 @@
 /// <reference path="../units/orc.ts" />
 /// <reference path="../units/knight.ts" />
 /// <reference path="IMap.ts" />
+/// <reference path="../logger.ts" />
 
 class Map1 implements IMap {
   constructor() {
     if (this.GetGridSize() !== this.GetTerrain().length) {
-      alert("INVALID MAP DETECTED!");
+      Logger.LogError("INVALID MAP DETECTED!");
     }
   }
 

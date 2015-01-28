@@ -5,6 +5,7 @@
 /// <reference path="IGameRunner.ts" />
 /// <reference path="../game/coords.ts" />
 /// <reference path="../game/selectionObject.ts" />
+/// <reference path="../game/logger.ts" />
 
 class NetworkedGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
@@ -132,16 +133,15 @@ class NetworkedGameRunner implements IGameRunner {
 
 
     this.peer.on("error", function (err: string): void {
-      console.log("error connecting!");
-      console.log(err);
+      Logger.LogError("error connecting!: " + err);
     });
 
     this.peer.on("open", function (): void {
-      console.log("peer is open!");
+      Logger.LogInfo("peer is open");
 
       // if i am host
       if (host) {
-        console.log("im initiating a connection");
+        Logger.LogInfo("im initiating a connection");
         // connect to peer
         that.conn = that.peer.connect(enemyId, { reliable: true });
         that.conn.on("open", function (): void {
@@ -149,7 +149,7 @@ class NetworkedGameRunner implements IGameRunner {
           that.run();
         });
         that.conn.on("close", function (): void {
-          console.log("connection closed!");
+          Logger.LogInfo("connection closed!");
           that.end("Enemy Quit");
         });
         that.conn.on("data", function (data: any): void {
@@ -161,17 +161,17 @@ class NetworkedGameRunner implements IGameRunner {
         });
       } else {
         // if i am the client
-        console.log("im waiting for a connection");
+        Logger.LogInfo("im waiting for a connection");
         // wait for connection
         that.peer.on("connection", function (conn: any): void {
           that.conn = conn;
-          console.log("client " + conn);
+          Logger.LogInfo("client " + conn);
           that.conn.on("open", function (): void {
             that.conn.send("Hey from player: " + id);
             that.run();
           });
           that.conn.on("close", function (): void {
-            console.log("connection closed!");
+            Logger.LogInfo("connection closed!");
             that.end("Enemy Quit");
           });
           that.conn.on("data", function (data: any): void {
@@ -274,8 +274,6 @@ class NetworkedGameRunner implements IGameRunner {
   }
 
   private sendGameReportToServer(): void {
-    console.log(this.actionHistory);
-
     var that: NetworkedGameRunner = this;
     $.ajax({
       url: "/gameEnd",
@@ -289,10 +287,10 @@ class NetworkedGameRunner implements IGameRunner {
       },
       // todo: get types for these callback func params
       success: function (data: any, textStatus: any, jqXHR: any): void {
-        alert("SUCCESS");
+        Logger.LogInfo("SUCCESS sending game report");
       },
       error: function (jqXHR: any, textStatus: any, errorThrown: any): void {
-        alert("ERR");
+        Logger.LogError("Error sending game report");
       }
     });
   }
