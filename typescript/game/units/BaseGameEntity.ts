@@ -1,5 +1,6 @@
 ﻿/// <reference path="../Utilities.ts" />
 /// <reference path="../game.ts" />
+/// <reference path="../logger.ts" />
 
 class BaseGameEntity {
   id: number;
@@ -11,6 +12,6 @@ class BaseGameEntity {
   }
 
   public Update(): void {
-    alert("update not implemented!!!");
+    Logger.LogError("update not implemented for BaseGameEntity");
   }
 }

@@ -3,6 +3,7 @@
 /// <reference path="maps/StripesMap.ts" />
 /// <reference path="maps/TinyMap.ts" />
 /// <reference path="maps/IMap.ts" />
+/// <reference path="logger.ts" />
 
 class MapFactory {
 	private static dict = {
@@ -13,8 +14,8 @@ class MapFactory {
 	}
 
 	public static GetMap(id: string): IMap {
-		if (id === null || id === undefined) {
-			//todo: error!!
+		if (id === null || id === undefined || MapFactory.dict[id] === undefined) {
+			Logger.LogError("invalid mapid: " + id);
 			return undefined;
 		}
 		

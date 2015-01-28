@@ -12,6 +12,7 @@
 /// <reference path="commands/AttackCommand.ts" />
 /// <reference path="maps/IMap.ts" />
 /// <reference path="MapFactory.ts" />
+/// <reference path="logger.ts" />
 
 class Game {
   // static variables
@@ -192,7 +193,7 @@ class Game {
             // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
             // alert(issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
           } else {
-            alert("WE HAVE A PROBLEM ....unable to issue a command...logic error somewhere");
+            Logger.LogError("unable to issue a command...logic error somewhere");
           }
         } else {
           unit.command = new WalkCommand(targetLoc);
