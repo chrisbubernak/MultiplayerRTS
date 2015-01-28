@@ -66,10 +66,11 @@ io.sockets.on('connection', function (client) {
         var client = data.clientSocket;
         var clientId = data.clientId;
         var gameId = uuid.v4();
-        io.sockets.socket(host).emit('StartGame', { host: hostId, client: clientId, gameId: gameId });
-        io.sockets.socket(client).emit('StartGame', { host: hostId, client: clientId, gameId: gameId });
+        var mapId = data.mapId;
+        io.sockets.socket(host).emit('StartGame', { host: hostId, client: clientId, gameId: gameId, mapId: mapId });
+        io.sockets.socket(client).emit('StartGame', { host: hostId, client: clientId, gameId: gameId, mapId: mapId });
 
-        GM.reportGameStart(hostId, clientId, gameId);
+        GM.reportGameStart(hostId, clientId, gameId, mapId);
     });
 
     client.on('disconnect', function () {

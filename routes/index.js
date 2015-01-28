@@ -23,7 +23,8 @@ exports.game = function ( req, res ) {
   var id = req.param( 'id' );
   var enemyId = req.param( 'enemyId' );
   var gameId = req.param( 'gameId' );
-  res.render( 'game', { id: id, enemyId: enemyId, host: host, gameId: gameId });
+  var mapId = req.param( 'mapId');
+  res.render( 'game', { id: id, enemyId: enemyId, host: host, gameId: gameId, mapId: mapId });
 };
 
 exports.lobby = function ( req, res ) {
@@ -100,14 +101,14 @@ exports.gameReports = function ( req, res ) {
 
 exports.replay = function (req, res) {
   var game = req.param('gameId');
-  GM.gameActionsGet(game, function ( error, actions ) {
+  GM.gameActionsGet(game, function ( error, actions, map ) {
     if ( !actions ) {
       res.send( error, 400 );
     }
     else {
       res.render( 'replay', {
         actions: actions,
-        mapId: "1" //todo: remove hardcoded value
+        mapId: map
       });
     }
   });

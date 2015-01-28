@@ -10,8 +10,8 @@ function start(username) {
     alert("Pick a map!");
   }
   startGame = function (enemyId, enemySocket) {
-    chooseMap();
-    // socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket });
+    var mapId = Math.floor(Math.random() * 3);
+    socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket, mapId: mapId });
   }
 
   var socket = io.connect('/');
@@ -41,7 +41,7 @@ function start(username) {
     var hostId = data.host;
     var clientId = data.client;
     var gameId = data.gameId;
-    
+    var mapId = data.mapId;
     socket.disconnect();
     var host = false;
     if (id === data.host) {
@@ -55,7 +55,7 @@ function start(username) {
       console.log('Game started and I am the client');
     }
     //todo: remove hard coded map id = 1
-    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + 1;
+    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + mapId;
   });
 }
 

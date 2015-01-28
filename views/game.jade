@@ -25,5 +25,6 @@ block scripts
       var enemyId = '#{enemyId.split('_').join('').split(' - ').join('')}';
       var host = #{host };
       var gameId = '#{gameId}';
-      var c = new NetworkedGameRunner(id, enemyId, host, gameId);
+      var mapId = '#{mapId}';
+      var c = new NetworkedGameRunner(id, enemyId, host, gameId, mapId);
     });

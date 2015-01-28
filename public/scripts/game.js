@@ -2051,7 +2051,7 @@ var LocalGameRunner = (function () {
     return LocalGameRunner;
 })();
 var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host, gameId, mapId, string) {
+    function NetworkedGameRunner(id, enemyId, host, gameId, mapId) {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;

@@ -28,7 +28,7 @@ class NetworkedGameRunner implements IGameRunner {
   private mouseX: number;
   private mouseY: number;
 
-  constructor(id: string, enemyId: string, host: boolean, gameId: string, mapId, string) {
+  constructor(id: string, enemyId: string, host: boolean, gameId: string, mapId: string) {
     this.myId = id;
     this.gameId = gameId;
     this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" }); // todo: use our own server
