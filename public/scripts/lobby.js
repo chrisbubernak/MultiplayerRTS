@@ -6,11 +6,14 @@ var id;
 var mySocket;
 var startGame;
 function start(username) {
-  chooseMap = function() {
-    alert("Pick a map!");
+  chooseMap = function(enemyId, enemySocket) {
+    var mapId = prompt('Please enter a map Id (0-2): ');
+    if (mapId != null) {
+        startGame(enemyId, enemySocket, mapId);
+    }
   }
-  startGame = function (enemyId, enemySocket) {
-    var mapId = Math.floor(Math.random() * 3);
+ 
+  startGame = function (enemyId, enemySocket, mapId) {
     socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket, mapId: mapId });
   }
 
@@ -28,7 +31,7 @@ function start(username) {
     for (var c in data.clients) {
       if (data.clients[c].Socket !== mySocket) { //don't include ourself in the list
         document.getElementById('playerList').innerHTML +=
-          '<div class="game" onclick=\'startGame(' + data.clients[c].Id + ', "' + data.clients[c].Socket + '")\'>'
+          '<div class="game" onclick=\'chooseMap(' + data.clients[c].Id + ', "' + data.clients[c].Socket + '")\'>'
           + data.clients[c].Username + '</div>';
       } else {
         id = data.clients[c].Id;
