@@ -31,7 +31,7 @@ function start(username) {
     for (var c in data.clients) {
       if (data.clients[c].Socket !== mySocket) { //don't include ourself in the list
         document.getElementById('playerList').innerHTML +=
-          '<div class="game" onclick=\'chooseMap(' + data.clients[c].Id + ', "' + data.clients[c].Socket + '")\'>'
+          '<div class="playerListItem" onclick=\'chooseMap(' + data.clients[c].Id + ', "' + data.clients[c].Socket + '")\'>'
           + data.clients[c].Username + '</div>';
       } else {
         id = data.clients[c].Id;
