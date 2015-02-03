@@ -5,7 +5,24 @@ var conn;
 var id;
 var mySocket;
 var startGame;
+var sendChat;
+var receiveChat;
+// gets called on doc ready...
 function start(username) {
+  sendChat = function(text) {
+    // send chat to the server
+  }
+
+  writeToChat = function(text, player) {
+    // receive chat from the server from a specific player
+    var chatHistory = document.getElementById('chatHistory');
+    chatHistory.innerHTML += ("<br>" + player + "> " + text); 
+  }
+
+  writeDebugToChat = function(text) {
+    writeToChat(text, 'DEBUG'); 
+  }
+
   chooseMap = function(enemyId, enemySocket) {
     var mapId = prompt('Please enter a map Id (0-2): ');
     if (mapId != null) {
@@ -18,9 +35,18 @@ function start(username) {
   }
 
   var socket = io.connect('/');
+
+  socket.on('ChatReceived', function (data) {
+    if (data.text && data.player) {
+      writeToChat(data.text, data.player);
+    } else {
+      writeDebugToChat("Error in ChatReceived. data.text = " + data.text + " data.player = " + data.player);
+    }
+  });
+
   socket.on('ClientJoined', function (data) {
-    console.log(data);
-    console.log("My user ID is: " + data.userId);
+    writeDebugToChat(data);
+    writeDebugToChat("My user ID is: " + data.userId);
     mySocket = data.userId;
     socket.emit('SendUserInfoToServer', { socket: data.userId, username: username });
   });
