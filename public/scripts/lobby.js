@@ -9,7 +9,11 @@ var sendChat;
 var receiveChat;
 // gets called on doc ready...
 function start(username) {
-  sendChat = function(text) {
+  sendChat = function() {
+    var textAreaElement = document.getElementById('chatInput').children[0];
+    var text = textAreaElement.value;
+    writeToChat(text, 'me');
+    textAreaElement.value = "";
     // send chat to the server
   }
 
@@ -22,6 +26,8 @@ function start(username) {
   writeDebugToChat = function(text) {
     writeToChat(text, 'DEBUG'); 
   }
+
+  document.getElementById('sendChat').onclick = sendChat;
 
   chooseMap = function(enemyId, enemySocket) {
     var mapId = prompt('Please enter a map Id (0-2): ');
@@ -52,7 +58,7 @@ function start(username) {
   });
 
   socket.on('ClientList', function (data) {
-    console.log(data);
+    writeDebugToChat(data);
     document.getElementById('playerList').innerHTML = "Client List:\n";
     for (var c in data.clients) {
       if (data.clients[c].Socket !== mySocket) { //don't include ourself in the list
@@ -76,12 +82,12 @@ function start(username) {
     if (id === data.host) {
       enemyId = clientId;
       host = true;
-      console.log('Game started and I am the host');
+      writeDebugToChat('Game started and I am the host');
     }
     else {
       enemyId = hostId;
       host = false;
-      console.log('Game started and I am the client');
+      writeDebugToChat('Game started and I am the client');
     }
     //todo: remove hard coded map id = 1
     window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + mapId;

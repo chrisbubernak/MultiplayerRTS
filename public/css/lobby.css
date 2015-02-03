@@ -15,7 +15,7 @@
   height: 90%;
 }
 #chatInput {
-  background-color: #008000;
+  background-color: #000;
   height: 10%;
 }
 #playerList {
@@ -23,6 +23,10 @@
   width: 20%;
   height: 90%;
   color: #fff;
+}
+#sendChat {
+  width: 10%;
+  height: 100%;
 }
 .playerListItem {
   color: #fff;
