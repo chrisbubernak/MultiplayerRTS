@@ -12,9 +12,15 @@ function start(username) {
   sendChat = function() {
     var textAreaElement = document.getElementById('chatInput').children[0];
     var text = textAreaElement.value;
-    writeToChat(text, 'me');
     textAreaElement.value = "";
-    // send chat to the server
+    // no reason to send blank messages so verify it exists first
+    if (text) {
+      // send chat to the server
+      socket.emit('ChatToServer', {
+        player: username,
+        text: text
+      });
+    }
   }
 
   writeToChat = function(text, player) {
@@ -42,7 +48,7 @@ function start(username) {
 
   var socket = io.connect('/');
 
-  socket.on('ChatReceived', function (data) {
+  socket.on('ChatFromServer', function (data) {
     if (data.text && data.player) {
       writeToChat(data.text, data.player);
     } else {

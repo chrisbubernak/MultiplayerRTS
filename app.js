@@ -73,6 +73,15 @@ io.sockets.on('connection', function (client) {
         GM.reportGameStart(hostId, clientId, gameId, mapId);
     });
 
+    // when a client sends a chat message...
+    client.on('ChatToServer', function (data) {
+      // tell all the clients about it
+      io.sockets.emit( 'ChatFromServer', {
+        text: data.text,
+        player: data.player
+      });
+    });
+
     client.on('disconnect', function () {
         LM.clientDisconnect(client);
     });
