@@ -1833,7 +1833,7 @@ var Pathing = (function () {
     }
     Pathing.aStarToLoc = function (start, goal, unit) {
         if (start === null || start === undefined || goal === null || goal === undefined || unit === null || unit === undefined) {
-            Logger.LogError("Problem with aStar");
+            Logger.LogError("Problem with Pathing.aStarToLoc()");
             Logger.LogError("start: " + start);
             Logger.LogError("goal: " + goal);
             Logger.LogError("unit: " + unit);
@@ -2124,6 +2124,12 @@ var NetworkedGameRunner = (function () {
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
+
+        if (!this.peer) {
+            Logger.LogError("peer = " + this.peer);
+            this.end("peer = " + this.peer);
+        }
+
         this.myGame = new Game(host, id, enemyId, gameId, mapId);
         this.host = host;
         var playerNumber;
@@ -2205,6 +2211,7 @@ var NetworkedGameRunner = (function () {
 
         this.peer.on("error", function (err) {
             Logger.LogError("error connecting!: " + err);
+            that.end("error connecting!: " + err);
         });
 
         this.peer.on("open", function () {

@@ -6,7 +6,7 @@
 class Pathing {
   // runs a star to a specific grid location
   public static aStarToLoc(start: number, goal: number , unit: Unit): number[] {
-    if (start === null || start === undefined || 
+    if (start === null || start === undefined ||
       goal === null || goal === undefined ||
       unit === null || unit === undefined) {
       Logger.LogError("Problem with Pathing.aStarToLoc()");
@@ -109,7 +109,7 @@ class Pathing {
 
   // this should return the path as an array going from first move to last
   private static getPath(cameFrom: number[], cur: number, start: number): number[] {
-    if (cameFrom === null || cameFrom === undefined || 
+    if (cameFrom === null || cameFrom === undefined ||
       cur === null || cur === undefined ||
       start === null || start === undefined) {
       Logger.LogError("Error in Pathing.GetPath()");

@@ -26,7 +26,7 @@ function start(username) {
   writeToChat = function(text, player) {
     // receive chat from the server from a specific player
     var chatHistory = document.getElementById('chatHistory');
-    chatHistory.innerHTML += ("<br>" + player + "> " + text); 
+    chatHistory.innerHTML = ("<br>" + player + "> " + text) + chatHistory.innerHTML; 
   }
 
   writeDebugToChat = function(text) {
@@ -64,16 +64,19 @@ function start(username) {
   });
 
   socket.on('ClientList', function (data) {
-    writeDebugToChat(data);
-    document.getElementById('playerList').innerHTML = "Client List:\n";
+    writeDebugToChat("Client List Updated...");
+    document.getElementById('playerList').innerHTML = "<h3>Chat Room: </h3>\n";
     for (var c in data.clients) {
-      if (data.clients[c].Socket !== mySocket) { //don't include ourself in the list
+      var player = data.clients[c];
+      writeDebugToChat(player.Username);
+      if (data.clients[c].Socket !== mySocket) { // we can't play vs ourself...
         document.getElementById('playerList').innerHTML +=
-          '<div class="playerListItem" onclick=\'chooseMap(' + data.clients[c].Id + ', "' + data.clients[c].Socket + '")\'>'
-          + data.clients[c].Username + '</div>';
+          '<div class="playerListItem" onclick=\'chooseMap(' + player.Id + ', "' + player.Socket + '")\'>'
+          + player.Username + '</div>';
       } else {
-        id = data.clients[c].Id;
-        mySocket = data.clients[c].Socket;
+        id = player.Id;
+        mySocket = player.Socket;
+        document.getElementById('playerList').innerHTML += '<div class="currentPlayerListItem">' + player.Username + '</div>';
       }
     }
   });
@@ -95,7 +98,7 @@ function start(username) {
       host = false;
       writeDebugToChat('Game started and I am the client');
     }
-    //todo: remove hard coded map id = 1
+
     window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + mapId;
   });
 }

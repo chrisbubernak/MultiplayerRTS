@@ -13,6 +13,7 @@
 #chatHistory {
   background-color: #fff;
   height: 90%;
+  overflow: scroll;
 }
 #chatInput {
   background-color: #000;
@@ -27,6 +28,11 @@
 #sendChat {
   width: 10%;
   height: 100%;
+}
+.currentPlayerListItem {
+  color: #fff;
+  border: 1px solid green;
+  margin: 2px 2px 2px 2px;
 }
 .playerListItem {
   color: #fff;
