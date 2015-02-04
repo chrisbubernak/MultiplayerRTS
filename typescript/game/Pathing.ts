@@ -1,10 +1,21 @@
 ﻿/// <reference path="Utilities.ts" />
 /// <reference path="PriorityQueue.ts" />
 /// <reference path="Game.ts" />
+/// <reference path="logger.ts" />
 
 class Pathing {
   // runs a star to a specific grid location
   public static aStarToLoc(start: number, goal: number , unit: Unit): number[] {
+    if (start === null || start === undefined || 
+      goal === null || goal === undefined ||
+      unit === null || unit === undefined) {
+      Logger.LogError("Problem with Pathing.aStarToLoc()");
+      Logger.LogError("start: " + start);
+      Logger.LogError("goal: " + goal);
+      Logger.LogError("unit: " + unit);
+      return;
+    }
+
     var closedSet: number[] = new Array();
     var openSet: PriorityQueue = new PriorityQueue();
 
@@ -41,9 +52,6 @@ class Pathing {
           Math.floor((neighbors[i] + unit.gridWidth - 1) / Game.getNumOfCols());
         var offGridBottom: boolean = neighbors[i] + (unit.gridHeight - 1) * Game.getNumOfCols() > Game.getNumOfCols() * Game.getNumOfRows();
         if (offGridRight || offGridBottom || (!Game.getTerrainLoc(neighbors[i]).walkable)) {
-          /* if (Client && Client.DEBUG) {
-            Drawer.drawSquare(neighbors[i], "blue");
-          } */
           if (neighbors[i] === goal) {
             // if the goal was unreachable path to the thing we think is closest to it
             final = distanceToGoal.dequeue();
@@ -60,9 +68,6 @@ class Pathing {
           var terrainLoc: TerrainTile = Game.getTerrainLoc(locs[l]);
 
           if ((gridLoc !== unit.id && gridLoc !== null) || !terrainLoc.walkable) {
-            /* if (Client && Client.DEBUG) {
-              Drawer.drawSquare(neighbors[i], "blue");
-            } */
             if (neighbors[i] === goal) {
               // if the goal was unreachable path to the thing we think is closest to it
               // pq could be null though at this point if our current location is good enough
@@ -91,9 +96,6 @@ class Pathing {
           fScore[neighbors[j]] = tempFScore;
           if (openSet.indexOf(neighbors[j]) === -1) {
             openSet.enqueue(neighbors[j], fScore[neighbors[j]]);
-            /* if (Client && Client.DEBUG) {
-              Drawer.drawSquare(neighbors[i], "yellow");
-            } */
           } else {
             // if the neighbor was already in the openset we need to update it in the priority queue
             openSet.update(neighbors[j], fScore[neighbors[j]]);
@@ -102,18 +104,25 @@ class Pathing {
       }
     }
     // if the goal was unreachable path to the thing we think is closest to it
-    return this.getPath(cameFrom, distanceToGoal.dequeue(), start);
+    return Pathing.getPath(cameFrom, distanceToGoal.dequeue(), start);
   }
 
   // this should return the path as an array going from first move to last
   private static getPath(cameFrom: number[], cur: number, start: number): number[] {
+    if (cameFrom === null || cameFrom === undefined || 
+      cur === null || cur === undefined ||
+      start === null || start === undefined) {
+      Logger.LogError("Error in Pathing.GetPath()");
+      Logger.LogError("cameFrom: " + cameFrom);
+      Logger.LogError("cur: " + cur);
+      Logger.LogError("start: " + start);
+      return;
+    }
+
     var returnArray: number[] = Array();
     while (cur !== start) {
       returnArray.splice(0, 0, cur);
       cur = cameFrom[cur];
-      /* if (Client && Client.DEBUG) {
-        Drawer.drawSquare(cur, "green");
-      } */
     }
     return returnArray;
   }

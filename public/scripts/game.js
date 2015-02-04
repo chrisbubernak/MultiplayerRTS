@@ -1832,6 +1832,14 @@ var Pathing = (function () {
     function Pathing() {
     }
     Pathing.aStarToLoc = function (start, goal, unit) {
+        if (start === null || start === undefined || goal === null || goal === undefined || unit === null || unit === undefined) {
+            Logger.LogError("Problem with aStar");
+            Logger.LogError("start: " + start);
+            Logger.LogError("goal: " + goal);
+            Logger.LogError("unit: " + unit);
+            return;
+        }
+
         var closedSet = new Array();
         var openSet = new PriorityQueue();
 
@@ -1909,10 +1917,18 @@ var Pathing = (function () {
             }
         }
 
-        return this.getPath(cameFrom, distanceToGoal.dequeue(), start);
+        return Pathing.getPath(cameFrom, distanceToGoal.dequeue(), start);
     };
 
     Pathing.getPath = function (cameFrom, cur, start) {
+        if (cameFrom === null || cameFrom === undefined || cur === null || cur === undefined || start === null || start === undefined) {
+            Logger.LogError("Error in Pathing.GetPath()");
+            Logger.LogError("cameFrom: " + cameFrom);
+            Logger.LogError("cur: " + cur);
+            Logger.LogError("start: " + start);
+            return;
+        }
+
         var returnArray = Array();
         while (cur !== start) {
             returnArray.splice(0, 0, cur);
