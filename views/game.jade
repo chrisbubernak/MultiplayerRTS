@@ -26,5 +26,9 @@ block scripts
       var host = #{host };
       var gameId = '#{gameId}';
       var mapId = '#{mapId}';
-      var c = new NetworkedGameRunner(id, enemyId, host, gameId, mapId);
+      if (host) {
+        var c = new HostGameRunner(id, enemyId, gameId, mapId);
+      } else {
+        var c = new ClientGameRunner(id, enemyId, gameId, mapId);
+      }
     });

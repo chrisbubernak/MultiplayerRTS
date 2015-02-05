@@ -31,7 +31,7 @@ class Game {
   private host: boolean;
 
 
-  public winner: string = null;
+  public winner: string;
 
   // public Methods:
   constructor(host: boolean, id: string, enemyId: string, gameId: string, mapId: string) {
@@ -179,7 +179,7 @@ class Game {
       var unit: Unit = Utilities.findUnit(action.getUnit(), Game.units);
       if (unit != null) {
         Logger.LogInfo("applied an action at simtick: " + simTick);
-        // new logic!
+        // new logic!e
         var targetLoc: number = action.getTarget();
         if (Game.grid[targetLoc] != null) {
           var unitTarget: Unit = Utilities.findUnit(Game.grid[targetLoc], Game.units);
