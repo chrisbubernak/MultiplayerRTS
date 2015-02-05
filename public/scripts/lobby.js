@@ -64,7 +64,6 @@ function start(username) {
   });
 
   socket.on('ClientList', function (data) {
-    writeDebugToChat("Client List Updated...");
     document.getElementById('playerList').innerHTML = "<h3>Chat Room: </h3>\n";
     for (var c in data.clients) {
       var player = data.clients[c];
@@ -79,6 +78,7 @@ function start(username) {
         document.getElementById('playerList').innerHTML += '<div class="currentPlayerListItem">' + player.Username + '</div>';
       }
     }
+    writeDebugToChat("Client List Updated...");
   });
    
   socket.on('StartGame', function (data) {
@@ -98,8 +98,9 @@ function start(username) {
       host = false;
       writeDebugToChat('Game started and I am the client');
     }
-
-    window.location.href = '/game?host=' + host + '&id=' + id + '&enemyId=' + enemyId + '&gameId=' + gameId + '&mapId=' + mapId;
+    // todo: remove the 999s here and make sure we use something more unique (maybe socket ids) than userIds
+    // because these collide with things...especially when we don't have our own peer server
+    window.location.href = '/game?host=' + host + '&id=' + id + '999&enemyId=' + enemyId + '999&gameId=' + gameId + '&mapId=' + mapId;
   });
 }
 

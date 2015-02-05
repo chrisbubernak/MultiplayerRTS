@@ -1449,6 +1449,8 @@ var Game = (function () {
             var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
             var unit = Utilities.findUnit(action.getUnit(), Game.units);
             if (unit != null) {
+                Logger.LogInfo("applied an action at simtick: " + simTick);
+
                 var targetLoc = action.getTarget();
                 if (Game.grid[targetLoc] != null) {
                     var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
@@ -2120,6 +2122,7 @@ var NetworkedGameRunner = (function () {
         this.updateFPS = 10;
         this.FPS = 60;
         this.actionList = new Array();
+        this.receivedGameHashes = new Array();
         this.actionHistory = {};
         this.myId = id;
         this.gameId = gameId;
@@ -2232,6 +2235,8 @@ var NetworkedGameRunner = (function () {
                 that.conn.on("data", function (data) {
                     if (!(typeof (data.simTick) === "undefined")) {
                         that.actionList[data.simTick] = data.actions;
+                        that.currentClientSimTick = data.simTick;
+                        that.receivedGameHashes[data.simTick] = data.gameHash;
                     }
                 });
             } else {
@@ -2253,6 +2258,12 @@ var NetworkedGameRunner = (function () {
                             that.myGame.applyActions(data.actions, data.simTick);
                             if (data.actions.length > 0) {
                                 that.actionHistory[data.simTick] = data.actions;
+                            }
+
+                            var clientHash = that.myGame.getHash();
+                            var hostHash = data.gameHash;
+                            if (clientHash != hostHash) {
+                                Logger.LogError("The client's game hash has diverged from mine at simTick " + that.myGame.getSimTick() + ": " + hostHash + " " + clientHash);
                             }
                         }
                     });
@@ -2294,15 +2305,22 @@ var NetworkedGameRunner = (function () {
             that.myGame.update();
 
             if (!that.host) {
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
                 that.actions = new Array();
             } else if (that.host && that.actionList[currentSimTick]) {
                 that.actions = that.actions.concat(that.actionList[currentSimTick]);
-                that.conn.send({ actions: that.actions, simTick: currentSimTick });
+                that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
                 that.myGame.applyActions(that.actions, currentSimTick);
                 if (that.actions.length > 0) {
                     that.actionHistory[currentSimTick] = that.actions;
                 }
+
+                var clientHash = that.receivedGameHashes[currentSimTick];
+                var hostHash = that.myGame.getHash();
+                if (clientHash != hostHash) {
+                    Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " + that.currentClientSimTick + ": " + hostHash + " " + clientHash);
+                }
+
                 that.actions = new Array();
             }
 

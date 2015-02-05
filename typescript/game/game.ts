@@ -178,6 +178,7 @@ class Game {
       var action: Action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
       var unit: Unit = Utilities.findUnit(action.getUnit(), Game.units);
       if (unit != null) {
+        Logger.LogInfo("applied an action at simtick: " + simTick);
         // new logic!
         var targetLoc: number = action.getTarget();
         if (Game.grid[targetLoc] != null) {

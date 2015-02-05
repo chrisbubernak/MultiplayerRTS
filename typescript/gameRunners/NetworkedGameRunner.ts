@@ -20,7 +20,9 @@ class NetworkedGameRunner implements IGameRunner {
   private updateFPS: number = 10;
   private FPS: number = 60;
   private actionList = new Array();
+  private receivedGameHashes = new Array();
   private actionHistory = {};
+  private currentClientSimTick: number;
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
@@ -164,6 +166,8 @@ class NetworkedGameRunner implements IGameRunner {
             // if we are the host it means the client sent us their actions
             // store these so we can send back an authoritatve action list 
             that.actionList[data.simTick] = data.actions;
+            that.currentClientSimTick = data.simTick;
+            that.receivedGameHashes[data.simTick] = data.gameHash;
           }
         });
       } else {
@@ -187,6 +191,12 @@ class NetworkedGameRunner implements IGameRunner {
               that.myGame.applyActions(data.actions, data.simTick);
               if (data.actions.length > 0) {
                 that.actionHistory[data.simTick] = data.actions;
+              }
+
+              var clientHash = that.myGame.getHash();
+              var hostHash = data.gameHash;
+              if (clientHash != hostHash) {
+              Logger.LogError("The client's game hash has diverged from mine at simTick " + that.myGame.getSimTick() + ": " + hostHash + " " + clientHash);
               }
             }
           });
@@ -233,16 +243,24 @@ class NetworkedGameRunner implements IGameRunner {
       that.myGame.update();
       // if we arean't the host just send our actions to the host
       if (!that.host) {
-        that.conn.send({ actions: that.actions, simTick: currentSimTick });
+        that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
         that.actions = new Array();
       } else if (that.host && that.actionList[currentSimTick]) {
         // if we are the host and we've already recieved the clients move for this simTick send the client a list of both of our moves
         that.actions = that.actions.concat(that.actionList[currentSimTick]);
-        that.conn.send({ actions: that.actions, simTick: currentSimTick});
+        that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
         that.myGame.applyActions(that.actions, currentSimTick);
         if (that.actions.length > 0) {
           that.actionHistory[currentSimTick] = that.actions;
         }
+
+        var clientHash = that.receivedGameHashes[currentSimTick];
+        var hostHash = that.myGame.getHash();
+        if (clientHash != hostHash) {
+          Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " +
+            that.currentClientSimTick + ": " + hostHash + " " + clientHash);
+        }
+
         that.actions = new Array();
       }
 
