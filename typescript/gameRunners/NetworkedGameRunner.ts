@@ -7,7 +7,7 @@
 /// <reference path="../game/selectionObject.ts" />
 /// <reference path="../game/logger.ts" />
 
-class NetworkedGameRunner implements IGameRunner {
+/*class NetworkedGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
@@ -320,3 +320,4 @@ class NetworkedGameRunner implements IGameRunner {
     });
   }
 }
+*/

@@ -159,7 +159,7 @@ class LocalGameRunner implements IGameRunner {
       var currentSimTick: number = that.myGame.getSimTick();
       that.myGame.update();
 
-      that.myGame.applyActions(that.actions, currentSimTick);
+      that.myGame.applyActions({'player': that.actions});
       that.actions = new Array();
 
       diffTime2 = newTime2 - oldTime2;

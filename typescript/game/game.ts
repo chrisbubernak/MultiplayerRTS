@@ -171,36 +171,38 @@ class Game {
     return myUnits;
   }
 
-  public applyActions(actions: any, simTick: number): void {
-    for (var a: number = 0; a < actions.length; a++) {
-      // this is a little silly at the moment to convert the data into an object but I'd like to 
-      // be able to just pass around this object in the future without modifying the following code
-      var action: Action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
-      var unit: Unit = Utilities.findUnit(action.getUnit(), Game.units);
-      if (unit != null) {
-        Logger.LogInfo("applied an action at simtick: " + simTick);
-        // new logic!e
-        var targetLoc: number = action.getTarget();
-        if (Game.grid[targetLoc] != null) {
-          var unitTarget: Unit = Utilities.findUnit(Game.grid[targetLoc], Game.units);
-          var isEnemy: boolean = this.areEnemies(unit, unitTarget);
-          var isVisible: boolean = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
-          if (isEnemy && isVisible) {
-            unit.command = new AttackCommand(unitTarget);
-          } else if (isEnemy && !isVisible) {
-            // if we try and walk to a hidden loc that contains an enemy, just issue a walk to that location
-            unit.command = new WalkCommand(unitTarget.loc);
-          } else if (!isEnemy && isVisible) {
-            // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
-            // alert(issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
+  public applyActions(players: any): void {
+    for (var player in players) {
+      var actions = players[player];
+      for (var a: number = 0; a < actions.length; a++) {
+        // this is a little silly at the moment to convert the data into an object but I'd like to 
+        // be able to just pass around this object in the future without modifying the following code
+        var action: Action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
+        var unit: Unit = Utilities.findUnit(action.getUnit(), Game.units);
+        if (unit != null) {
+          // new logic!
+          var targetLoc: number = action.getTarget();
+          if (Game.grid[targetLoc] != null) {
+            var unitTarget: Unit = Utilities.findUnit(Game.grid[targetLoc], Game.units);
+            var isEnemy: boolean = this.areEnemies(unit, unitTarget);
+            var isVisible: boolean = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
+            if (isEnemy && isVisible) {
+              unit.command = new AttackCommand(unitTarget);
+            } else if (isEnemy && !isVisible) {
+              // if we try and walk to a hidden loc that contains an enemy, just issue a walk to that location
+              unit.command = new WalkCommand(unitTarget.loc);
+            } else if (!isEnemy && isVisible) {
+              // if we try and walk to one of our units issue a follow command, this doesn't exist yet tho!
+              // alert(issue a follow command: curLoc: " + unit.loc + " tar: " + targetLoc);
+            } else {
+              Logger.LogError("unable to issue a command...logic error somewhere");
+            }
           } else {
-            Logger.LogError("unable to issue a command...logic error somewhere");
+            unit.command = new WalkCommand(targetLoc);
           }
-        } else {
-          unit.command = new WalkCommand(targetLoc);
+          // set this so the unit knows to transition to waiting state        
+          unit.newCommand = true;
         }
-        // set this so the unit knows to transition to waiting state        
-        unit.newCommand = true;
       }
     }
     this.simTick++;

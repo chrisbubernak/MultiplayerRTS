@@ -100,7 +100,7 @@ function start(username) {
     }
     // todo: remove the 999s here and make sure we use something more unique (maybe socket ids) than userIds
     // because these collide with things...especially when we don't have our own peer server
-    window.location.href = '/game?host=' + host + '&id=' + id + '999&enemyId=' + enemyId + '999&gameId=' + gameId + '&mapId=' + mapId;
+    window.location.href = '/game?host=' + host + '&id=' + id + '9&enemyId=' + enemyId + '9&gameId=' + gameId + '&mapId=' + mapId;
   });
 }
 

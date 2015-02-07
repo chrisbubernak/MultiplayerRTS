@@ -30,6 +30,9 @@ class HostGameRunner implements IGameRunner {
   private mouseX: number;
   private mouseY: number;
 
+
+  private history = new Array();
+
   constructor(id: string, enemyId: string, gameId: string, mapId: string) {
     this.myId = id;
     this.gameId = gameId;
@@ -146,21 +149,16 @@ class HostGameRunner implements IGameRunner {
       Logger.LogInfo("im initiating a connection");
       that.conn = that.peer.connect(enemyId, { reliable: true });
       that.conn.on("open", function (): void {
-        that.conn.send("Hey from player: " + id);
+        Logger.Log("Hey from player: " + id);
         that.run();
+        that.peer.disconnect();
       });
       that.conn.on("close", function (): void {
         Logger.LogInfo("connection closed!");
         that.end("Enemy Quit");
       });
       that.conn.on("data", function (data: any): void {
-        if (!(typeof (data.simTick) === "undefined")) {
-          // the client sent us their actions
-          // store these so we can send back an authoritatve action list 
-          that.actionList[data.simTick] = data.actions;
-          that.currentClientSimTick = data.simTick;
-          that.receivedGameHashes[data.simTick] = data.gameHash;
-        }
+        that.receivedData(data);
       });
     });
   }
@@ -173,9 +171,6 @@ class HostGameRunner implements IGameRunner {
     var oldTime: number = new Date().getTime();
     var diffTime: number = 0;
     var newTime: number = 0;
-    var oldTime2: number = new Date().getTime();
-    var diffTime2: number = 0;
-    var newTime2: number = 0;
 
     // loop that runs at 60 fps...aka drawing & selection stuff
     var that: HostGameRunner = this;
@@ -190,46 +185,61 @@ class HostGameRunner implements IGameRunner {
       newTime = new Date().getTime();
     }, 1000 / this.FPS);
 
-    // loop that runs much less frequently (10 fps)
-    // and handles physics/updating the game state/networking 
-    var fpsOut: any = document.getElementById("fps");
-    var intervalId: number = setInterval(function (): void {
-      if (that.myGame.isOver()) {
-        that.end("Game is over!");
-        clearInterval(intervalId);
+    this.execute();
+  }
+
+  private execute(): void {
+    this.myGame.update();
+    
+    if(this.myGame.isOver()) {
+      this.end("Game is Over!");
+    }
+
+    var currentSimTick = this.myGame.getSimTick();
+
+    var gameHash = this.myGame.getHash();
+
+    /*var fpsOut: any = document.getElementById("fps");
+
+    var oldTime2: number = new Date().getTime();
+    var diffTime2: number = 0;
+    var newTime2: number = 0;
+
+    if (this.myGame.isOver()) {
+      this.end("Game is over!");
+      //clearInterval(intervalId);
+    }
+
+    var currentSimTick: number = this.myGame.getSimTick();
+    this.myGame.update();
+
+    if (this.actionList[currentSimTick]) {
+      // if we've already recieved the clients move for this simTick send the client a list of both of our moves
+      this.actions = this.actions.concat(this.actionList[currentSimTick]);
+      this.conn.send({ actions: this.actions, simTick: currentSimTick, gameHash: this.myGame.getHash() });
+      this.myGame.applyActions(this.actions, currentSimTick);
+      if (this.actions.length > 0) {
+        this.actionHistory[currentSimTick] = this.actions;
       }
 
-      var currentSimTick: number = that.myGame.getSimTick();
-      that.myGame.update();
-
-      if (that.actionList[currentSimTick]) {
-        // if we've already recieved the clients move for this simTick send the client a list of both of our moves
-        that.actions = that.actions.concat(that.actionList[currentSimTick]);
-        that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-        that.myGame.applyActions(that.actions, currentSimTick);
-        if (that.actions.length > 0) {
-          that.actionHistory[currentSimTick] = that.actions;
-        }
-
-        var clientHash = that.receivedGameHashes[currentSimTick];
-        var hostHash = that.myGame.getHash();
-        if (clientHash != hostHash) {
-          Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " +
-            that.currentClientSimTick + ": " + hostHash + " " + clientHash);
-        }
-
-        that.actions = new Array();
+      var clientHash = this.receivedGameHashes[currentSimTick];
+      var hostHash = this.myGame.getHash();
+      if (clientHash != hostHash) {
+        Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " +
+          this.currentClientSimTick + ": h/" + hostHash + " c/" + clientHash);
       }
 
-      diffTime2 = newTime2 - oldTime2;
-      oldTime2 = newTime2;
-      newTime2 = new Date().getTime();
-      var realFPS: number = Math.round(1000 / diffTime);
-      that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
-      that.myGame.getHash() + "<br>heap usage: " +
-        Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
-    }, 1000 / (that.updateFPS));
+      this.actions = new Array();
+    }
+
+    diffTime2 = newTime2 - oldTime2;
+    oldTime2 = newTime2;
+    newTime2 = new Date().getTime();
+    var realFPS: number = Math.round(1000 / diffTime2);
+    this.drawer.REAL_FPS = realFPS;
+    fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
+    this.myGame.getHash() + "<br>heap usage: " +
+      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";*/
   }
 
   public drawSelect(): void {
@@ -275,5 +285,43 @@ class HostGameRunner implements IGameRunner {
         Logger.LogError("Error sending game report");
       }
     });
+  }
+
+  private receivedData(data: any) {
+    /*if (!(typeof (data.simTick) === "undefined")) {
+      // the client sent us their actions
+      // store these so we can send back an authoritatve action list 
+      this.actionList[data.simTick] = data.actions;
+      this.currentClientSimTick = data.simTick;
+      this.receivedGameHashes[data.simTick] = data.gameHash;
+      this.execute();
+    }*/
+
+    var actions = data.actions;
+    var myActions = this.actions;
+    this.actions = new Array();
+    actions['host'] = myActions;
+    var currentSimTick: number = this.myGame.getSimTick();
+    var gameHash: number = this.myGame.getHash();
+
+    this.conn.send({actions: actions, simTick: currentSimTick, gameHash: gameHash});
+    this.history.push(actions);
+    if (gameHash != data.gameHash) {
+      Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " +
+        data.simTick + ": h/" + gameHash + " c/" + data.gameHash);
+    }
+
+    this.simTickIsOver();
+  }
+
+  private simTickIsOver() {
+    var tick: number = this.myGame.getSimTick();
+    this.myGame.applyActions(this.history[tick]);
+    var that = this;
+    setTimeout(
+      function (): void {
+        that.execute();
+      }, 1000/that.updateFPS
+    );
   }
 }

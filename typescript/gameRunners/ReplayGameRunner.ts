@@ -80,9 +80,9 @@ class ReplayGameRunner implements IGameRunner {
       that.myGame.update();
 
       if (typeof that.actions[currentSimTick] === "undefined") {
-        that.myGame.applyActions(new Array(), currentSimTick);
+        that.myGame.applyActions({'replay': new Array()});
       } else {
-        that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+        that.myGame.applyActions({'replay': that.actions[currentSimTick]});
       }
 
       diffTime2 = newTime2 - oldTime2;

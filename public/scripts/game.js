@@ -1443,31 +1443,32 @@ var Game = (function () {
         return myUnits;
     };
 
-    Game.prototype.applyActions = function (actions, simTick) {
-        for (var a = 0; a < actions.length; a++) {
-            var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
-            var unit = Utilities.findUnit(action.getUnit(), Game.units);
-            if (unit != null) {
-                Logger.LogInfo("applied an action at simtick: " + simTick);
-
-                var targetLoc = action.getTarget();
-                if (Game.grid[targetLoc] != null) {
-                    var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
-                    var isEnemy = this.areEnemies(unit, unitTarget);
-                    var isVisible = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
-                    if (isEnemy && isVisible) {
-                        unit.command = new AttackCommand(unitTarget);
-                    } else if (isEnemy && !isVisible) {
-                        unit.command = new WalkCommand(unitTarget.loc);
-                    } else if (!isEnemy && isVisible) {
+    Game.prototype.applyActions = function (players) {
+        for (var player in players) {
+            var actions = players[player];
+            for (var a = 0; a < actions.length; a++) {
+                var action = new Action(actions[a].target, actions[a].unit, actions[a].shift);
+                var unit = Utilities.findUnit(action.getUnit(), Game.units);
+                if (unit != null) {
+                    var targetLoc = action.getTarget();
+                    if (Game.grid[targetLoc] != null) {
+                        var unitTarget = Utilities.findUnit(Game.grid[targetLoc], Game.units);
+                        var isEnemy = this.areEnemies(unit, unitTarget);
+                        var isVisible = Utilities.canAnyUnitSeeEnemy(unit, unitTarget);
+                        if (isEnemy && isVisible) {
+                            unit.command = new AttackCommand(unitTarget);
+                        } else if (isEnemy && !isVisible) {
+                            unit.command = new WalkCommand(unitTarget.loc);
+                        } else if (!isEnemy && isVisible) {
+                        } else {
+                            Logger.LogError("unable to issue a command...logic error somewhere");
+                        }
                     } else {
-                        Logger.LogError("unable to issue a command...logic error somewhere");
+                        unit.command = new WalkCommand(targetLoc);
                     }
-                } else {
-                    unit.command = new WalkCommand(targetLoc);
-                }
 
-                unit.newCommand = true;
+                    unit.newCommand = true;
+                }
             }
         }
         this.simTick++;
@@ -1961,6 +1962,7 @@ var ClientGameRunner = (function () {
         this.actionList = new Array();
         this.receivedGameHashes = new Array();
         this.actionHistory = {};
+        this.history = new Array();
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
@@ -1990,6 +1992,7 @@ var ClientGameRunner = (function () {
                         var tar = that.drawer.screenCoordsToMapLoc(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
                         var a = new Action(tar, Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
+                        console.log('action!');
                     }
                 }
             }
@@ -2057,26 +2060,16 @@ var ClientGameRunner = (function () {
                 that.conn = conn;
                 Logger.LogInfo("client " + conn);
                 that.conn.on("open", function () {
-                    that.conn.send("Hey from player: " + id);
+                    Logger.LogInfo("Hey from player: " + id);
                     that.run();
+                    that.peer.disconnect();
                 });
                 that.conn.on("close", function () {
                     Logger.LogInfo("connection closed!");
                     that.end("Enemy Quit");
                 });
                 that.conn.on("data", function (data) {
-                    if (!(typeof (data.simTick) === "undefined")) {
-                        that.myGame.applyActions(data.actions, data.simTick);
-                        if (data.actions.length > 0) {
-                            that.actionHistory[data.simTick] = data.actions;
-                        }
-
-                        var clientHash = that.myGame.getHash();
-                        var hostHash = data.gameHash;
-                        if (clientHash != hostHash) {
-                            Logger.LogError("The client's game hash has diverged from mine at simTick " + that.myGame.getSimTick() + ": " + hostHash + " " + clientHash);
-                        }
-                    }
+                    that.receivedData(data);
                 });
             });
         });
@@ -2088,9 +2081,6 @@ var ClientGameRunner = (function () {
         var oldTime = new Date().getTime();
         var diffTime = 0;
         var newTime = 0;
-        var oldTime2 = new Date().getTime();
-        var diffTime2 = 0;
-        var newTime2 = 0;
 
         var that = this;
         setInterval(function () {
@@ -2104,26 +2094,24 @@ var ClientGameRunner = (function () {
             newTime = new Date().getTime();
         }, 1000 / this.FPS);
 
-        var fpsOut = document.getElementById("fps");
-        var intervalId = setInterval(function () {
-            if (that.myGame.isOver()) {
-                that.end("Game is over!");
-                clearInterval(intervalId);
-            }
+        this.execute();
+    };
 
-            var currentSimTick = that.myGame.getSimTick();
-            that.myGame.update();
+    ClientGameRunner.prototype.execute = function () {
+        this.myGame.update();
 
-            that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-            that.actions = new Array();
+        if (this.myGame.isOver()) {
+            this.end("Game is Over!");
+        }
 
-            diffTime2 = newTime2 - oldTime2;
-            oldTime2 = newTime2;
-            newTime2 = new Date().getTime();
-            var realFPS = Math.round(1000 / diffTime);
-            that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " + that.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
-        }, 1000 / (that.updateFPS));
+        var actionsToSend = this.actions;
+        this.actions = new Array();
+
+        var currentSimTick = this.myGame.getSimTick();
+
+        var gameHash = this.myGame.getHash();
+
+        this.conn.send({ actions: { "client": actionsToSend }, simTick: currentSimTick, gameHash: gameHash });
     };
 
     ClientGameRunner.prototype.drawSelect = function () {
@@ -2169,6 +2157,28 @@ var ClientGameRunner = (function () {
             }
         });
     };
+
+    ClientGameRunner.prototype.receivedData = function (data) {
+        var actions = data.actions;
+
+        var gameHash = this.myGame.getHash();
+
+        if (gameHash != data.gameHash) {
+            Logger.LogError("The host's game hash has diverged from mine at simTick " + data.simTick + " " + this.myGame.getSimTick() + ": h/" + data.gameHash + " c/" + gameHash);
+        }
+
+        this.history.push(actions);
+        this.simTickIsOver();
+    };
+
+    ClientGameRunner.prototype.simTickIsOver = function () {
+        var tick = this.myGame.getSimTick();
+        this.myGame.applyActions(this.history[tick]);
+        var that = this;
+        setTimeout(function () {
+            that.execute();
+        }, 1000 / that.updateFPS);
+    };
     return ClientGameRunner;
 })();
 var HostGameRunner = (function () {
@@ -2182,6 +2192,7 @@ var HostGameRunner = (function () {
         this.actionList = new Array();
         this.receivedGameHashes = new Array();
         this.actionHistory = {};
+        this.history = new Array();
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
@@ -2276,19 +2287,16 @@ var HostGameRunner = (function () {
             Logger.LogInfo("im initiating a connection");
             that.conn = that.peer.connect(enemyId, { reliable: true });
             that.conn.on("open", function () {
-                that.conn.send("Hey from player: " + id);
+                Logger.Log("Hey from player: " + id);
                 that.run();
+                that.peer.disconnect();
             });
             that.conn.on("close", function () {
                 Logger.LogInfo("connection closed!");
                 that.end("Enemy Quit");
             });
             that.conn.on("data", function (data) {
-                if (!(typeof (data.simTick) === "undefined")) {
-                    that.actionList[data.simTick] = data.actions;
-                    that.currentClientSimTick = data.simTick;
-                    that.receivedGameHashes[data.simTick] = data.gameHash;
-                }
+                that.receivedData(data);
             });
         });
     }
@@ -2299,9 +2307,6 @@ var HostGameRunner = (function () {
         var oldTime = new Date().getTime();
         var diffTime = 0;
         var newTime = 0;
-        var oldTime2 = new Date().getTime();
-        var diffTime2 = 0;
-        var newTime2 = 0;
 
         var that = this;
         setInterval(function () {
@@ -2315,40 +2320,19 @@ var HostGameRunner = (function () {
             newTime = new Date().getTime();
         }, 1000 / this.FPS);
 
-        var fpsOut = document.getElementById("fps");
-        var intervalId = setInterval(function () {
-            if (that.myGame.isOver()) {
-                that.end("Game is over!");
-                clearInterval(intervalId);
-            }
+        this.execute();
+    };
 
-            var currentSimTick = that.myGame.getSimTick();
-            that.myGame.update();
+    HostGameRunner.prototype.execute = function () {
+        this.myGame.update();
 
-            if (that.actionList[currentSimTick]) {
-                that.actions = that.actions.concat(that.actionList[currentSimTick]);
-                that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-                that.myGame.applyActions(that.actions, currentSimTick);
-                if (that.actions.length > 0) {
-                    that.actionHistory[currentSimTick] = that.actions;
-                }
+        if (this.myGame.isOver()) {
+            this.end("Game is Over!");
+        }
 
-                var clientHash = that.receivedGameHashes[currentSimTick];
-                var hostHash = that.myGame.getHash();
-                if (clientHash != hostHash) {
-                    Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " + that.currentClientSimTick + ": " + hostHash + " " + clientHash);
-                }
+        var currentSimTick = this.myGame.getSimTick();
 
-                that.actions = new Array();
-            }
-
-            diffTime2 = newTime2 - oldTime2;
-            oldTime2 = newTime2;
-            newTime2 = new Date().getTime();
-            var realFPS = Math.round(1000 / diffTime);
-            that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " + that.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
-        }, 1000 / (that.updateFPS));
+        var gameHash = this.myGame.getHash();
     };
 
     HostGameRunner.prototype.drawSelect = function () {
@@ -2393,6 +2377,32 @@ var HostGameRunner = (function () {
                 Logger.LogError("Error sending game report");
             }
         });
+    };
+
+    HostGameRunner.prototype.receivedData = function (data) {
+        var actions = data.actions;
+        var myActions = this.actions;
+        this.actions = new Array();
+        actions['host'] = myActions;
+        var currentSimTick = this.myGame.getSimTick();
+        var gameHash = this.myGame.getHash();
+
+        this.conn.send({ actions: actions, simTick: currentSimTick, gameHash: gameHash });
+        this.history.push(actions);
+        if (gameHash != data.gameHash) {
+            Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " + data.simTick + ": h/" + gameHash + " c/" + data.gameHash);
+        }
+
+        this.simTickIsOver();
+    };
+
+    HostGameRunner.prototype.simTickIsOver = function () {
+        var tick = this.myGame.getSimTick();
+        this.myGame.applyActions(this.history[tick]);
+        var that = this;
+        setTimeout(function () {
+            that.execute();
+        }, 1000 / that.updateFPS);
     };
     return HostGameRunner;
 })();
@@ -2523,7 +2533,7 @@ var LocalGameRunner = (function () {
             var currentSimTick = that.myGame.getSimTick();
             that.myGame.update();
 
-            that.myGame.applyActions(that.actions, currentSimTick);
+            that.myGame.applyActions({ 'player': that.actions });
             that.actions = new Array();
 
             diffTime2 = newTime2 - oldTime2;
@@ -2557,271 +2567,6 @@ var LocalGameRunner = (function () {
         window.location.href = "/lobby";
     };
     return LocalGameRunner;
-})();
-var NetworkedGameRunner = (function () {
-    function NetworkedGameRunner(id, enemyId, host, gameId, mapId) {
-        this.DEBUG = false;
-        this.STATEDEBUG = false;
-        this.DRAWGRID = false;
-        this.actions = new Array();
-        this.updateFPS = 10;
-        this.FPS = 60;
-        this.actionList = new Array();
-        this.receivedGameHashes = new Array();
-        this.actionHistory = {};
-        this.myId = id;
-        this.gameId = gameId;
-        this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
-
-        if (!this.peer) {
-            Logger.LogError("peer = " + this.peer);
-            this.end("peer = " + this.peer);
-        }
-
-        this.myGame = new Game(host, id, enemyId, gameId, mapId);
-        this.host = host;
-        var playerNumber;
-        if (this.host) {
-            playerNumber = 1;
-        } else {
-            playerNumber = 2;
-        }
-        this.drawer = new Drawer(playerNumber, document.getElementById("terrainCanvas"), document.getElementById("unitCanvas"), document.getElementById("fogCanvas"), document.getElementById("selectionCanvas"), document.getElementById("menuCanvas"), this);
-
-        var that = this;
-
-        $(document).mousedown(function (e) {
-            if (e.which === 1) {
-                $(this).data("mousedown", true);
-                var coords = that.drawer.screenCoordsToMapCoords(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-                that.setSelection(coords);
-                that.myGame.unselectAll();
-            } else if (e.which === 3) {
-                var units = Game.getUnits();
-                for (var u = 0; u < units.length; u++) {
-                    if (units[u].selected) {
-                        var tar = that.drawer.screenCoordsToMapLoc(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-                        var a = new Action(tar, Game.getUnits()[u].id, that.shifted);
-                        that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
-                    }
-                }
-            }
-        });
-
-        $(window).resize(function () {
-            that.drawer.updateDimensions($(window).width(), $(window).height());
-        });
-
-        $(document).mouseup(function (e) {
-            var selectionLoc = that.drawer.mapCoordsToMapLoc(new Coords(that.selection.x, that.selection.y));
-            var occupied = Utilities.getOccupiedSquares(selectionLoc, that.selection.w / that.drawer.getBoxWidth(), that.selection.h / that.drawer.getBoxHeight());
-            for (var o = 0; o < occupied.length; o++) {
-                var id = Game.getGridLoc(occupied[o]);
-                if (id !== null && typeof id !== "undefined") {
-                    var unit = Utilities.findUnit(id, Game.getUnits());
-                    if (unit.player === that.myGame.getPlayerNumber()) {
-                        unit.selected = true;
-                    }
-                }
-            }
-            $(this).data("mousedown", false);
-        });
-
-        $(document).mousemove(function (e) {
-            that.mouseX = e.clientX;
-            that.mouseY = e.clientY;
-            if ($(this).data("mousedown")) {
-                var coords = that.drawer.screenCoordsToMapCoords(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
-                that.updateSelection(that.selection, coords.x, coords.y);
-            }
-        });
-
-        $(document).bind("keydown", function (e) {
-            var code = e.keyCode || e.which;
-            if (code === 71) {
-                if (that.DRAWGRID) {
-                    that.DRAWGRID = false;
-                    that.drawer.drawTerrain();
-                } else {
-                    that.DRAWGRID = true;
-                    that.drawer.drawGrid();
-                }
-            } else if (code === 68) {
-                if (that.DEBUG) {
-                    that.DEBUG = false;
-                } else {
-                    that.DEBUG = true;
-                }
-            }
-            that.shifted = e.shiftKey;
-            return true;
-        });
-
-        this.peer.on("error", function (err) {
-            Logger.LogError("error connecting!: " + err);
-            that.end("error connecting!: " + err);
-        });
-
-        this.peer.on("open", function () {
-            Logger.LogInfo("peer is open");
-
-            if (host) {
-                Logger.LogInfo("im initiating a connection");
-
-                that.conn = that.peer.connect(enemyId, { reliable: true });
-                that.conn.on("open", function () {
-                    that.conn.send("Hey from player: " + id);
-                    that.run();
-                });
-                that.conn.on("close", function () {
-                    Logger.LogInfo("connection closed!");
-                    that.end("Enemy Quit");
-                });
-                that.conn.on("data", function (data) {
-                    if (!(typeof (data.simTick) === "undefined")) {
-                        that.actionList[data.simTick] = data.actions;
-                        that.currentClientSimTick = data.simTick;
-                        that.receivedGameHashes[data.simTick] = data.gameHash;
-                    }
-                });
-            } else {
-                Logger.LogInfo("im waiting for a connection");
-
-                that.peer.on("connection", function (conn) {
-                    that.conn = conn;
-                    Logger.LogInfo("client " + conn);
-                    that.conn.on("open", function () {
-                        that.conn.send("Hey from player: " + id);
-                        that.run();
-                    });
-                    that.conn.on("close", function () {
-                        Logger.LogInfo("connection closed!");
-                        that.end("Enemy Quit");
-                    });
-                    that.conn.on("data", function (data) {
-                        if (!(typeof (data.simTick) === "undefined")) {
-                            that.myGame.applyActions(data.actions, data.simTick);
-                            if (data.actions.length > 0) {
-                                that.actionHistory[data.simTick] = data.actions;
-                            }
-
-                            var clientHash = that.myGame.getHash();
-                            var hostHash = data.gameHash;
-                            if (clientHash != hostHash) {
-                                Logger.LogError("The client's game hash has diverged from mine at simTick " + that.myGame.getSimTick() + ": " + hostHash + " " + clientHash);
-                            }
-                        }
-                    });
-                });
-            }
-        });
-    }
-    NetworkedGameRunner.prototype.run = function () {
-        this.myGame.setup();
-        this.drawer.drawTerrain();
-
-        var oldTime = new Date().getTime();
-        var diffTime = 0;
-        var newTime = 0;
-        var oldTime2 = new Date().getTime();
-        var diffTime2 = 0;
-        var newTime2 = 0;
-
-        var that = this;
-        setInterval(function () {
-            that.drawer.interpolate();
-            that.drawer.drawUnits(Game.getUnits());
-            that.drawSelect();
-            that.drawer.drawLowerMenu();
-            that.drawer.moveViewPort(that.mouseX, that.mouseY);
-            diffTime = newTime - oldTime;
-            oldTime = newTime;
-            newTime = new Date().getTime();
-        }, 1000 / this.FPS);
-
-        var fpsOut = document.getElementById("fps");
-        var intervalId = setInterval(function () {
-            if (that.myGame.isOver()) {
-                that.end("Game is over!");
-                clearInterval(intervalId);
-            }
-
-            var currentSimTick = that.myGame.getSimTick();
-            that.myGame.update();
-
-            if (!that.host) {
-                that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-                that.actions = new Array();
-            } else if (that.host && that.actionList[currentSimTick]) {
-                that.actions = that.actions.concat(that.actionList[currentSimTick]);
-                that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-                that.myGame.applyActions(that.actions, currentSimTick);
-                if (that.actions.length > 0) {
-                    that.actionHistory[currentSimTick] = that.actions;
-                }
-
-                var clientHash = that.receivedGameHashes[currentSimTick];
-                var hostHash = that.myGame.getHash();
-                if (clientHash != hostHash) {
-                    Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " + that.currentClientSimTick + ": " + hostHash + " " + clientHash);
-                }
-
-                that.actions = new Array();
-            }
-
-            diffTime2 = newTime2 - oldTime2;
-            oldTime2 = newTime2;
-            newTime2 = new Date().getTime();
-            var realFPS = Math.round(1000 / diffTime);
-            that.drawer.REAL_FPS = realFPS;
-            fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " + that.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
-        }, 1000 / (that.updateFPS));
-    };
-
-    NetworkedGameRunner.prototype.drawSelect = function () {
-        if ($(document).data("mousedown")) {
-            this.drawer.drawSelect(this.selection);
-        }
-    };
-
-    NetworkedGameRunner.prototype.setSelection = function (coords) {
-        this.selection = new SelectionObject(coords.x, coords.y);
-    };
-
-    NetworkedGameRunner.prototype.updateSelection = function (selection, eX, eY) {
-        selection.x = Math.min(selection.sX, eX);
-        selection.y = Math.min(selection.sY, eY);
-        selection.w = Math.abs(selection.sX - eX);
-        selection.h = Math.abs(selection.sY - eY);
-        return selection;
-    };
-
-    NetworkedGameRunner.prototype.end = function (message) {
-        this.sendGameReportToServer();
-        window.location.href = "/lobby";
-    };
-
-    NetworkedGameRunner.prototype.sendGameReportToServer = function () {
-        var that = this;
-        $.ajax({
-            url: "/gameEnd",
-            type: "POST",
-            data: {
-                gameId: that.gameId,
-                reporter: that.myId,
-                winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory),
-                gameHash: that.myGame.getHash()
-            },
-            success: function (data, textStatus, jqXHR) {
-                Logger.LogInfo("SUCCESS sending game report");
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                Logger.LogError("Error sending game report");
-            }
-        });
-    };
-    return NetworkedGameRunner;
 })();
 var ReplayGameRunner = (function () {
     function ReplayGameRunner(actions, mapId) {
@@ -2885,9 +2630,9 @@ var ReplayGameRunner = (function () {
             that.myGame.update();
 
             if (typeof that.actions[currentSimTick] === "undefined") {
-                that.myGame.applyActions(new Array(), currentSimTick);
+                that.myGame.applyActions({ 'replay': new Array() });
             } else {
-                that.myGame.applyActions(that.actions[currentSimTick], currentSimTick);
+                that.myGame.applyActions({ 'replay': that.actions[currentSimTick] });
             }
 
             diffTime2 = newTime2 - oldTime2;

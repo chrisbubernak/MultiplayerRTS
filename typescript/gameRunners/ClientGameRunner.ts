@@ -30,6 +30,10 @@ class ClientGameRunner implements IGameRunner {
   private mouseX: number;
   private mouseY: number;
 
+
+  private history = new Array();
+
+
   constructor(id: string, enemyId: string, gameId: string, mapId: string) {
     this.myId = id;
     this.gameId = gameId;
@@ -42,7 +46,7 @@ class ClientGameRunner implements IGameRunner {
 
     var playerNumber: number = 2;
     this.myGame = new Game(false, id, enemyId, gameId, mapId); // am i host? what is my id? what is the enemies id?
-    
+
     this.drawer = new Drawer(playerNumber,
       document.getElementById("terrainCanvas"),
       document.getElementById("unitCanvas"),
@@ -72,6 +76,7 @@ class ClientGameRunner implements IGameRunner {
               Game.getUnits()[u].id,
               that.shifted);
             that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
+            console.log('action!');
           }
         }
       }
@@ -148,27 +153,16 @@ class ClientGameRunner implements IGameRunner {
         that.conn = conn;
         Logger.LogInfo("client " + conn);
         that.conn.on("open", function (): void {
-          that.conn.send("Hey from player: " + id);
+          Logger.LogInfo("Hey from player: " + id);
           that.run();
+          that.peer.disconnect();
         });
         that.conn.on("close", function (): void {
           Logger.LogInfo("connection closed!");
           that.end("Enemy Quit");
         });
         that.conn.on("data", function (data: any): void {
-          if (!(typeof (data.simTick) === "undefined")) {
-            // host sent us an update and we should apply it
-            that.myGame.applyActions(data.actions, data.simTick);
-            if (data.actions.length > 0) {
-              that.actionHistory[data.simTick] = data.actions;
-            }
-
-            var clientHash = that.myGame.getHash();
-            var hostHash = data.gameHash;
-            if (clientHash != hostHash) {
-            Logger.LogError("The client's game hash has diverged from mine at simTick " + that.myGame.getSimTick() + ": " + hostHash + " " + clientHash);
-            }
-          }
+          that.receivedData(data);
         });
       });
     });
@@ -182,9 +176,6 @@ class ClientGameRunner implements IGameRunner {
     var oldTime: number = new Date().getTime();
     var diffTime: number = 0;
     var newTime: number = 0;
-    var oldTime2: number = new Date().getTime();
-    var diffTime2: number = 0;
-    var newTime2: number = 0;
 
     // loop that runs at 60 fps...aka drawing & selection stuff
     var that: ClientGameRunner = this;
@@ -198,31 +189,52 @@ class ClientGameRunner implements IGameRunner {
       oldTime = newTime;
       newTime = new Date().getTime();
     }, 1000 / this.FPS);
+   
+    this.execute();
+  }
 
-    // loop that runs much less frequently (10 fps)
-    // and handles physics/updating the game state/networking 
+
+  private execute(): void {
+    this.myGame.update();
+    
+    if(this.myGame.isOver()) {
+      this.end("Game is Over!");
+    }
+
+    var actionsToSend = this.actions;
+    this.actions = new Array();
+
+    var currentSimTick = this.myGame.getSimTick();
+
+    var gameHash = this.myGame.getHash();
+
+    this.conn.send({actions: {"client": actionsToSend}, simTick: currentSimTick, gameHash: gameHash});
+
+
+
+    /*var oldTime2: number = new Date().getTime();
+    var diffTime2: number = 0;
+    var newTime2: number = 0;
     var fpsOut: any = document.getElementById("fps");
-    var intervalId: number = setInterval(function (): void {
-      if (that.myGame.isOver()) {
-        that.end("Game is over!");
-        clearInterval(intervalId);
-      }
+    if (this.myGame.isOver()) {
+      this.end("Game is over!");
+      // clearInterval(intervalId);
+    }
 
-      var currentSimTick: number = that.myGame.getSimTick();
-      that.myGame.update();
-      // send our actions to the host
-      that.conn.send({ actions: that.actions, simTick: currentSimTick, gameHash: that.myGame.getHash() });
-      that.actions = new Array();
+    var currentSimTick: number = this.myGame.getSimTick();
+    this.myGame.update();
+    // send our actions to the host
+    this.conn.send({ actions: this.actions, simTick: currentSimTick, gameHash: this.myGame.getHash() });
+    this.actions = new Array();
 
-      diffTime2 = newTime2 - oldTime2;
-      oldTime2 = newTime2;
-      newTime2 = new Date().getTime();
-      var realFPS: number = Math.round(1000 / diffTime);
-      that.drawer.REAL_FPS = realFPS;
-      fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
-      that.myGame.getHash() + "<br>heap usage: " +
-        Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
-    }, 1000 / (that.updateFPS));
+    diffTime2 = newTime2 - oldTime2;
+    oldTime2 = newTime2;
+    newTime2 = new Date().getTime();
+    var realFPS: number = Math.round(1000 / diffTime2);
+    this.drawer.REAL_FPS = realFPS;
+    fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
+    this.myGame.getHash() + "<br>heap usage: " +
+      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";*/
   }
 
   public drawSelect(): void {
@@ -268,5 +280,54 @@ class ClientGameRunner implements IGameRunner {
         Logger.LogError("Error sending game report");
       }
     });
+  }
+
+
+  private receivedData(data: any) {
+    /*if (!(typeof (data.simTick) === "undefined")) {
+      // host sent us an update and we should apply it
+      this.myGame.applyActions(data.actions, data.simTick);
+      if (data.actions.length > 0) {
+        this.actionHistory[data.simTick] = data.actions;
+      }
+      var clientHash = this.myGame.getHash();
+      var hostHash = data.gameHash;
+      if (clientHash != hostHash) {
+        Logger.LogError("The host's game hash has diverged from mine at simTick " + this.myGame.getSimTick() + ": h/" + hostHash + " c/" + clientHash);
+      }
+      this.execute();
+    }*/
+    var actions = data.actions;
+
+    var gameHash = this.myGame.getHash();
+
+    if (gameHash != data.gameHash) {
+      Logger.LogError("The host's game hash has diverged from mine at simTick " + data.simTick + " " +
+        this.myGame.getSimTick() + ": h/" + data.gameHash + " c/" + gameHash);
+    }
+
+    this.history.push(actions);
+    this.simTickIsOver();
+    // for now leave this at 2, todo: move this to a class property
+    /*var numOfPlayers = 2;
+    if (Object.keys(actions).length === numOfPlayers) {
+      this.history.push(actions);
+      this.simTickIsOver();
+    } else {
+      Logger.LogError("CLIENT RECIEVED DATA BUT DIDNT FIND 2 ACTION ENTRIES");
+    }*/
+
+  }
+
+
+  private simTickIsOver() {
+    var tick: number = this.myGame.getSimTick();
+    this.myGame.applyActions(this.history[tick]);
+    var that = this;
+    setTimeout(
+      function (): void {
+        that.execute();
+      }, 1000/that.updateFPS
+    );
   }
 }
