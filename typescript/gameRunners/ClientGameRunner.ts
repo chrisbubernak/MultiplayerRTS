@@ -11,17 +11,15 @@ class ClientGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
+  private UPDATE_FPS: number = 10;
+  private FPS: number = 60;
+
 
   private myGame: Game;
   private peer;
   private conn;
   private actions = new Array();
-  private updateFPS: number = 10;
-  private FPS: number = 60;
-  private actionList = new Array();
-  private receivedGameHashes = new Array();
-  private actionHistory = {};
-  private currentClientSimTick: number;
+  private history = new Array();
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
@@ -31,7 +29,6 @@ class ClientGameRunner implements IGameRunner {
   private mouseY: number;
 
 
-  private history = new Array();
 
 
   constructor(id: string, enemyId: string, gameId: string, mapId: string) {
@@ -210,8 +207,6 @@ class ClientGameRunner implements IGameRunner {
 
     this.conn.send({actions: {"client": actionsToSend}, simTick: currentSimTick, gameHash: gameHash});
 
-
-
     /*var oldTime2: number = new Date().getTime();
     var diffTime2: number = 0;
     var newTime2: number = 0;
@@ -220,12 +215,6 @@ class ClientGameRunner implements IGameRunner {
       this.end("Game is over!");
       // clearInterval(intervalId);
     }
-
-    var currentSimTick: number = this.myGame.getSimTick();
-    this.myGame.update();
-    // send our actions to the host
-    this.conn.send({ actions: this.actions, simTick: currentSimTick, gameHash: this.myGame.getHash() });
-    this.actions = new Array();
 
     diffTime2 = newTime2 - oldTime2;
     oldTime2 = newTime2;
@@ -269,7 +258,7 @@ class ClientGameRunner implements IGameRunner {
         gameId: that.gameId,
         reporter: that.myId,
         winner: that.myGame.winner,
-        actions: JSON.stringify(that.actionHistory),
+        actions: JSON.stringify(that.history),
         gameHash: that.myGame.getHash()
       },
       // todo: get types for these callback func params
@@ -284,19 +273,6 @@ class ClientGameRunner implements IGameRunner {
 
 
   private receivedData(data: any) {
-    /*if (!(typeof (data.simTick) === "undefined")) {
-      // host sent us an update and we should apply it
-      this.myGame.applyActions(data.actions, data.simTick);
-      if (data.actions.length > 0) {
-        this.actionHistory[data.simTick] = data.actions;
-      }
-      var clientHash = this.myGame.getHash();
-      var hostHash = data.gameHash;
-      if (clientHash != hostHash) {
-        Logger.LogError("The host's game hash has diverged from mine at simTick " + this.myGame.getSimTick() + ": h/" + hostHash + " c/" + clientHash);
-      }
-      this.execute();
-    }*/
     var actions = data.actions;
 
     var gameHash = this.myGame.getHash();
@@ -308,15 +284,6 @@ class ClientGameRunner implements IGameRunner {
 
     this.history.push(actions);
     this.simTickIsOver();
-    // for now leave this at 2, todo: move this to a class property
-    /*var numOfPlayers = 2;
-    if (Object.keys(actions).length === numOfPlayers) {
-      this.history.push(actions);
-      this.simTickIsOver();
-    } else {
-      Logger.LogError("CLIENT RECIEVED DATA BUT DIDNT FIND 2 ACTION ENTRIES");
-    }*/
-
   }
 
 
@@ -327,7 +294,7 @@ class ClientGameRunner implements IGameRunner {
     setTimeout(
       function (): void {
         that.execute();
-      }, 1000/that.updateFPS
+      }, 1000/that.UPDATE_FPS
     );
   }
 }

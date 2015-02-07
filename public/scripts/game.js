@@ -1956,12 +1956,9 @@ var ClientGameRunner = (function () {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
-        this.actions = new Array();
-        this.updateFPS = 10;
+        this.UPDATE_FPS = 10;
         this.FPS = 60;
-        this.actionList = new Array();
-        this.receivedGameHashes = new Array();
-        this.actionHistory = {};
+        this.actions = new Array();
         this.history = new Array();
         this.myId = id;
         this.gameId = gameId;
@@ -2146,7 +2143,7 @@ var ClientGameRunner = (function () {
                 gameId: that.gameId,
                 reporter: that.myId,
                 winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory),
+                actions: JSON.stringify(that.history),
                 gameHash: that.myGame.getHash()
             },
             success: function (data, textStatus, jqXHR) {
@@ -2177,7 +2174,7 @@ var ClientGameRunner = (function () {
         var that = this;
         setTimeout(function () {
             that.execute();
-        }, 1000 / that.updateFPS);
+        }, 1000 / that.UPDATE_FPS);
     };
     return ClientGameRunner;
 })();
@@ -2186,12 +2183,9 @@ var HostGameRunner = (function () {
         this.DEBUG = false;
         this.STATEDEBUG = false;
         this.DRAWGRID = false;
-        this.actions = new Array();
-        this.updateFPS = 10;
+        this.UPDATE_FPS = 10;
         this.FPS = 60;
-        this.actionList = new Array();
-        this.receivedGameHashes = new Array();
-        this.actionHistory = {};
+        this.actions = new Array();
         this.history = new Array();
         this.myId = id;
         this.gameId = gameId;
@@ -2367,7 +2361,7 @@ var HostGameRunner = (function () {
                 gameId: that.gameId,
                 reporter: that.myId,
                 winner: that.myGame.winner,
-                actions: JSON.stringify(that.actionHistory),
+                actions: JSON.stringify(that.history),
                 gameHash: that.myGame.getHash()
             },
             success: function (data, textStatus, jqXHR) {
@@ -2402,7 +2396,7 @@ var HostGameRunner = (function () {
         var that = this;
         setTimeout(function () {
             that.execute();
-        }, 1000 / that.updateFPS);
+        }, 1000 / that.UPDATE_FPS);
     };
     return HostGameRunner;
 })();

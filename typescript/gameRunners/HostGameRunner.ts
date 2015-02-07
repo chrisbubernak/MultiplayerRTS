@@ -11,17 +11,14 @@ class HostGameRunner implements IGameRunner {
   public DEBUG: boolean = false;
   public STATEDEBUG: boolean = false;
   public DRAWGRID: boolean = false;
+  private UPDATE_FPS: number = 10;
+  private FPS: number = 60;
 
   private myGame: Game;
   private peer;
   private conn;
   private actions = new Array();
-  private updateFPS: number = 10;
-  private FPS: number = 60;
-  private actionList = new Array();
-  private receivedGameHashes = new Array();
-  private actionHistory = {};
-  private currentClientSimTick: number;
+  private history = new Array();
   private shifted: boolean;
   private selection: SelectionObject;
   private drawer: Drawer;
@@ -31,7 +28,6 @@ class HostGameRunner implements IGameRunner {
   private mouseY: number;
 
 
-  private history = new Array();
 
   constructor(id: string, enemyId: string, gameId: string, mapId: string) {
     this.myId = id;
@@ -205,33 +201,6 @@ class HostGameRunner implements IGameRunner {
     var diffTime2: number = 0;
     var newTime2: number = 0;
 
-    if (this.myGame.isOver()) {
-      this.end("Game is over!");
-      //clearInterval(intervalId);
-    }
-
-    var currentSimTick: number = this.myGame.getSimTick();
-    this.myGame.update();
-
-    if (this.actionList[currentSimTick]) {
-      // if we've already recieved the clients move for this simTick send the client a list of both of our moves
-      this.actions = this.actions.concat(this.actionList[currentSimTick]);
-      this.conn.send({ actions: this.actions, simTick: currentSimTick, gameHash: this.myGame.getHash() });
-      this.myGame.applyActions(this.actions, currentSimTick);
-      if (this.actions.length > 0) {
-        this.actionHistory[currentSimTick] = this.actions;
-      }
-
-      var clientHash = this.receivedGameHashes[currentSimTick];
-      var hostHash = this.myGame.getHash();
-      if (clientHash != hostHash) {
-        Logger.LogError("The client's game hash has diverged from mine at simTick " + currentSimTick + " " +
-          this.currentClientSimTick + ": h/" + hostHash + " c/" + clientHash);
-      }
-
-      this.actions = new Array();
-    }
-
     diffTime2 = newTime2 - oldTime2;
     oldTime2 = newTime2;
     newTime2 = new Date().getTime();
@@ -274,7 +243,7 @@ class HostGameRunner implements IGameRunner {
         gameId: that.gameId,
         reporter: that.myId,
         winner: that.myGame.winner,
-        actions: JSON.stringify(that.actionHistory),
+        actions: JSON.stringify(that.history),
         gameHash: that.myGame.getHash()
       },
       // todo: get types for these callback func params
@@ -288,15 +257,6 @@ class HostGameRunner implements IGameRunner {
   }
 
   private receivedData(data: any) {
-    /*if (!(typeof (data.simTick) === "undefined")) {
-      // the client sent us their actions
-      // store these so we can send back an authoritatve action list 
-      this.actionList[data.simTick] = data.actions;
-      this.currentClientSimTick = data.simTick;
-      this.receivedGameHashes[data.simTick] = data.gameHash;
-      this.execute();
-    }*/
-
     var actions = data.actions;
     var myActions = this.actions;
     this.actions = new Array();
@@ -321,7 +281,7 @@ class HostGameRunner implements IGameRunner {
     setTimeout(
       function (): void {
         that.execute();
-      }, 1000/that.updateFPS
+      }, 1000/that.UPDATE_FPS
     );
   }
 }
