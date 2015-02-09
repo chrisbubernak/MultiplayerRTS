@@ -1958,8 +1958,10 @@ var ClientGameRunner = (function () {
         this.DRAWGRID = false;
         this.UPDATE_FPS = 10;
         this.FPS = 60;
+        this.FPS_DIV = document.getElementById("fps");
         this.actions = new Array();
         this.history = new Array();
+        this.lastUpdateTime = new Date().getTime();
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
@@ -1989,7 +1991,6 @@ var ClientGameRunner = (function () {
                         var tar = that.drawer.screenCoordsToMapLoc(that.drawer.getMousePos(document.getElementById("selectionCanvas"), e));
                         var a = new Action(tar, Game.getUnits()[u].id, that.shifted);
                         that.actions.push({ target: a.getTarget(), unit: a.getUnit(), shift: a.getShifted() });
-                        console.log('action!');
                     }
                 }
             }
@@ -2086,6 +2087,7 @@ var ClientGameRunner = (function () {
             that.drawer.drawLowerMenu();
             that.drawer.moveViewPort(that.mouseX, that.mouseY);
             diffTime = newTime - oldTime;
+            that.actualDrawingFPS = 1000 / diffTime;
             oldTime = newTime;
             newTime = new Date().getTime();
         }, 1000 / this.FPS);
@@ -2108,6 +2110,13 @@ var ClientGameRunner = (function () {
         var gameHash = this.myGame.getHash();
 
         this.conn.send({ actions: { "client": actionsToSend }, simTick: currentSimTick, gameHash: gameHash });
+
+        var currentTime = new Date().getTime();
+        var timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+        this.lastUpdateTime = currentTime;
+
+        this.drawer.REAL_FPS = this.actualDrawingFPS;
+        this.FPS_DIV.innerHTML = Math.round(this.actualDrawingFPS) + " drawing fps " + Math.round(1000 / timeSinceLastUpdate) + " updating fps<br>GameHash: " + this.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
     };
 
     ClientGameRunner.prototype.drawSelect = function () {
@@ -2184,8 +2193,10 @@ var HostGameRunner = (function () {
         this.DRAWGRID = false;
         this.UPDATE_FPS = 10;
         this.FPS = 60;
+        this.FPS_DIV = document.getElementById("fps");
         this.actions = new Array();
         this.history = new Array();
+        this.lastUpdateTime = new Date().getTime();
         this.myId = id;
         this.gameId = gameId;
         this.peer = new Peer(id, { key: "vgs0u19dlxhqto6r" });
@@ -2308,6 +2319,7 @@ var HostGameRunner = (function () {
             that.drawer.drawLowerMenu();
             that.drawer.moveViewPort(that.mouseX, that.mouseY);
             diffTime = newTime - oldTime;
+            that.actualDrawingFPS = 1000 / diffTime;
             oldTime = newTime;
             newTime = new Date().getTime();
         }, 1000 / this.FPS);
@@ -2325,6 +2337,13 @@ var HostGameRunner = (function () {
         var currentSimTick = this.myGame.getSimTick();
 
         var gameHash = this.myGame.getHash();
+
+        var currentTime = new Date().getTime();
+        var timeSinceLastUpdate = currentTime - this.lastUpdateTime;
+        this.lastUpdateTime = currentTime;
+
+        this.drawer.REAL_FPS = this.actualDrawingFPS;
+        this.FPS_DIV.innerHTML = Math.round(this.actualDrawingFPS) + " drawing fps " + Math.round(1000 / timeSinceLastUpdate) + " updating fps<br>GameHash: " + this.myGame.getHash() + "<br>heap usage: " + Math.round(((window.performance.memory.usedJSHeapSize / window.performance.memory.totalJSHeapSize) * 100)) + "%";
     };
 
     HostGameRunner.prototype.drawSelect = function () {

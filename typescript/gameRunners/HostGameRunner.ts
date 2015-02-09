@@ -13,6 +13,7 @@ class HostGameRunner implements IGameRunner {
   public DRAWGRID: boolean = false;
   private UPDATE_FPS: number = 10;
   private FPS: number = 60;
+  private FPS_DIV = document.getElementById("fps");
 
   private myGame: Game;
   private peer;
@@ -26,7 +27,8 @@ class HostGameRunner implements IGameRunner {
   private myId: string;
   private mouseX: number;
   private mouseY: number;
-
+  private lastUpdateTime: number = new Date().getTime();
+  private actualDrawingFPS: number;
 
 
   constructor(id: string, enemyId: string, gameId: string, mapId: string) {
@@ -176,6 +178,7 @@ class HostGameRunner implements IGameRunner {
       that.drawer.drawLowerMenu();
       that.drawer.moveViewPort(that.mouseX, that.mouseY);
       diffTime = newTime - oldTime;
+      that.actualDrawingFPS = 1000 / diffTime;
       oldTime = newTime;
       newTime = new Date().getTime();
     }, 1000 / this.FPS);
@@ -194,20 +197,14 @@ class HostGameRunner implements IGameRunner {
 
     var gameHash = this.myGame.getHash();
 
-    /*var fpsOut: any = document.getElementById("fps");
+    var currentTime: number = new Date().getTime();
+    var timeSinceLastUpdate: number = currentTime - this.lastUpdateTime;
+    this.lastUpdateTime = currentTime;
 
-    var oldTime2: number = new Date().getTime();
-    var diffTime2: number = 0;
-    var newTime2: number = 0;
-
-    diffTime2 = newTime2 - oldTime2;
-    oldTime2 = newTime2;
-    newTime2 = new Date().getTime();
-    var realFPS: number = Math.round(1000 / diffTime2);
-    this.drawer.REAL_FPS = realFPS;
-    fpsOut.innerHTML = realFPS + " drawing fps " + Math.round(1000 / diffTime2) + " updating fps<br>GameHash: " +
+    this.drawer.REAL_FPS = this.actualDrawingFPS;
+    this.FPS_DIV.innerHTML = Math.round(this.actualDrawingFPS) + " drawing fps " + Math.round(1000 / timeSinceLastUpdate) + " updating fps<br>GameHash: " +
     this.myGame.getHash() + "<br>heap usage: " +
-      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";*/
+      Math.round((((<any>window.performance).memory.usedJSHeapSize / (<any>window.performance).memory.totalJSHeapSize) * 100)) + "%";
   }
 
   public drawSelect(): void {
