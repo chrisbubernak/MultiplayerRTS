@@ -10,7 +10,22 @@ var receiveChat;
 var launchSinglePlayer;
 
 // gets called on doc ready...
-function start(username) {
+function documentReady(username) {
+  //on click handlers..
+  document.getElementById('sendChat').onclick = sendChat;
+  document.getElementById('singlePlayerButton').onclick = function() {
+    chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
+  }
+  document.getElementById('settingsButton').onclick = function() {
+    writeDebugToChat('Settings Button not enabled!!!!');
+  }
+  document.getElementById('signOutButton').onclick = function() {
+    writeDebugToChat('Sign Out Button not enabled!!!!');
+  }
+  document.getElementById('replayButton').onclick = function() {
+    writeDebugToChat('Replay Button not enabled!!!!');
+  }
+
   launchSinglePlayer = function(enemyId, enemySocket, mapId) {
     window.location.href = '/localGame?mapId=' + mapId;
   }
@@ -39,7 +54,6 @@ function start(username) {
     writeToChat(text, 'DEBUG'); 
   }
 
-  document.getElementById('sendChat').onclick = sendChat;
 
   chooseMap = function(enemyId, enemySocket, callback) {
     var mapId = prompt('Please enter a map Id (0-2): ');
@@ -109,10 +123,5 @@ function start(username) {
     window.location.href = '/game?host=' + host + '&id=' + id + '9&enemyId=' + enemyId + '9&gameId=' + gameId + '&mapId=' + mapId;
   });
 
-
-  var singlePlayerButton = document.getElementById('singlePlayerButton');
-  singlePlayerButton.onclick = function() {
-    chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
-  }
 }
 

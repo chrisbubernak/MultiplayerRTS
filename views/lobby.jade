@@ -3,9 +3,9 @@
 block content
   div#header.lobbyContainer
     h2.headerTitle Warcraft
-    button.headerButton Sign out
-    button.headerButton Settings
-    button.headerButton Replays
+    button.headerButton#signOutButton Sign out
+    button.headerButton#settingsButton Settings
+    button.headerButton#replayButton Replays
     button.headerButton#singlePlayerButton Single Player
   div#playerList.lobbyContainer
   div#chatContainer.lobbyContainer
@@ -20,4 +20,4 @@ block scripts
   link(rel='stylesheet', href='/css/lobby.css')
   script(src='/socket.io/socket.io.js')
   script
-    $(document).ready(function() {start('#{udata}');});
+    $(document).ready(function() {documentReady('#{udata}');});

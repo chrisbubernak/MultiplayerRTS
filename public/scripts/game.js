@@ -2057,7 +2057,6 @@ var ClientGameRunner = (function () {
                 that.conn = conn;
                 Logger.LogInfo("client " + conn);
                 that.conn.on("open", function () {
-                    Logger.LogInfo("Hey from player: " + id);
                     that.run();
                     that.peer.disconnect();
                 });
@@ -2281,7 +2280,6 @@ var HostGameRunner = (function () {
             Logger.LogInfo("im initiating a connection");
             that.conn = that.peer.connect(enemyId, { reliable: true });
             that.conn.on("open", function () {
-                Logger.Log("Hey from player: " + id);
                 that.run();
                 that.peer.disconnect();
             });
