@@ -70,8 +70,9 @@ class ReplayGameRunner implements IGameRunner {
     // and handles physics/updating the game state/networking 
     var fpsOut: any = document.getElementById("fps");
     // var conn = Game.conn;
-    setInterval(function (): void {
+    var timerId = setInterval(function (): void {
       if (that.myGame.isOver()) {
+        clearInterval(timerId);
         that.end("Game is over!");
         return;
       }

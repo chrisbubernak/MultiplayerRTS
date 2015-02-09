@@ -90,8 +90,6 @@ exports.gameReports = function ( req, res ) {
       res.send(error, 400);
     }
     else {
-      console.log(results);
-      console.log('$$$$$$$$$');
       res.render('gameReports', {
         reports: results
       });

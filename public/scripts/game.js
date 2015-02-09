@@ -2614,8 +2614,9 @@ var ReplayGameRunner = (function () {
 
         var fpsOut = document.getElementById("fps");
 
-        setInterval(function () {
+        var timerId = setInterval(function () {
             if (that.myGame.isOver()) {
+                clearInterval(timerId);
                 that.end("Game is over!");
                 return;
             }
