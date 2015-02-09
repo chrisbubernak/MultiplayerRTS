@@ -28,6 +28,7 @@
 #sendChat {
   width: 10%;
   height: 100%;
+  float: right;
 }
 .currentPlayerListItem {
   color: #fff;
@@ -39,12 +40,20 @@
   border: 1px solid #fff;
   margin: 2px 2px 2px 2px;
 }
+.headerButton {
+  color: #000;
+  display: inline;
+  height: 100%;
+  margin: 0em 0em 0em .5em;
+  float: right;
+  width: 7%;
+}
+.headerTitle {
+  display: inline;
+}
 textarea {
   height: 100%;
   width: 90%;
-}
-button {
-  float: right;
 }
 body,
 html {
