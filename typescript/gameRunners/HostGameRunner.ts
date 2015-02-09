@@ -145,7 +145,6 @@ class HostGameRunner implements IGameRunner {
       Logger.LogInfo("im initiating a connection");
       that.conn = that.peer.connect(enemyId, { reliable: true });
       that.conn.on("open", function (): void {
-        Logger.Log("Hey from player: " + id);
         that.run();
         that.peer.disconnect();
       });

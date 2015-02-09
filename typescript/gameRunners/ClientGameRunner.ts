@@ -150,7 +150,6 @@ class ClientGameRunner implements IGameRunner {
         that.conn = conn;
         Logger.LogInfo("client " + conn);
         that.conn.on("open", function (): void {
-          Logger.LogInfo("Hey from player: " + id);
           that.run();
           that.peer.disconnect();
         });

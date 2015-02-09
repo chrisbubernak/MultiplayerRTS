@@ -7,8 +7,14 @@ var mySocket;
 var startGame;
 var sendChat;
 var receiveChat;
+var launchSinglePlayer;
+
 // gets called on doc ready...
 function start(username) {
+  launchSinglePlayer = function(enemyId, enemySocket, mapId) {
+    window.location.href = '/localGame?mapId=' + mapId;
+  }
+
   sendChat = function() {
     var textAreaElement = document.getElementById('chatInput').children[0];
     var text = textAreaElement.value;
@@ -35,10 +41,10 @@ function start(username) {
 
   document.getElementById('sendChat').onclick = sendChat;
 
-  chooseMap = function(enemyId, enemySocket) {
+  chooseMap = function(enemyId, enemySocket, callback) {
     var mapId = prompt('Please enter a map Id (0-2): ');
-    if (mapId != null) {
-        startGame(enemyId, enemySocket, mapId);
+    if (mapId !== null && mapId !== undefined) {
+        callback(enemyId, enemySocket, mapId);
     }
   }
  
@@ -70,7 +76,7 @@ function start(username) {
       writeDebugToChat(player.Username);
       if (data.clients[c].Socket !== mySocket) { // we can't play vs ourself...
         document.getElementById('playerList').innerHTML +=
-          '<div class="playerListItem" onclick=\'chooseMap(' + player.Id + ', "' + player.Socket + '")\'>'
+          '<div class="playerListItem" onclick=\'chooseMap(' + player.Id + ', "' + player.Socket + '", startGame)\'>'
           + player.Username + '</div>';
       } else {
         id = player.Id;
@@ -102,5 +108,11 @@ function start(username) {
     // because these collide with things...especially when we don't have our own peer server
     window.location.href = '/game?host=' + host + '&id=' + id + '9&enemyId=' + enemyId + '9&gameId=' + gameId + '&mapId=' + mapId;
   });
+
+
+  var singlePlayerButton = document.getElementById('singlePlayerButton');
+  singlePlayerButton.onclick = function() {
+    chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
+  }
 }
 
