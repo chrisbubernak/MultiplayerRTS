@@ -51,6 +51,18 @@
 .headerTitle {
   display: inline;
 }
+.dialog {
+  z-index: 100;
+  position: fixed;
+  display: none;
+  top: 30%;
+  left: 30%;
+  right: 30%;
+  width: 40%;
+  height: 40%;
+  box-shadow: 10px 10px 5px #888;
+  background-color: #fff;
+}
 textarea {
   height: 100%;
   width: 90%;

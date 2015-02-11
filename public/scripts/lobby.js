@@ -14,7 +14,8 @@ function documentReady(username) {
   //on click handlers..
   document.getElementById('sendChat').onclick = sendChat;
   document.getElementById('singlePlayerButton').onclick = function() {
-    chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
+    showMapDialog(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
+    //chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
   }
   document.getElementById('settingsButton').onclick = function() {
     writeDebugToChat('Settings Button not enabled!!!!');
@@ -23,8 +24,31 @@ function documentReady(username) {
     writeDebugToChat('Sign Out Button not enabled!!!!');
   }
   document.getElementById('replayButton').onclick = function() {
-    writeDebugToChat('Replay Button not enabled!!!!');
+    window.location.href = '/gameReports';
   }
+
+  /*
+   * Dialogs
+   */
+
+  showMapDialog = function(enemyId, enemySocket, callback) {
+    var maps = document.getElementById("chooseMap");
+    maps.style.display = 'block';
+    // todo: can we find this by just searching children instead of 
+    // the entire doc?
+    var chooseMapSubmitBtn = document.getElementById('chooseMapSubmit');
+    chooseMapSubmitBtn.onclick = function() {
+      var mapId = document.getElementById('chooseMapSelection').value;
+      if (mapId !== null && mapId !== undefined && mapId !== '') {
+        callback(enemyId, enemySocket, mapId);
+      }
+    };
+  }
+
+  hideMapDialog = function() {
+    var maps = document.getElementById("chooseMap");
+    maps.style.display = 'none'; 
+  } 
 
   launchSinglePlayer = function(enemyId, enemySocket, mapId) {
     window.location.href = '/localGame?mapId=' + mapId;
@@ -52,14 +76,6 @@ function documentReady(username) {
 
   writeDebugToChat = function(text) {
     writeToChat(text, 'DEBUG'); 
-  }
-
-
-  chooseMap = function(enemyId, enemySocket, callback) {
-    var mapId = prompt('Please enter a map Id (0-2): ');
-    if (mapId !== null && mapId !== undefined) {
-        callback(enemyId, enemySocket, mapId);
-    }
   }
  
   startGame = function (enemyId, enemySocket, mapId) {
@@ -90,7 +106,7 @@ function documentReady(username) {
       writeDebugToChat(player.Username);
       if (data.clients[c].Socket !== mySocket) { // we can't play vs ourself...
         document.getElementById('playerList').innerHTML +=
-          '<div class="playerListItem" onclick=\'chooseMap(' + player.Id + ', "' + player.Socket + '", startGame)\'>'
+          '<div class="playerListItem" onclick=\'showMapDialog(' + player.Id + ', "' + player.Socket + '", startGame)\'>'
           + player.Username + '</div>';
       } else {
         id = player.Id;
