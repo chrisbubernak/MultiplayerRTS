@@ -11,45 +11,6 @@ var launchSinglePlayer;
 
 // gets called on doc ready...
 function documentReady(username) {
-  //on click handlers..
-  document.getElementById('sendChat').onclick = sendChat;
-  document.getElementById('singlePlayerButton').onclick = function() {
-    showMapDialog(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
-    //chooseMap(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
-  }
-  document.getElementById('settingsButton').onclick = function() {
-    writeDebugToChat('Settings Button not enabled!!!!');
-  }
-  document.getElementById('signOutButton').onclick = function() {
-    writeDebugToChat('Sign Out Button not enabled!!!!');
-  }
-  document.getElementById('replayButton').onclick = function() {
-    window.location.href = '/gameReports';
-  }
-
-  /*
-   * Dialogs
-   */
-
-  showMapDialog = function(enemyId, enemySocket, callback) {
-    var maps = document.getElementById("chooseMap");
-    maps.style.display = 'block';
-    // todo: can we find this by just searching children instead of 
-    // the entire doc?
-    var chooseMapSubmitBtn = document.getElementById('chooseMapSubmit');
-    chooseMapSubmitBtn.onclick = function() {
-      var mapId = document.getElementById('chooseMapSelection').value;
-      if (mapId !== null && mapId !== undefined && mapId !== '') {
-        callback(enemyId, enemySocket, mapId);
-      }
-    };
-  }
-
-  hideMapDialog = function() {
-    var maps = document.getElementById("chooseMap");
-    maps.style.display = 'none'; 
-  } 
-
   launchSinglePlayer = function(enemyId, enemySocket, mapId) {
     window.location.href = '/localGame?mapId=' + mapId;
   }
@@ -82,8 +43,8 @@ function documentReady(username) {
     socket.emit('RequestGame', { hostId: id, hostSocket: mySocket, clientId: enemyId, clientSocket: enemySocket, mapId: mapId });
   }
 
-  var socket = io.connect('/');
 
+  var socket = io.connect('/');
   socket.on('ChatFromServer', function (data) {
     if (data.text && data.player) {
       writeToChat(data.text, data.player);
@@ -139,5 +100,47 @@ function documentReady(username) {
     window.location.href = '/game?host=' + host + '&id=' + id + '9&enemyId=' + enemyId + '9&gameId=' + gameId + '&mapId=' + mapId;
   });
 
+
+  /*
+   * Click Handlers
+   */
+
+  document.getElementById('sendChat').onclick = sendChat;
+
+  document.getElementById('singlePlayerButton').onclick = function() {
+    showMapDialog(/* enemyId */ undefined, /* enemySocket*/ undefined, launchSinglePlayer);
+  }
+  document.getElementById('settingsButton').onclick = function() {
+    writeDebugToChat('Settings Button not enabled!!!!');
+  }
+  document.getElementById('signOutButton').onclick = function() {
+    writeDebugToChat('Sign Out Button not enabled!!!!');
+  }
+  document.getElementById('replayButton').onclick = function() {
+    window.location.href = '/gameReports';
+  }
+
+  /*
+   * Dialogs
+   */
+
+  showMapDialog = function(enemyId, enemySocket, callback) {
+    var maps = document.getElementById("chooseMap");
+    maps.style.display = 'block';
+    // todo: can we find this by just searching children instead of 
+    // the entire doc?
+    var chooseMapSubmitBtn = document.getElementById('chooseMapSubmit');
+    chooseMapSubmitBtn.onclick = function() {
+      var mapId = document.getElementById('chooseMapSelection').value;
+      if (mapId !== null && mapId !== undefined && mapId !== '') {
+        callback(enemyId, enemySocket, mapId);
+      }
+    };
+  }
+
+  hideMapDialog = function() {
+    var maps = document.getElementById("chooseMap");
+    maps.style.display = 'none'; 
+  } 
 }
 
